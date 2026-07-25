@@ -65,6 +65,10 @@ async function ensureSchema() {
   await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS views_generated INTEGER DEFAULT 10000`);
   await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS likes_generated INTEGER DEFAULT 1500`);
   await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS highest_mcp INTEGER DEFAULT 100`);
+  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS start_date DATE`);
+  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS min_payout INTEGER DEFAULT 0`);
+  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS max_payout INTEGER DEFAULT 0`);
+  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS publish_fee INTEGER DEFAULT 1000`);
 
   // Create base market_listings table
   await query(`
@@ -121,6 +125,9 @@ function mapCampaignRow(row: Record<string, unknown>) {
     budgetUsed: toNumber(row.budget_used ?? row.budgetUsed, 0),
     highestMcp: toNumber(row.highest_mcp ?? row.highestMcp, 100),
     hasJoined: Boolean(row.has_joined ?? row.hasJoined ?? false),
+    startDate: toString(row.start_date ?? row.startDate, ''),
+    minPayout: toNumber(row.min_payout ?? row.minPayout, 0),
+    maxPayout: toNumber(row.max_payout ?? row.maxPayout, 0),
   };
 }
 
@@ -271,22 +278,27 @@ export async function POST(request: NextRequest) {
       const nicheHashtag = toString(body.nicheHashtag ?? body.niche_hashtag, 'growth');
       const totalBudget = Number(body.totalBudget ?? body.total_budget) || 1000;
       const timeRemainingDays = Number(body.timeRemainingDays ?? body.time_remaining_days) || 14;
+      const startDate = toString(body.startDate ?? body.start_date, '');
+      const minPayout = Number(body.minPayout ?? body.min_payout) || 0;
+      const maxPayout = Number(body.maxPayout ?? body.max_payout) || 0;
 
       if (!title || !description) {
         return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
       }
 
+      const publishFee = Number(body.publishFee ?? body.publish_fee) || 1000;
+
       const created = await queryOne<Record<string, unknown>>(
         `INSERT INTO campaigns (
           title, description, category, niche_hashtag, total_budget, budget_used, 
           time_remaining_days, publisher_rating, publisher_profile_icon, community_size, 
-          views_generated, likes_generated, highest_mcp, status, created_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+          views_generated, likes_generated, highest_mcp, status, start_date, min_payout, max_payout, publish_fee, created_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
         RETURNING *`,
         [
           title, description, category, nicheHashtag, totalBudget, 0,
           timeRemainingDays, 4.8, '/images/publisher-placeholder.png', 12000,
-          10000, 1500, 100, 'Active', userId
+          10000, 1500, 100, 'Active', startDate || null, minPayout, maxPayout, publishFee, userId
         ]
       );
 
@@ -444,6 +456,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, role, entityType, entityId, action, message });
     }
 
+    if (mode === 'update_campaign') {
+      const entityId = toNumber(body.entityId ?? body.entity_id ?? body.campaignId, 0);
+      const minPayout = body.minPayout !== undefined || body.min_payout !== undefined ? Number(body.minPayout ?? body.min_payout ?? 0) : undefined;
+      const maxPayout = body.maxPayout !== undefined || body.max_payout !== undefined ? Number(body.maxPayout ?? body.max_payout ?? 0) : undefined;
+      const startDate = body.startDate !== undefined || body.start_date !== undefined ? toString(body.startDate ?? body.start_date, '') : undefined;
+      if (!entityId) return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
+
+      const updates: string[] = [];
+      const values: unknown[] = [];
+      if (minPayout !== undefined) {
+        updates.push(`min_payout = $${values.length + 1}`);
+        values.push(minPayout);
+      }
+      if (maxPayout !== undefined) {
+        updates.push(`max_payout = $${values.length + 1}`);
+        values.push(maxPayout);
+      }
+      if (startDate !== undefined) {
+        updates.push(`start_date = $${values.length + 1}`);
+        values.push(startDate || null);
+      }
+      if (!updates.length) return NextResponse.json({ error: 'No campaign updates provided' }, { status: 400 });
+
+      await query(`UPDATE campaigns SET ${updates.join(', ')} WHERE id = $${values.length + 1}`, [...values, entityId]);
+      await query(
+        'INSERT INTO engagement_events (entity_type, entity_id, actor_id, action, message) VALUES ($1, $2, $3, $4, $5)',
+        ['campaign', entityId, userId, 'update', `Campaign updated by ${userId}`]
+      );
+
+      return NextResponse.json({ ok: true, entityId });
+    }
+
     if (mode === 'update_campaign_status') {
       const entityId = toNumber(body.entityId ?? body.entity_id ?? body.campaignId, 0);
       const status = toString(body.status ?? body.newStatus ?? 'paused', 'paused');
@@ -456,6 +500,21 @@ export async function POST(request: NextRequest) {
       );
 
       return NextResponse.json({ ok: true, entityId, status });
+    }
+
+    if (mode === 'approve_campaign_submission') {
+      const entityId = toNumber(body.entityId ?? body.entity_id ?? body.campaignId, 0);
+      const approved = body.approved !== undefined ? Boolean(body.approved) : true;
+      if (!entityId) return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
+
+      const nextStatus = approved ? 'Approved' : 'Pending Approval';
+      await query('UPDATE campaigns SET status = $1 WHERE id = $2', [nextStatus, entityId]);
+      await query(
+        'INSERT INTO engagement_events (entity_type, entity_id, actor_id, action, message) VALUES ($1, $2, $3, $4, $5)',
+        ['campaign', entityId, userId, 'approval', `Campaign submission ${approved ? 'approved' : 'submitted'} by ${userId}`]
+      );
+
+      return NextResponse.json({ ok: true, entityId, status: nextStatus });
     }
 
     if (mode === 'delete_campaign') {

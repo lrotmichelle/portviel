@@ -18,3 +18,21 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Hide number input spinners inside the campaign modal to allow exact numeric entry */
+.campaign-modal input[type=number]::-webkit-outer-spin-button,
+.campaign-modal input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.campaign-modal input[type=number] {
+  -moz-appearance: textfield;
+  -webkit-appearance: none;
+  appearance: textfield;
+}
+
+/* Also hide on Safari and ensure no native controls show */
+.campaign-modal input[type=number]::-webkit-outer-spin-button,
+.campaign-modal input[type=number]::-webkit-inner-spin-button {
+  display: none;
+}

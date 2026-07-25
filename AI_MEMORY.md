@@ -127,7 +127,7 @@ buyercard/
 ├── eslint.config.mjs
 ├── AGENTS.md
 ├── plan.cmd
-├── campaignplan.cmd
+├── campaignplan.md
 └── CLAUDE.md
 ```
 

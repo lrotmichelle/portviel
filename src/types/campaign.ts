@@ -16,4 +16,16 @@ export interface CampaignCardData {
   budgetUsed: number;
   highestMcp: number;
   hasJoined: boolean;
+  startDate?: string;
+  minPayout?: number;
+  maxPayout?: number;
+  lastEditedAt?: string;
+  participants?: Array<{
+    id: string;
+    name: string;
+    progress: number;
+    submitted: boolean;
+    approved: boolean;
+  }>;
+  feedback?: string;
 }

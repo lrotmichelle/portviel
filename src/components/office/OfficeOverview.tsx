@@ -1,6 +1,9 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, BadgeCheck, BarChart2, Briefcase, Building2, CircleAlert, CreditCard, Landmark, PieChart, Sparkles, TrendingUp, Users, Wallet } from 'lucide-react';
 import { formatCompactValue } from '@/lib/currency';
+import { defaultFinanceState, getFinanceState } from '@/lib/finance';
 
 const overviewStats = [
   { label: 'Market activity', value: 32, delta: '+12.4%', icon: Users, color: 'text-emerald-400' },
@@ -60,12 +63,47 @@ function HalfDonutChart({ value, label }: { value: number; label: string }) {
 }
 
 export default function OfficeOverview() {
+  const [finance, setFinance] = useState(defaultFinanceState);
+
+  useEffect(() => {
+    const updateFinance = () => setFinance(getFinanceState());
+
+    updateFinance();
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'buyercard-finance') updateFinance();
+    };
+    const handleCustom = () => updateFinance();
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('financeStateChanged', handleCustom);
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('financeStateChanged', handleCustom);
+    };
+  }, []);
+
   const campaigns = { incomeEarned: 2400000, incomeSpent: 360000 };
   const market = { involvement: '24 active' };
   const orders = { involvement: '18 tracked' };
   const offers = { involvement: '9 pending' };
-  const paymentMethods: Array<{ id: string; label: string }> = [];
-  const transactions: Array<{ id: string; title: string; method: string; type: string; amount: number }> = [];
+  const account = {
+    totalBalance: finance.accountBalance,
+    reservedFee: finance.reservedFee,
+    get availableBalance() {
+      return Math.max(0, this.totalBalance - this.reservedFee);
+    },
+  };
+  const paymentMethods: Array<{ id: string; label: string; status: string; icon: React.ComponentType<any> }> = [
+    { id: 'airtel', label: 'Airtel Money', status: 'Verified', icon: CreditCard },
+    { id: 'mobile', label: 'Mobile Money', status: 'Active', icon: Wallet },
+    { id: 'bank', label: 'Bank card', status: 'Primary', icon: Building2 },
+  ];
+  const transactions: Array<{ id: string; title: string; method: string; type: string; amount: number }> = [
+    { id: 't1', title: 'Account deposit', method: 'Bank card', type: 'deposit', amount: 120000 },
+    { id: 't2', title: 'Campaign payout', method: 'Airtel Money', type: 'withdrawal', amount: 32000 },
+    { id: 't3', title: 'Platform fee', method: 'Mobile Money', type: 'fee', amount: 1000 },
+  ];
 
   return (
     <div className="w-full p-4 text-zinc-100 sm:p-6">
@@ -188,53 +226,64 @@ export default function OfficeOverview() {
               </div>
               <div className="mt-5 space-y-4">
                 <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-zinc-400">Campaign income</span>
-                    <span className="font-semibold text-emerald-400">{formatCompactValue(campaigns.incomeEarned)}</span>
-                  </div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-sm text-zinc-400">Campaign spend</span>
-                    <span className="font-semibold text-amber-400">{formatCompactValue(campaigns.incomeSpent)}</span>
-                  </div>
-                </div>
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
-                  <div className="grid gap-3 text-sm text-zinc-400 sm:grid-cols-2">
-                    <div className="rounded-2xl bg-zinc-950/70 p-3">
-                      <p>Market</p>
-                      <p className="mt-2 text-xl font-semibold text-white">{market.involvement}</p>
+                  <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+                    <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4">
+                      <p className="text-sm text-zinc-400">User account balance</p>
+                      <p className="mt-2 text-3xl font-black text-white">{formatCompactValue(account.totalBalance)} UGX</p>
+                      <p className="mt-2 text-sm text-zinc-500">Available after site charge</p>
+                      <p className="mt-1 text-lg font-semibold text-white">{formatCompactValue(account.availableBalance)} UGX</p>
                     </div>
-                    <div className="rounded-2xl bg-zinc-950/70 p-3">
-                      <p>Orders</p>
-                      <p className="mt-2 text-xl font-semibold text-white">{orders.involvement}</p>
-                    </div>
-                    <div className="rounded-2xl bg-zinc-950/70 p-3">
-                      <p>Offers</p>
-                      <p className="mt-2 text-xl font-semibold text-white">{offers.involvement}</p>
-                    </div>
-                    <div className="rounded-2xl bg-zinc-950/70 p-3">
-                      <p>Discover</p>
-                      <p className="mt-2 text-xl font-semibold text-white">8</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {transactions.slice(0, 3).map((transaction) => (
-                    <div key={transaction.id} className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-white">{transaction.title}</p>
-                          <p className="mt-1 text-xs uppercase tracking-[0.25em] text-zinc-500">{transaction.method}</p>
+                    <div className="space-y-3">
+                      <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-zinc-400">Reserved site fee</p>
+                          <span className="text-sm font-semibold text-white">{formatCompactValue(account.reservedFee)} UGX</span>
                         </div>
-                        <div className={`rounded-full p-2 ${transaction.type === 'deposit' ? 'bg-emerald-500/10 text-emerald-400' : transaction.type === 'withdrawal' ? 'bg-amber-500/10 text-amber-400' : 'bg-sky-500/10 text-sky-400'}`}>
-                          {transaction.type === 'deposit' ? <ArrowDownLeft className="h-4 w-4" /> : transaction.type === 'withdrawal' ? <ArrowUpRight className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+                        <p className="mt-2 text-xs text-zinc-500">A fixed amount held back to cover platform fees.</p>
+                      </div>
+                      <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4">
+                        <p className="text-sm text-zinc-400">Payment methods</p>
+                        <div className="mt-3 space-y-3">
+                          {paymentMethods.map((method) => (
+                            <div key={method.id} className="flex items-center justify-between rounded-2xl border border-zinc-800 bg-zinc-900/70 p-3">
+                              <div className="flex items-center gap-3">
+                                <div className="grid h-10 w-10 place-items-center rounded-2xl bg-white/5 text-white">
+                                  <method.icon className="h-4 w-4" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-semibold text-white">{method.label}</p>
+                                  <p className="text-xs text-zinc-500">{method.status}</p>
+                                </div>
+                              </div>
+                              <span className="rounded-full bg-zinc-900/70 px-3 py-1 text-xs uppercase tracking-[0.2em] text-zinc-400">{method.status}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                      <div className="mt-2 flex items-center justify-between text-sm text-zinc-400">
-                        <span>{transaction.type}</span>
-                        <span className="font-semibold text-white">{transaction.amount.toLocaleString()} UGX</span>
-                      </div>
                     </div>
-                  ))}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
+                  <p className="text-sm text-zinc-400">Recent transactions</p>
+                  <div className="mt-4 space-y-3">
+                    {transactions.slice(0, 3).map((transaction) => (
+                      <div key={transaction.id} className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-white">{transaction.title}</p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.25em] text-zinc-500">{transaction.method}</p>
+                          </div>
+                          <div className={`rounded-full p-2 ${transaction.type === 'deposit' ? 'bg-emerald-500/10 text-emerald-400' : transaction.type === 'withdrawal' ? 'bg-amber-500/10 text-amber-400' : 'bg-sky-500/10 text-sky-400'}`}>
+                            {transaction.type === 'deposit' ? <ArrowDownLeft className="h-4 w-4" /> : transaction.type === 'withdrawal' ? <ArrowUpRight className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+                          </div>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-sm text-zinc-400">
+                          <span className="capitalize">{transaction.type}</span>
+                          <span className="font-semibold text-white">{transaction.amount.toLocaleString()} UGX</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

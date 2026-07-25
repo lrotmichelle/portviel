@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import CampaignCard from '@/components/campaign-card';
 import type { CampaignCardData } from '@/types/campaign';
-import { Plus, Activity, Megaphone, ClipboardList, BriefcaseBusiness } from 'lucide-react';
 import Link from 'next/link';
 import { recordOfficeEvent } from '@/lib/office-history';
 import AdvertModal from '@/components/layout/advert-modal';
@@ -12,23 +11,72 @@ import CampaignModal from '@/components/layout/campaign-modal';
 export default function CampaignPage() {
   const [campaigns, setCampaigns] = useState<CampaignCardData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     sortBy: 'newest',
-    status: 'all',
-    category: 'all',
-    niche: 'all',
+    status: 'active',
+    category: '',
+    niche: '',
   });
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState<'sort_status' | 'cat_niche' | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<'status' | 'category' | 'niche' | 'competition' | null>(null);
   const [isAdvertOpen, setIsAdvertOpen] = useState(false);
   const [isCampaignOpen, setIsCampaignOpen] = useState(false);
-  const [popover, setPopover] = useState<{
-    show: boolean;
-    label: string;
-    count: number;
-  } | null>(null);
   const [profile, setProfile] = useState<{ ownerName?: string; handle?: string } | null>(null);
+
+  const applyFilter = (key: 'sortBy' | 'status' | 'category' | 'niche', value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setMobileMenuOpen(null);
+  };
+
+  const filterStyles = {
+    status: {
+      button: 'border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-white',
+      active: 'border-amber-500/40 bg-amber-500/10 text-amber-200',
+      popover: 'border-amber-500/40 bg-zinc-950',
+    },
+    category: {
+      button: 'border-emerald-500/40 text-emerald-300 hover:bg-emerald-500 hover:text-white',
+      active: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200',
+      popover: 'border-emerald-500/40 bg-zinc-950',
+    },
+    niche: {
+      button: 'border-sky-500/40 text-sky-300 hover:bg-sky-500 hover:text-white',
+      active: 'border-sky-500/40 bg-sky-500/10 text-sky-200',
+      popover: 'border-sky-500/40 bg-zinc-950',
+    },
+    competition: {
+      button: 'border-emerald-500/40 text-emerald-300 hover:bg-emerald-500 hover:text-white',
+      active: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200',
+      popover: 'border-emerald-500/40 bg-zinc-950',
+    },
+  } as const;
+
+  const renderOptionList = (
+    key: 'sortBy' | 'status' | 'category' | 'niche',
+    options: { value: string; label: string }[],
+    currentValue: string,
+    styleKey: 'status' | 'category' | 'niche' | 'competition'
+  ) => {
+    const styles = filterStyles[styleKey];
+    return (
+      <div className="flex flex-col gap-2">
+        {options.map((option) => {
+          const isActive = option.value === currentValue;
+          return (
+            <button
+              key={option.value}
+              onClick={() => applyFilter(key, option.value)}
+              className={`rounded-lg border px-2.5 py-2 text-left text-sm transition-colors duration-200 ${
+                isActive ? styles.active : `border-zinc-800 bg-zinc-900 text-white hover:${styles.button}`
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -37,12 +85,10 @@ export default function CampaignPage() {
         if (!res.ok) return;
         const data = await res.json();
         setProfile(data);
-      } catch (e) {
+      } catch {
         // ignore
       }
     };
-
-    loadProfile();
 
     const loadCampaigns = async () => {
       try {
@@ -56,30 +102,9 @@ export default function CampaignPage() {
       }
     };
 
+    loadProfile();
     loadCampaigns();
   }, []);
-
-  const triggerCounterPopover = (label: string, count: number) => {
-    setPopover({
-      show: true,
-      label,
-      count,
-    });
-    const timer = setTimeout(() => {
-      setPopover(null);
-    }, 2500);
-    return () => clearTimeout(timer);
-  };
-
-  const handleSearchTrigger = () => {
-    setSearchTerm(searchQuery);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearchTrigger();
-    }
-  };
 
   const handleJoinCampaign = async (id: string) => {
     setCampaigns((prev) =>
@@ -113,13 +138,15 @@ export default function CampaignPage() {
   };
 
   const handleDeleteCampaign = async (id: string) => {
-    setCampaigns((prev) => prev.filter((c) => c.id !== id));
     try {
-      await fetch('/api/secure', {
+      const response = await fetch('/api/secure', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
         body: JSON.stringify({ mode: 'delete_campaign', entityId: Number(id) }),
       });
+      if (response.ok) {
+        setCampaigns((prev) => prev.filter((c) => c.id !== id));
+      }
     } catch (error) {
       console.error('Failed to delete campaign', error);
     }
@@ -132,58 +159,40 @@ export default function CampaignPage() {
     recordOfficeEvent({ type: 'campaign', title: 'Campaign left', description: 'You left a campaign.', status: 'updated' });
   };
 
-  const handleCreateCampaign = async () => {
-    try {
-      const response = await fetch('/api/secure', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
-        body: JSON.stringify({ mode: 'create_campaign', title: 'New campaign', description: 'Created from the campaign page', category: 'Technology' }),
-      });
+  const filteredCampaigns = campaigns
+    .filter((campaign) => {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = !query || campaign.publisherUsername.toLowerCase().includes(query) || campaign.projectName.toLowerCase().includes(query);
+      const matchesStatus = !filters.status || campaign.status.toLowerCase() === filters.status.toLowerCase();
+      const matchesCategory = !filters.category || campaign.category.toLowerCase() === filters.category.toLowerCase();
+      const matchesNiche = !filters.niche || campaign.nicheHashtag.toLowerCase().includes(filters.niche.toLowerCase());
 
-      const payload = await response.json();
-      if (!response.ok || !payload.item) {
-        throw new Error('Campaign creation failed');
+      return matchesSearch && matchesStatus && matchesCategory && matchesNiche;
+    })
+    .sort((a, b) => {
+      switch (filters.sortBy) {
+        case 'newest':
+          return parseInt(b.id, 10) - parseInt(a.id, 10);
+        case 'highest_budget':
+          return b.totalBudget - a.totalBudget;
+        case 'highest_available_budget':
+          return (b.totalBudget - b.budgetUsed) - (a.totalBudget - a.budgetUsed);
+        case 'highest_mcp':
+          return b.highestMcp - a.highestMcp;
+        case 'most_paid_out':
+          return b.budgetUsed - a.budgetUsed;
+        case 'most_creators':
+          return b.communitySize - a.communitySize;
+        case 'less_influencer':
+          return a.communitySize - b.communitySize;
+        default:
+          return 0;
       }
-
-      const createdCampaign = payload.item as CampaignCardData;
-      setCampaigns((prev) => [createdCampaign, ...prev]);
-      recordOfficeEvent({ type: 'campaign', title: 'Campaign created', description: 'You created a campaign.', status: 'active' });
-    } catch (error) {
-      console.error('Unable to create campaign', error);
-    }
-  };
-
-  const filteredCampaigns = campaigns.filter((campaign) => {
-    const matchesSearch = campaign.publisherUsername.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          campaign.projectName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filters.status === 'all' || campaign.status.toLowerCase() === filters.status.toLowerCase();
-    const matchesCategory = filters.category === 'all' || campaign.category.toLowerCase() === filters.category.toLowerCase();
-    const matchesNiche = filters.niche === 'all' || campaign.nicheHashtag.toLowerCase().includes(filters.niche.toLowerCase());
-
-    return matchesSearch && matchesStatus && matchesCategory && matchesNiche;
-  }).sort((a, b) => {
-    switch (filters.sortBy) {
-      case 'newest':
-        return parseInt(b.id) - parseInt(a.id);
-      case 'highest_budget':
-        return b.totalBudget - a.totalBudget;
-      case 'highest_available_budget':
-        return (b.totalBudget - b.budgetUsed) - (a.totalBudget - a.budgetUsed);
-      case 'highest_mcp':
-        return b.highestMcp - a.highestMcp;
-      case 'most_paid_out':
-        return b.budgetUsed - a.budgetUsed;
-      case 'most_creators':
-        return b.communitySize - a.communitySize;
-      case 'less_influencer':
-        return a.communitySize - b.communitySize;
-      default:
-        return 0;
-    }
-  });
+    });
 
   const getAlternatives = (query: string): CampaignCardData[] => {
     if (!query) return [];
+
     const scored = campaigns.map((c) => {
       let score = 0;
       const q = query.toLowerCase();
@@ -216,288 +225,290 @@ export default function CampaignPage() {
     return filtered.slice(0, 3);
   };
 
-  const alternatives = filteredCampaigns.length === 0 ? getAlternatives(searchTerm) : [];
+  const alternatives = filteredCampaigns.length === 0 ? getAlternatives(searchQuery) : [];
+
+  const statusLabel = filters.status ? (filters.status === 'active' ? 'Active' : 'Future') : 'Status';
+  const categoryLabel = filters.category ? filters.category.charAt(0).toUpperCase() + filters.category.slice(1) : 'Category';
+  const nicheLabel = filters.niche ? filters.niche.charAt(0).toUpperCase() + filters.niche.slice(1) : 'Niche';
+  const competitionLabel = {
+    newest: 'Newest',
+    highest_budget: 'Highest Budget',
+    highest_available_budget: 'Highest Available Budget',
+    highest_mcp: 'Highest MCP',
+    most_paid_out: 'Most Paid Out',
+    most_creators: 'Most Creators',
+    less_influencer: 'Less Influencer',
+  }[filters.sortBy] ?? 'Competition';
+
+  const searchBorder = filteredCampaigns.length <= 2
+    ? 'border-red-500'
+    : filteredCampaigns.length >= 12
+    ? 'border-emerald-500'
+    : 'border-yellow-400';
 
   const welcomeText = profile?.handle
     ? `Welcome back, ${profile.handle}! Explore the latest campaigns to monetize your social media account.`
     : 'Welcome to our campaign page! Check out the latest deals available — monetize your social media account by completing a campaign.';
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-8">
+    <div className="min-h-screen mx-[2%] my-[3%] bg-zinc-950 text-white">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Campaigns</h1>
         <p className="mt-2 text-sm text-zinc-400">{welcomeText}</p>
 
-        <div className="mt-4 flex items-center gap-3">
-          <Link href="/campaign/activity" className="rounded-lg px-3 py-2 text-sm text-emerald-400 border border-transparent hover:border-emerald-600/20">Joined</Link>
-          <Link href="/manage/campaigns" className="rounded-lg px-3 py-2 text-sm text-amber-400 border border-transparent hover:border-amber-500/20">Manage</Link>
-          <button onClick={() => setIsCampaignOpen(true)} className="rounded-lg px-3 py-2 text-sm text-blue-400 border border-transparent hover:border-blue-500/20">+ campaign</button>
-        </div>
-      </div>
-
-      {/* Mobile Filter & Search Container with Glass Background */}
-      <div className="md:hidden sticky top-4 z-20 backdrop-blur-md bg-zinc-950/75 border border-zinc-800/60 rounded-2xl p-4 shadow-xl mb-6 flex flex-col gap-3 relative">
-        {/* Floating popover for filter counter */}
-        {popover?.show && (
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-zinc-900 border border-amber-500/30 text-amber-400 text-[10px] font-bold px-3 py-1.5 rounded-full shadow-2xl flex items-center gap-1.5 animate-bounce z-50 whitespace-nowrap backdrop-blur-md">
-            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-ping" />
-            <span>{popover.label}: <strong>{popover.count}</strong> campaigns</span>
-          </div>
-        )}
-
-        {/* Grouped dropdowns side by side */}
-        <div className="flex gap-2">
-          {/* Group 1: Sort & Status */}
-          <div className="relative flex-1">
-            <button
-              onClick={() => setMobileMenuOpen(mobileMenuOpen === 'sort_status' ? null : 'sort_status')}
-              className="w-full text-left px-3 py-2 bg-zinc-900/80 border border-zinc-800 rounded-lg text-xs font-black truncate text-zinc-300 flex items-center justify-between cursor-pointer"
-            >
-              <span>Sort & Status</span>
-              <span className="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded text-amber-400 uppercase tracking-tight">
-                {filters.status === 'all' ? 'All' : filters.status}
-              </span>
-            </button>
-
-            {mobileMenuOpen === 'sort_status' && (
-              <div className="absolute left-0 right-0 mt-2 p-3 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl z-30 flex flex-col gap-3 backdrop-blur-xl">
-                <div>
-                  <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Sort By</label>
-                  <select
-                    className="w-full px-2.5 py-1.5 rounded bg-zinc-900 border border-zinc-800 text-xs focus:outline-none focus:border-amber-500 text-white cursor-pointer"
-                    onChange={(e) => {
-                      setFilters({ ...filters, sortBy: e.target.value });
-                      const sortLabel = e.target.options[e.target.selectedIndex].text;
-                      triggerCounterPopover(sortLabel, filteredCampaigns.length);
-                      setMobileMenuOpen(null);
-                    }}
-                    value={filters.sortBy}
-                  >
-                    <option value="newest">Newest</option>
-                    <option value="highest_budget">Highest Budget</option>
-                    <option value="highest_available_budget">Highest Available Budget</option>
-                    <option value="highest_mcp">Highest MCP</option>
-                    <option value="most_paid_out">Most Paid Out</option>
-                    <option value="most_creators">Most Creators</option>
-                    <option value="less_influencer">Less Influencer</option>
-                  </select>
-                </div>
-                
-                <div className="h-px bg-zinc-800/60" />
-
-                <div>
-                  <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Status</label>
-                  <select
-                    className="w-full px-2.5 py-1.5 rounded bg-zinc-900 border border-zinc-800 text-xs focus:outline-none focus:border-amber-500 text-white cursor-pointer"
-                    onChange={(e) => {
-                      setFilters({ ...filters, status: e.target.value });
-                      const count = campaigns.filter(c => e.target.value === 'all' || c.status.toLowerCase() === e.target.value.toLowerCase()).length;
-                      const statusLabel = e.target.options[e.target.selectedIndex].text;
-                      triggerCounterPopover(statusLabel, count);
-                      setMobileMenuOpen(null);
-                    }}
-                    value={filters.status}
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="active">Active</option>
-                    <option value="paused">Paused</option>
-                  </select>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Group 2: Category & Niche */}
-          <div className="relative flex-1">
-            <button
-              onClick={() => setMobileMenuOpen(mobileMenuOpen === 'cat_niche' ? null : 'cat_niche')}
-              className="w-full text-left px-3 py-2 bg-zinc-900/80 border border-zinc-800 rounded-lg text-xs font-black truncate text-zinc-300 flex items-center justify-between cursor-pointer"
-            >
-              <span>Category & Niche</span>
-              <span className="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded text-amber-400 uppercase tracking-tight">
-                {filters.category === 'all' ? 'All' : filters.category}
-              </span>
-            </button>
-
-            {mobileMenuOpen === 'cat_niche' && (
-              <div className="absolute left-0 right-0 mt-2 p-3 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl z-30 flex flex-col gap-3 backdrop-blur-xl">
-                <div>
-                  <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Category</label>
-                  <select
-                    className="w-full px-2.5 py-1.5 rounded bg-zinc-900 border border-zinc-800 text-xs focus:outline-none focus:border-amber-500 text-white cursor-pointer"
-                    onChange={(e) => {
-                      setFilters({ ...filters, category: e.target.value });
-                      const count = campaigns.filter(c => e.target.value === 'all' || c.category.toLowerCase() === e.target.value.toLowerCase()).length;
-                      const catLabel = e.target.options[e.target.selectedIndex].text;
-                      triggerCounterPopover(catLabel, count);
-                      setMobileMenuOpen(null);
-                    }}
-                    value={filters.category}
-                  >
-                    <option value="all">All Categories</option>
-                    <option value="lifestyle">Lifestyle</option>
-                    <option value="gaming">Gaming</option>
-                    <option value="entertainment">Entertainment</option>
-                    <option value="sports">Sports</option>
-                    <option value="education">Education</option>
-                    <option value="technology">Technology</option>
-                    <option value="luxury">Luxury</option>
-                    <option value="music">Music</option>
-                  </select>
-                </div>
-
-                <div className="h-px bg-zinc-800/60" />
-
-                <div>
-                  <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Niche</label>
-                  <select
-                    className="w-full px-2.5 py-1.5 rounded bg-zinc-900 border border-zinc-800 text-xs focus:outline-none focus:border-amber-500 text-white cursor-pointer"
-                    onChange={(e) => {
-                      setFilters({ ...filters, niche: e.target.value });
-                      const count = campaigns.filter(c => e.target.value === 'all' || c.nicheHashtag.toLowerCase().includes(e.target.value.toLowerCase())).length;
-                      const nicheLabel = e.target.options[e.target.selectedIndex].text;
-                      triggerCounterPopover(nicheLabel, count);
-                      setMobileMenuOpen(null);
-                    }}
-                    value={filters.niche}
-                  >
-                    <option value="all">All Niches</option>
-                    <option value="duet">#duet</option>
-                    <option value="sound">#sound</option>
-                    <option value="ugc">#ugc</option>
-                    <option value="logo">#logo</option>
-                    <option value="clipping">#clipping</option>
-                  </select>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile Search bar */}
-        <div className="flex gap-2 w-full">
-          <input
-            type="text"
-            placeholder="Search by creator or project..."
-            className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-amber-500 text-xs text-white"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            onClick={handleSearchTrigger}
-            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black font-black uppercase text-[10px] tracking-wider rounded-lg transition-all shrink-0 cursor-pointer"
-          >
-            Search
-          </button>
-        </div>
-      </div>
-
-      {/* Desktop Filter & Search Container */}
-      <div className="hidden md:flex flex-wrap items-center gap-4 mb-8">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search by creator or project..."
-            className="px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-amber-500 text-sm text-white"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            onClick={handleSearchTrigger}
-            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black font-black uppercase text-xs tracking-wider rounded-lg transition-all cursor-pointer"
-          >
-            Search
-          </button>
-        </div>
-
-        <select
-          className="px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:border-amber-500 text-white cursor-pointer"
-          onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-          value={filters.sortBy}
-        >
-          <option value="newest">Newest</option>
-          <option value="highest_budget">Highest Budget</option>
-          <option value="highest_available_budget">Highest Available Budget</option>
-          <option value="highest_mcp">Highest MCP</option>
-          <option value="most_paid_out">Most Paid Out</option>
-          <option value="most_creators">Most Creators</option>
-          <option value="less_influencer">Less Influencer</option>
-        </select>
-
-        <select
-          className="px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:border-amber-500 text-white cursor-pointer"
-          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          value={filters.status}
-        >
-          <option value="all">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="paused">Paused</option>
-        </select>
-
-        <select
-          className="px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:border-amber-500 text-white cursor-pointer"
-          onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-          value={filters.category}
-        >
-          <option value="all">All Categories</option>
-          <option value="lifestyle">Lifestyle</option>
-          <option value="gaming">Gaming</option>
-          <option value="entertainment">Entertainment</option>
-          <option value="sports">Sports</option>
-          <option value="education">Education</option>
-          <option value="technology">Technology</option>
-          <option value="luxury">Luxury</option>
-          <option value="music">Music</option>
-        </select>
-
-        <select
-          className="px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:border-amber-500 text-white cursor-pointer"
-          onChange={(e) => setFilters({ ...filters, niche: e.target.value })}
-          value={filters.niche}
-        >
-          <option value="all">All Niches</option>
-          <option value="duet">#duet</option>
-          <option value="sound">#sound</option>
-          <option value="ugc">#ugc</option>
-          <option value="logo">#logo</option>
-          <option value="clipping">#clipping</option>
-        </select>
-
-        <div className="ml-auto flex flex-wrap items-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:justify-end">
           <Link
             href="/campaign/activity"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 transition-colors"
+            className="rounded-lg border border-emerald-500/40 px-3 py-2 text-sm text-emerald-400 transition-colors duration-200 hover:bg-emerald-500 hover:text-white active:bg-emerald-500 active:text-white"
           >
-            <Activity className="w-4 h-4" />
-            Activity
-          </Link>
-          <Link
-            href="/manage/adverts"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 transition-colors"
-          >
-            <ClipboardList className="w-4 h-4" />
-            Adverts
+            Joined
           </Link>
           <Link
             href="/manage/campaigns"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 transition-colors"
+            className="rounded-lg border border-amber-500/40 px-3 py-2 text-sm text-amber-400 transition-colors duration-200 hover:bg-amber-500 hover:text-white active:bg-amber-500 active:text-white"
           >
-            <BriefcaseBusiness className="w-4 h-4" />
-            Campaigns
+            Manage
           </Link>
           <button
-            onClick={() => setIsAdvertOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-500/40 bg-blue-500/10 text-blue-400 transition-colors"
+            onClick={() => setIsCampaignOpen(true)}
+            className="rounded-lg border border-blue-500/40 px-3 py-2 text-sm text-blue-400 transition-colors duration-200 hover:bg-blue-500 hover:text-white active:bg-blue-500 active:text-white"
           >
-            <Megaphone className="w-4 h-4" />
-            Advertise
+            + campaign
           </button>
         </div>
       </div>
 
-      {/* removed workspace card per design; buttons live under header */}
+      {mobileMenuOpen ? (
+        <div className="fixed inset-0 z-10 bg-black/30" onClick={() => setMobileMenuOpen(null)} />
+      ) : null}
+
+      <div className="md:hidden sticky top-4 z-20 mb-6 flex flex-col gap-3">
+        <input
+          type="text"
+          placeholder="Type to search campaigns"
+          className={`w-full rounded-2xl border border-zinc-800/80 bg-zinc-950/90 px-3 py-2.5 text-sm text-white outline-none transition-colors duration-200 ${searchBorder}`}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
+        <div className="flex flex-wrap justify-center gap-2 overflow-x-visible py-1 max-[760px]:overflow-visible">
+          <div className="relative max-[360px]:basis-[46%] max-[360px]:min-w-[0]">
+            <button
+              onClick={() => setMobileMenuOpen(mobileMenuOpen === 'status' ? null : 'status')}
+              className={`inline-flex w-full justify-center rounded-xl border px-3 py-2 text-left text-sm font-semibold transition-colors duration-200 ${filterStyles.status.button}`}
+            >
+              <div className="text-sm text-white">{statusLabel}</div>
+            </button>
+
+            {mobileMenuOpen === 'status' ? (
+              <div className={`absolute left-0 right-0 mt-2 rounded-xl border p-3 shadow-2xl z-30 ${filterStyles.status.popover}`}>
+                {renderOptionList('status', [{ value: 'active', label: 'Active' }, { value: 'future', label: 'Future' }], filters.status, 'status')}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="relative max-[360px]:basis-[46%] max-[360px]:min-w-[0]">
+            <button
+              onClick={() => setMobileMenuOpen(mobileMenuOpen === 'category' ? null : 'category')}
+              className={`inline-flex w-full justify-center rounded-xl border px-3 py-2 text-left text-sm font-semibold transition-colors duration-200 ${filterStyles.category.button}`}
+            >
+              <div className="text-sm text-white">{categoryLabel}</div>
+            </button>
+
+            {mobileMenuOpen === 'category' ? (
+              <div className={`absolute left-0 right-0 mt-2 rounded-xl border p-3 shadow-2xl z-30 ${filterStyles.category.popover}`}>
+                {renderOptionList(
+                  'category',
+                  [
+                    { value: '', label: 'Any Category' },
+                    { value: 'lifestyle', label: 'Lifestyle' },
+                    { value: 'gaming', label: 'Gaming' },
+                    { value: 'entertainment', label: 'Entertainment' },
+                    { value: 'sports', label: 'Sports' },
+                    { value: 'education', label: 'Education' },
+                    { value: 'technology', label: 'Technology' },
+                    { value: 'luxury', label: 'Luxury' },
+                    { value: 'music', label: 'Music' },
+                    { value: 'politics', label: 'Politics' },
+                    { value: 'religion', label: 'Religion' },
+                  ],
+                  filters.category,
+                  'category'
+                )}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="relative max-[360px]:basis-[46%] max-[360px]:min-w-[0]">
+            <button
+              onClick={() => setMobileMenuOpen(mobileMenuOpen === 'niche' ? null : 'niche')}
+              className={`inline-flex w-full justify-center rounded-xl border px-3 py-2 text-left text-sm font-semibold transition-colors duration-200 ${filterStyles.niche.button}`}
+            >
+              <div className="text-sm text-white">{nicheLabel}</div>
+            </button>
+
+            {mobileMenuOpen === 'niche' ? (
+              <div className={`absolute left-0 right-0 mt-2 rounded-xl border p-3 shadow-2xl z-30 ${filterStyles.niche.popover}`}>
+                {renderOptionList(
+                  'niche',
+                  [
+                    { value: '', label: 'Any Niche' },
+                    { value: 'duet', label: '#duet' },
+                    { value: 'sound', label: '#sound' },
+                    { value: 'ugc', label: '#ugc' },
+                    { value: 'logo', label: '#logo' },
+                    { value: 'clipping', label: '#clipping' },
+                  ],
+                  filters.niche,
+                  'niche'
+                )}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="relative max-[360px]:basis-[46%] max-[360px]:min-w-[0]">
+            <button
+              onClick={() => setMobileMenuOpen(mobileMenuOpen === 'competition' ? null : 'competition')}
+              className={`inline-flex w-full justify-center rounded-xl border px-3 py-2 text-left text-sm font-semibold transition-colors duration-200 ${filterStyles.competition.button}`}
+            >
+              <div className="text-sm text-white">{competitionLabel}</div>
+            </button>
+
+            {mobileMenuOpen === 'competition' ? (
+              <div className={`absolute left-0 right-0 mt-2 rounded-xl border p-3 shadow-2xl z-30 ${filterStyles.competition.popover}`}>
+                {renderOptionList(
+                  'sortBy',
+                  [
+                    { value: 'newest', label: 'Newest' },
+                    { value: 'highest_budget', label: 'Highest Budget' },
+                    { value: 'highest_available_budget', label: 'Highest Available Budget' },
+                    { value: 'highest_mcp', label: 'Highest MCP' },
+                    { value: 'most_paid_out', label: 'Most Paid Out' },
+                    { value: 'most_creators', label: 'Most Creators' },
+                    { value: 'less_influencer', label: 'Less Influencer' },
+                  ],
+                  filters.sortBy,
+                  'competition'
+                )}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-8 hidden items-center justify-center gap-3 md:flex">
+        <input
+          type="text"
+          placeholder="Type to search campaigns"
+          className={`w-[90%] lg:w-[80%] max-[360px]:w-[95%] rounded-2xl border border-zinc-800/80 bg-transparent px-3 py-2 text-sm text-white outline-none transition-colors duration-200 ${searchBorder}`}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      <div className="mb-8 hidden w-full justify-center gap-4 md:flex">
+        <div className="relative">
+          <button
+            onClick={() => setMobileMenuOpen(mobileMenuOpen === 'competition' ? null : 'competition')}
+            className={`inline-flex rounded-2xl border px-3 py-2 text-sm font-semibold transition-colors duration-200 ${filterStyles.competition.button}`}
+          >
+            {competitionLabel}
+          </button>
+
+          {mobileMenuOpen === 'competition' ? (
+            <div className={`absolute right-0 top-full z-30 mt-2 w-56 rounded-xl border p-3 shadow-2xl ${filterStyles.competition.popover}`}>
+              {renderOptionList(
+                'sortBy',
+                [
+                  { value: 'newest', label: 'Newest' },
+                  { value: 'highest_budget', label: 'Highest Budget' },
+                  { value: 'highest_available_budget', label: 'Highest Available Budget' },
+                  { value: 'highest_mcp', label: 'Highest MCP' },
+                  { value: 'most_paid_out', label: 'Most Paid Out' },
+                  { value: 'most_creators', label: 'Most Creators' },
+                  { value: 'less_influencer', label: 'Less Influencer' },
+                ],
+                filters.sortBy,
+                'competition'
+              )}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => setMobileMenuOpen(mobileMenuOpen === 'status' ? null : 'status')}
+            className={`inline-flex rounded-2xl border px-3 py-2 text-sm font-semibold transition-colors duration-200 ${filterStyles.status.button}`}
+          >
+            {statusLabel}
+          </button>
+
+          {mobileMenuOpen === 'status' ? (
+            <div className={`absolute left-0 top-full z-30 mt-2 w-48 rounded-xl border p-3 shadow-2xl ${filterStyles.status.popover}`}>
+              {renderOptionList('status', [{ value: 'active', label: 'Active' }, { value: 'future', label: 'Future' }], filters.status, 'status')}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => setMobileMenuOpen(mobileMenuOpen === 'category' ? null : 'category')}
+            className={`inline-flex rounded-2xl border px-3 py-2 text-sm font-semibold transition-colors duration-200 ${filterStyles.category.button}`}
+          >
+            {categoryLabel}
+          </button>
+
+          {mobileMenuOpen === 'category' ? (
+            <div className={`absolute left-0 top-full z-30 mt-2 w-48 rounded-xl border p-3 shadow-2xl ${filterStyles.category.popover}`}>
+              {renderOptionList(
+                'category',
+                [
+                  { value: '', label: 'Any Category' },
+                  { value: 'lifestyle', label: 'Lifestyle' },
+                  { value: 'gaming', label: 'Gaming' },
+                  { value: 'entertainment', label: 'Entertainment' },
+                  { value: 'sports', label: 'Sports' },
+                  { value: 'education', label: 'Education' },
+                  { value: 'technology', label: 'Technology' },
+                  { value: 'luxury', label: 'Luxury' },
+                  { value: 'music', label: 'Music' },
+                  { value: 'politics', label: 'Politics' },
+                  { value: 'religion', label: 'Religion' },
+                ],
+                filters.category,
+                'category'
+              )}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => setMobileMenuOpen(mobileMenuOpen === 'niche' ? null : 'niche')}
+            className={`inline-flex rounded-2xl border px-3 py-2 text-sm font-semibold transition-colors duration-200 ${filterStyles.niche.button}`}
+          >
+            {nicheLabel}
+          </button>
+
+          {mobileMenuOpen === 'niche' ? (
+            <div className={`absolute left-0 top-full z-30 mt-2 w-48 rounded-xl border p-3 shadow-2xl ${filterStyles.niche.popover}`}>
+              {renderOptionList(
+                'niche',
+                [
+                  { value: '', label: 'Any Niche' },
+                  { value: 'duet', label: '#duet' },
+                  { value: 'sound', label: '#sound' },
+                  { value: 'ugc', label: '#ugc' },
+                  { value: 'logo', label: '#logo' },
+                  { value: 'clipping', label: '#clipping' },
+                ],
+                filters.niche,
+                'niche'
+              )}
+            </div>
+          ) : null}
+        </div>
+      </div>
 
       <CampaignModal
         isOpen={isCampaignOpen}
@@ -553,7 +564,6 @@ export default function CampaignPage() {
         }}
       />
 
-      {/* Campaigns Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredCampaigns.length > 0 ? (
           filteredCampaigns.map((campaign) => (
@@ -567,13 +577,13 @@ export default function CampaignPage() {
             />
           ))
         ) : (
-          <div className="col-span-full py-16 text-center bg-zinc-900/30 rounded-3xl border border-zinc-850 p-8 backdrop-blur-sm">
-            <p className="text-zinc-400 mb-8 text-base">No campaigns match your search for "{searchTerm}".</p>
-            
+          <div className="col-span-full rounded-3xl border border-zinc-850 bg-zinc-900/30 py-16 p-8 text-center backdrop-blur-sm">
+            <p className="mb-8 text-base text-zinc-400">No campaigns match your search for "{searchQuery}".</p>
+
             {alternatives.length > 0 && (
               <div>
-                <h3 className="text-xs font-black text-amber-500 mb-6 uppercase tracking-widest">Suggested Alternatives</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto text-left">
+                <h3 className="mb-6 text-xs font-black uppercase tracking-widest text-amber-500">Suggested Alternatives</h3>
+                <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 justify-center text-left md:grid-cols-2 lg:grid-cols-3">
                   {alternatives.map((campaign) => (
                     <CampaignCard
                       key={campaign.id}
