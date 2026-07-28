@@ -29,7 +29,7 @@ export async function query<T extends Record<string, unknown> = Record<string, u
     return result.rows as T[];
   } catch (error) {
     console.error(`Database query failed: "${text}"`, error);
-    return [];
+    throw error;
   }
 }
 
@@ -37,11 +37,6 @@ export async function queryOne<T extends Record<string, unknown> = Record<string
   text: string,
   params: unknown[] = []
 ): Promise<T | null> {
-  try {
-    const rows = await query<T>(text, params);
-    return rows[0] ?? null;
-  } catch (error) {
-    console.error(`Database queryOne failed: "${text}"`, error);
-    return null;
-  }
+  const rows = await query<T>(text, params);
+  return rows[0] ?? null;
 }

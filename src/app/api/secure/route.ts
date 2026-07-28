@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, queryOne } from '@/lib/db';
-import { seedMockData } from '@/lib/mock-seed';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -65,6 +64,7 @@ async function ensureSchema() {
   await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS views_generated INTEGER DEFAULT 10000`);
   await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS likes_generated INTEGER DEFAULT 1500`);
   await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS highest_mcp INTEGER DEFAULT 100`);
+  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS required_platforms TEXT DEFAULT ''`);
   await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS start_date DATE`);
   await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS min_payout INTEGER DEFAULT 0`);
   await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS max_payout INTEGER DEFAULT 0`);
@@ -124,6 +124,7 @@ function mapCampaignRow(row: Record<string, unknown>) {
     totalBudget: toNumber(row.total_budget ?? row.totalBudget, 1000),
     budgetUsed: toNumber(row.budget_used ?? row.budgetUsed, 0),
     highestMcp: toNumber(row.highest_mcp ?? row.highestMcp, 100),
+    requiredPlatforms: (toString(row.required_platforms ?? row.requiredPlatforms, '')).split(',').map((platform) => platform.trim()).filter(Boolean),
     hasJoined: Boolean(row.has_joined ?? row.hasJoined ?? false),
     startDate: toString(row.start_date ?? row.startDate, ''),
     minPayout: toNumber(row.min_payout ?? row.minPayout, 0),
@@ -188,7 +189,8 @@ function mapActivityRow(row: Record<string, unknown>) {
 export async function GET(request: NextRequest) {
   try {
     await ensureSchema();
-    await seedMockData();
+
+    const userId = toString(request.headers.get('x-user-id'), 'demo-user');
 
     const [vacancies, campaigns, marketListings, activity] = await Promise.all([
       query<Record<string, unknown>>('SELECT * FROM vacancies ORDER BY created_at DESC LIMIT 20'),
@@ -199,13 +201,22 @@ export async function GET(request: NextRequest) {
 
     const joinedCampaignIds = new Set(
       activity
-        .filter((entry) => entry.entity_type === 'campaign' && entry.action === 'join')
+        .filter((entry) => entry.entity_type === 'campaign' && entry.action === 'join' && entry.actor_id === userId)
+        .map((entry) => String(entry.entity_id))
+    );
+
+    const participatedCampaignIds = new Set(
+      activity
+        .filter((entry) => entry.entity_type === 'campaign' && entry.action === 'participate' && entry.actor_id === userId)
         .map((entry) => String(entry.entity_id))
     );
 
     const joinedCampaigns = campaigns
       .filter((campaign) => joinedCampaignIds.has(String(campaign.id)))
-      .map(mapCampaignRow);
+      .map((campaign) => ({
+        ...mapCampaignRow(campaign),
+        submitted: participatedCampaignIds.has(String(campaign.id)),
+      }));
 
     return NextResponse.json({
       vacancies: vacancies.map(mapVacancyRow),
@@ -223,7 +234,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await ensureSchema();
-    await seedMockData();
 
     const body = await request.json().catch(() => ({}));
     const userId = toString(request.headers.get('x-user-id') ?? body.userId ?? body.createdBy ?? body.actorId, 'demo-user');
@@ -288,17 +298,23 @@ export async function POST(request: NextRequest) {
 
       const publishFee = Number(body.publishFee ?? body.publish_fee) || 1000;
 
+      const requiredPlatforms = Array.isArray(body.requiredPlatforms)
+        ? body.requiredPlatforms.filter((platform: string) => typeof platform === 'string' && platform.trim()).map((platform: string) => platform.trim().toLowerCase())
+        : typeof body.requiredPlatforms === 'string'
+          ? body.requiredPlatforms.split(',').map((platform: string) => platform.trim().toLowerCase()).filter(Boolean)
+          : [];
+
       const created = await queryOne<Record<string, unknown>>(
         `INSERT INTO campaigns (
           title, description, category, niche_hashtag, total_budget, budget_used, 
           time_remaining_days, publisher_rating, publisher_profile_icon, community_size, 
-          views_generated, likes_generated, highest_mcp, status, start_date, min_payout, max_payout, publish_fee, created_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+          views_generated, likes_generated, highest_mcp, required_platforms, status, start_date, min_payout, max_payout, publish_fee, created_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
         RETURNING *`,
         [
           title, description, category, nicheHashtag, totalBudget, 0,
           timeRemainingDays, 4.8, '/images/publisher-placeholder.png', 12000,
-          10000, 1500, 100, 'Active', startDate || null, minPayout, maxPayout, publishFee, userId
+          10000, 1500, 100, requiredPlatforms.join(','), 'Active', startDate || null, minPayout, maxPayout, publishFee, userId
         ]
       );
 

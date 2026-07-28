@@ -8,6 +8,16 @@ interface ContentProps {
 
 export function Content({ data }: ContentProps) {
   const nicheHashtags = data.nicheHashtag.split(',').map(tag => tag.trim());
+  const requiredPlatforms = data.requiredPlatforms ?? [];
+
+  const renderPlatformLabel = (platform: string) => {
+    const label = platform.charAt(0).toUpperCase() + platform.slice(1);
+    return (
+      <span key={platform} className="rounded-full border border-zinc-800 bg-zinc-900/80 px-2 py-1 text-[11px] uppercase tracking-[0.18em] text-zinc-300">
+        {label}
+      </span>
+    );
+  };
 
   const formatMetric = (val: number): string => {
     if (val >= 100000) {
@@ -22,6 +32,12 @@ export function Content({ data }: ContentProps) {
   return (
     <div className="bg-zinc-950/20 border border-neutral-900 rounded-2xl p-3.5 flex flex-col gap-4">
       <div className="flex flex-col gap-2 px-0.5">
+        {requiredPlatforms.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {requiredPlatforms.slice(0, 3).map(renderPlatformLabel)}
+          </div>
+        ) : null}
+
         <p className="text-xs leading-relaxed font-normal text-zinc-400">
           {data.description}
         </p>

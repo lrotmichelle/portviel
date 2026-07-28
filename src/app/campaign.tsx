@@ -17,7 +17,11 @@ export default function CampaignMobilePage() {
   useEffect(() => {
     const loadCampaigns = async () => {
       try {
-        const response = await fetch('/api/campaigns');
+        const response = await fetch('/api/campaigns?filter=all', {
+          headers: {
+            'x-user-id': 'demo-user',
+          },
+        });
         if (!response.ok) throw new Error('Request failed');
         const data = (await response.json()) as CampaignCardData[];
         setCampaigns(data);
@@ -30,14 +34,60 @@ export default function CampaignMobilePage() {
     loadCampaigns();
   }, []);
 
-  const handleJoinCampaign = (id: string) => {
-    console.log(`Joined campaign: ${id}`);
-    // Here you would typically make an API call to join the campaign
+  const handleJoinCampaign = async (id: string) => {
+    try {
+      const response = await fetch('/api/campaigns/manage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': 'demo-user',
+        },
+        body: JSON.stringify({ action: 'join', campaignId: id }),
+      });
+
+      if (!response.ok) throw new Error('Failed to join campaign');
+
+      // Refresh campaigns list
+      const refreshResponse = await fetch('/api/campaigns?filter=all', {
+        headers: {
+          'x-user-id': 'demo-user',
+        },
+      });
+      if (refreshResponse.ok) {
+        const data = (await refreshResponse.json()) as CampaignCardData[];
+        setCampaigns(data);
+      }
+    } catch (error) {
+      console.error('Failed to join campaign', error);
+    }
   };
 
-  const handleExitCampaign = (id: string) => {
-    console.log(`Exited campaign: ${id}`);
-    // Here you would typically make an API call to exit the campaign
+  const handleExitCampaign = async (id: string) => {
+    try {
+      const response = await fetch('/api/campaigns/manage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': 'demo-user',
+        },
+        body: JSON.stringify({ action: 'leave', campaignId: id }),
+      });
+
+      if (!response.ok) throw new Error('Failed to leave campaign');
+
+      // Refresh campaigns list
+      const refreshResponse = await fetch('/api/campaigns?filter=all', {
+        headers: {
+          'x-user-id': 'demo-user',
+        },
+      });
+      if (refreshResponse.ok) {
+        const data = (await refreshResponse.json()) as CampaignCardData[];
+        setCampaigns(data);
+      }
+    } catch (error) {
+      console.error('Failed to leave campaign', error);
+    }
   };
 
   const handleCreateCampaign = () => {
@@ -131,6 +181,7 @@ export default function CampaignMobilePage() {
             onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
             value={filters.sortBy}
           >
+            <option value="newest">Competition</option>
             <option value="newest">Newest</option>
             <option value="highest_budget">Highest Budget</option>
             <option value="highest_available_budget">Highest Available Budget</option>

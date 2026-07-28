@@ -16,6 +16,7 @@ export interface CampaignCardData {
   budgetUsed: number;
   highestMcp: number;
   hasJoined: boolean;
+  requiredPlatforms?: string[];
   startDate?: string;
   minPayout?: number;
   maxPayout?: number;

@@ -7,34 +7,36 @@ interface FooterProps {
   onJoin: (id: string) => void;
   onExit: (id: string) => void;
   isPaused?: boolean;
+  isJoinDisabled?: boolean;
+  joinDisabledLabel?: string;
 }
 
-export function Footer({ data, onJoin, onExit, isPaused = false }: FooterProps) {
+export function Footer({ data, onJoin, onExit, isPaused = false, isJoinDisabled = false, joinDisabledLabel }: FooterProps) {
   const handleButtonClick = () => {
     if (data.hasJoined) {
       if (window.confirm("Are you sure you want to leave this community?")) {
         onExit(data.id);
       }
     } else {
-      if (!isPaused) {
+      if (!isPaused && !isJoinDisabled) {
         onJoin(data.id);
       }
     }
   };
 
   const showExit = data.hasJoined;
-  const isJoinDisabled = isPaused && !showExit;
+  const isDisabled = isJoinDisabled || (isPaused && !showExit);
 
   return (
     <div className="w-full select-none">
       <button
         type="button"
-        disabled={isJoinDisabled}
+        disabled={isDisabled}
         onClick={handleButtonClick}
         className={`group flex items-center justify-center gap-1 py-2 px-2 border rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-150 active:scale-[0.98] truncate w-full
           ${showExit
             ? "bg-red-500/10 text-red-500 border-red-900/40 hover:bg-red-600 hover:text-white hover:border-red-500 active:bg-red-600 active:text-white cursor-pointer"
-            : isJoinDisabled
+            : isDisabled
               ? "bg-zinc-900/40 text-zinc-600 border-zinc-800/40 cursor-not-allowed opacity-50"
               : "bg-emerald-500/10 text-emerald-400 border-emerald-900/40 hover:bg-emerald-600 hover:text-white hover:border-emerald-500 active:bg-emerald-600 active:text-white cursor-pointer"}
         `}

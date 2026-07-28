@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDiscoverJobs } from '@/lib/discover';
 import { query } from '@/lib/db';
-import { seedMockData } from '@/lib/mock-seed';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,7 +11,6 @@ function toString(value: unknown, fallback = '') {
 
 export async function GET() {
   try {
-    await seedMockData();
     const jobs = await getDiscoverJobs();
     return NextResponse.json(jobs);
   } catch (error) {

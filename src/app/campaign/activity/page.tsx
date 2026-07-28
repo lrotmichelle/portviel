@@ -28,18 +28,27 @@ export default function CampaignActivityPage() {
   const [filters, setFilters] = useState({ status: 'All', category: 'All', niche: 'All', competition: 'newest', minPayout: '', maxPayout: '' });
   const [pressedButton, setPressedButton] = useState<string | null>(null);
   const [draftNotes, setDraftNotes] = useState<Record<string, string>>({});
+  const [participationDrafts, setParticipationDrafts] = useState<Record<string, string>>({});
+  const [participationOpen, setParticipationOpen] = useState<Record<string, boolean>>({});
+  const [profile, setProfile] = useState<{ handle?: string } | null>(null);
   const [isCampaignOpen, setIsCampaignOpen] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const response = await fetch('/api/secure');
-        const payload = await response.json();
+        const [secureResponse, profileResponse] = await Promise.all([
+          fetch('/api/secure'),
+          fetch('/api/profile'),
+        ]);
+        const payload = await secureResponse.json();
+        const profileData = profileResponse.ok ? await profileResponse.json() : null;
+        setProfile(profileData);
+
         const campaigns = (payload.joinedCampaigns ?? []).map((item: any) => ({
           ...item,
           feedback: item.feedback ?? '',
           progress: item.progress ?? 62,
-          submitted: Boolean(item.submitted ?? true),
+          submitted: Boolean(item.submitted ?? false),
           minPayout: item.minPayout ?? 0,
           maxPayout: item.maxPayout ?? 0,
         }));
@@ -81,6 +90,43 @@ export default function CampaignActivityPage() {
       });
     } catch (error) {
       console.error('Unable to record leave event', error);
+    }
+  };
+
+  const isSocialConnected = Boolean(profile?.handle && profile.handle !== '@martha' && profile.handle !== 'demo-user');
+
+  const toggleParticipationForm = (id: string) => {
+    setParticipationOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const submitParticipation = async (campaignId: string) => {
+    const link = (participationDrafts[campaignId] ?? '').trim();
+    if (!link) {
+      window.alert('Please enter a participation link or public social post URL.');
+      return;
+    }
+
+    try {
+      await fetch('/api/secure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
+        body: JSON.stringify({
+          mode: 'interact',
+          entityType: 'campaign',
+          entityId: Number(campaignId),
+          actionType: 'participate',
+          message: `Participated with link: ${link}`,
+        }),
+      });
+
+      setJoinedCampaigns((prev) =>
+        prev.map((campaign) =>
+          campaign.id === campaignId ? { ...campaign, submitted: true, progress: 100 } : campaign
+        )
+      );
+      setParticipationOpen((prev) => ({ ...prev, [campaignId]: false }));
+    } catch (error) {
+      console.error('Unable to record participation', error);
     }
   };
 
@@ -296,6 +342,56 @@ export default function CampaignActivityPage() {
                     <button onClick={() => leaveCampaign(campaign.id)} className="rounded-full border border-emerald-500/30 px-3 py-1.5 text-sm text-emerald-400 hover:bg-emerald-500/10">Leave</button>
                   </div>
                   <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-3">
+                    {campaign.submitted ? (
+                      <div className="mb-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm text-emerald-200">
+                        Participation submitted. Thanks for sharing your work.
+                      </div>
+                    ) : (
+                      <div className="mb-3 grid gap-3">
+                        {isSocialConnected ? (
+                          <div className="grid gap-3">
+                            <button
+                              type="button"
+                              onClick={() => toggleParticipationForm(campaign.id)}
+                              className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-300 hover:bg-emerald-500/15"
+                            >
+                              {participationOpen[campaign.id] ? 'Hide participation form' : 'Submit participation'}
+                            </button>
+                            {participationOpen[campaign.id] ? (
+                              <div className="space-y-3 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-3">
+                                <input
+                                  value={participationDrafts[campaign.id] ?? ''}
+                                  onChange={(e) => setParticipationDrafts((prev) => ({ ...prev, [campaign.id]: e.target.value }))}
+                                  placeholder="Paste a public post or profile link"
+                                  className="w-full rounded-xl border border-zinc-800 bg-transparent px-3 py-2 text-sm text-white outline-none"
+                                />
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => submitParticipation(campaign.id)}
+                                    className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-300 hover:bg-emerald-500/15"
+                                  >
+                                    Submit participation
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleParticipationForm(campaign.id)}
+                                    className="rounded-full border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-900"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-100">
+                            Connect your social account in <Link href="/profile" className="font-semibold text-white underline">Profile</Link> to submit participation for this campaign.
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="mb-2 flex items-center justify-between text-sm">
                       <span className="text-zinc-300">Progress</span>
                       <span className="text-emerald-400">{campaign.progress ?? 62}%</span>

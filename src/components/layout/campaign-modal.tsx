@@ -18,10 +18,13 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
   const [nicheHashtag, setNicheHashtag] = useState('growth');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedNiches, setSelectedNiches] = useState<string[]>([]);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [platformOption, setPlatformOption] = useState('');
   const [categoryOption, setCategoryOption] = useState('');
   const [nicheOption, setNicheOption] = useState('');
   const categoryOptions = ['Technology', 'Lifestyle', 'Gaming', 'Entertainment', 'Sports', 'Education', 'Luxury', 'Music', 'Politics', 'Religion'];
   const nicheOptions = ['duet', 'sound', 'ugc', 'logo', 'clipping'];
+  const platformOptions = ['facebook', 'tiktok', 'youtube', 'instagram', 'snapchat'];
   const [totalBudget, setTotalBudget] = useState('');
   const [cpmInput, setCpmInput] = useState('');
   const [timeRemainingDays, setTimeRemainingDays] = useState('');
@@ -63,13 +66,14 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
   })();
 
   const validateProjectName = (name: string) => {
-    if (!name.trim()) return 'Campaign name cannot be empty.';
-    if (name.length > 16) return 'Campaign name must be 16 characters or fewer.';
+    const trimmed = name.trim();
+    if (!trimmed) return 'Campaign name cannot be empty.';
+    if (trimmed.length > 14) return 'Campaign name must be 14 characters or fewer.';
     if (/^[ .]/.test(name)) return 'Campaign name cannot start with a space or period.';
     if (/[ .]$/.test(name)) return 'Campaign name cannot end with a space or period.';
+    if (/\s{2,}/.test(name)) return 'Campaign name cannot contain consecutive spaces.';
     if (/\p{Emoji}/u.test(name)) return 'Campaign name cannot contain emojis or icons.';
-    if (/[^a-zA-Z0-9 .-]/.test(name)) return 'Only letters, numbers, spaces, dot and hyphen are allowed.';
-    if (/\.\./.test(name)) return 'Campaign name cannot contain consecutive periods.';
+    if (/[^A-Za-z' ]/.test(name)) return 'Campaign name can only contain letters, spaces, and apostrophes.';
     return '';
   };
 
@@ -77,23 +81,34 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
     return /(?:https?:\/\/|www\.|\S+\.(?:com|net|org|io|gov|edu|co|me|app|store|site|biz|online|info))(?:\/\S*)?/i.test(value);
   };
 
+  const sanitizeProjectName = (value: string) => {
+    return String(value)
+      .replace(/[^A-Za-z' ]+/g, '')
+      .replace(/\s+/g, ' ')
+      .replace(/^\s+|\s+$/g, '')
+      .slice(0, 14);
+  };
+
   const sanitizeDescription = (value: string) => {
     const cleaned = String(value)
       .replace(/\r?\n+/g, ' ')
       .replace(/https?:\/\/\S+|www\.\S+|\S+\.(?:com|net|org|io|gov|edu|co|me|app|store|site|biz|online|info)(?:\/\S*)?/gi, '')
-      .replace(/[^a-zA-Z ]+/g, '')
+      .replace(/[^A-Za-z'.,;| ]+/g, '')
       .replace(/\s+/g, ' ')
-      .replace(/^\s+/, '');
-    return cleaned.slice(0, 325);
+      .replace(/([.';,|]){2,}/g, '$1')
+      .replace(/^[.';,| ]+|[.';,| ]+$/g, '')
+      .slice(0, 325);
+    return cleaned;
   };
 
   const validateDescription = (value: string) => {
     const trimmed = value.trim();
     if (!trimmed) return 'Description cannot be empty.';
     if (trimmed.length > 325) return 'Description must be 325 characters or fewer.';
-    if (/^[ .]/.test(value)) return 'Description cannot start with a space or period.';
+    if (/^[ .,';|]/.test(value)) return 'Description cannot start with a space or punctuation.';
     if (descriptionContainsLink(value)) return 'Description cannot contain links.';
-    if (/[^a-zA-Z ]/.test(value)) return 'Description can only contain letters and spaces.';
+    if (/[^A-Za-z'.,;| ]/.test(value)) return 'Description can only contain letters, spaces, apostrophes, commas, semicolons, periods, and pipes.';
+    if (/([.';,|])\1/.test(value)) return 'Description cannot contain repeated punctuation.';
     return '';
   };
 
@@ -273,6 +288,7 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
           description,
           category,
           nicheHashtag,
+          requiredPlatforms: selectedPlatforms,
           totalBudget: parseFormatted(totalBudget) || 1000,
           timeRemainingDays: Number(timeRemainingDays) || 14,
           startDate: futureStartEnabled ? selectedStartDate : null,
@@ -317,6 +333,7 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
         startDate: futureStartEnabled ? selectedStartDate : undefined,
         minPayout: parseFormatted(minPayout) || undefined,
         maxPayout: parseFormatted(maxPayout) || undefined,
+        requiredPlatforms: selectedPlatforms,
       });
 
         setProjectName('');
@@ -325,8 +342,10 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
       setNicheHashtag('growth');
       setSelectedCategories([]);
       setSelectedNiches([]);
+      setSelectedPlatforms([]);
       setCategoryOption('');
       setNicheOption('');
+      setPlatformOption('');
       setTotalBudget('');
       setCpmInput('');
       setTimeRemainingDays('');
@@ -361,15 +380,67 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
 
           <div className="px-6 py-4">
             <div className="space-y-4">
-          <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Campaign name</label>
-            <input
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 p-2.5 text-sm text-zinc-200 outline-none"
-              placeholder="e.g. Summer product launch"
-            />
-            {projectName && nameError ? <p className="mt-1 text-xs text-red-400">{nameError}</p> : null}
+          <div className="flex flex-col gap-4 min-[500px]:flex-row">
+            <div className="min-w-0 flex-1">
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Campaign name</label>
+              <input
+                value={projectName}
+                onPaste={(e) => {
+                  e.preventDefault();
+                  setProjectName(sanitizeProjectName(e.clipboardData.getData('text/plain')));
+                }}
+                onChange={(e) => setProjectName(sanitizeProjectName(e.target.value))}
+                className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 p-2.5 text-sm text-zinc-200 outline-none"
+                placeholder="e.g. Summer product launch"
+              />
+              {projectName && nameError ? <p className="mt-1 text-xs text-red-400">{nameError}</p> : null}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Platform (up to 3)</label>
+              <div className="flex gap-2">
+                <select
+                  value={platformOption}
+                  onChange={(e) => setPlatformOption(e.target.value)}
+                  className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900/60 p-2.5 text-sm text-zinc-200 outline-none"
+                >
+                  <option value="" disabled hidden>Select platform</option>
+                  {platformOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option.charAt(0).toUpperCase() + option.slice(1)}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!platformOption) return;
+                    if (selectedPlatforms.includes(platformOption)) return;
+                    if (selectedPlatforms.length >= 3) return;
+                    setSelectedPlatforms([...selectedPlatforms, platformOption]);
+                    setPlatformOption('');
+                  }}
+                  disabled={!platformOption || selectedPlatforms.length >= 3}
+                  className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300 transition-colors duration-200 hover:bg-emerald-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {selectedPlatforms.map((item) => (
+                  <span key={item} className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/70 px-3 py-1 text-[9px] text-zinc-200">
+                    {item.charAt(0).toUpperCase() + item.slice(1)}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPlatforms(selectedPlatforms.filter((platform) => platform !== item))}
+                      className="text-zinc-400 hover:text-white"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div>
@@ -420,7 +491,7 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {selectedCategories.map((item) => (
-                  <span key={item} className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/70 px-3 py-1 text-sm text-zinc-200">
+                  <span key={item} className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/70 px-3 py-1 text-[9px] text-zinc-200">
                     {item}
                     <button
                       type="button"
@@ -462,7 +533,7 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {selectedNiches.map((item) => (
-                  <span key={item} className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/70 px-3 py-1 text-sm text-zinc-200">
+                  <span key={item} className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/70 px-3 py-1 text-[9px] text-zinc-200">
                     {item}
                     <button
                       type="button"

@@ -13,6 +13,8 @@ interface CampaignCardProps {
   onExitCampaign: (id: string) => void;
   onPauseCampaign?: (id: string, status: string) => void;
   onDeleteCampaign?: (id: string) => void;
+  isJoinDisabled?: boolean;
+  joinDisabledLabel?: string;
 }
 
 export default function CampaignCard({
@@ -21,6 +23,8 @@ export default function CampaignCard({
   onExitCampaign,
   onPauseCampaign,
   onDeleteCampaign,
+  isJoinDisabled,
+  joinDisabledLabel,
 }: CampaignCardProps) {
   const [campaignData, setCampaignData] = useState<CampaignCardData>(data);
 
@@ -54,7 +58,14 @@ export default function CampaignCard({
         <Content data={campaignData} />
         <BudgetSentiment data={campaignData} />
       </div>
-      <Footer data={campaignData} onJoin={handleJoin} onExit={handleExit} isPaused={isPaused} />
+      <Footer
+        data={campaignData}
+        onJoin={handleJoin}
+        onExit={handleExit}
+        isPaused={isPaused}
+        isJoinDisabled={isJoinDisabled}
+        joinDisabledLabel={joinDisabledLabel}
+      />
     </div>
   );
 }

@@ -19,6 +19,29 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@keyframes flipDown {
+  0% {
+    transform: perspective(800px) rotateX(-90deg);
+    opacity: 0;
+  }
+  60% {
+    transform: perspective(800px) rotateX(20deg);
+    opacity: 1;
+  }
+  100% {
+    transform: perspective(800px) rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-flip-fast {
+  animation: flipDown 1s ease forwards;
+}
+
+.animate-flip-slow {
+  animation: flipDown 2s ease forwards;
+}
+
 /* Hide number input spinners inside the campaign modal to allow exact numeric entry */
 .campaign-modal input[type=number]::-webkit-outer-spin-button,
 .campaign-modal input[type=number]::-webkit-inner-spin-button {

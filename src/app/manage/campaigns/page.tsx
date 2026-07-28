@@ -42,38 +42,15 @@ export default function ManageCampaignsPage() {
 
     const load = async () => {
       try {
-        const response = await fetch('/api/secure');
-        const payload = await response.json();
-        const list = (payload.campaigns ?? []).map((item: any) => ({
-          id: String(item.id),
-          publisherProfileIcon: '/images/publisher-placeholder.png',
-          projectName: item.projectName ?? item.title ?? 'Campaign',
-          publisherUsername: item.publisherUsername ?? item.createdBy ?? 'demo-user',
-          publisherRating: 4.8,
-          timeRemainingDays: 14,
-          nicheHashtag: 'growth',
-          description: item.description ?? '',
-          category: item.category ?? 'Technology',
-          status: item.status ?? 'Active',
-          communitySize: 12000,
-          viewsGenerated: 10000,
-          likesGenerated: 1500,
-          totalBudget: 1000,
-          budgetUsed: 0,
-          highestMcp: 100,
-          hasJoined: Boolean(item.hasJoined ?? false),
-          startDate: item.startDate ?? '',
-          minPayout: Number(item.minPayout ?? item.min_payout ?? 0),
-          maxPayout: Number(item.maxPayout ?? item.max_payout ?? 0),
-          participants: [
-            { id: 'p1', name: 'Ava', progress: 76, submitted: true, approved: false },
-            { id: 'p2', name: 'Noah', progress: 54, submitted: false, approved: false },
-          ],
-          lastEditedAt: item.lastEditedAt ?? '',
-        }));
-        setCampaigns(list);
+        const response = await fetch('/api/campaigns?filter=created', {
+          headers: { 'x-user-id': 'demo-user' },
+        });
+        if (!response.ok) throw new Error('Failed to load campaigns');
+        const createdCampaigns = (await response.json()) as CampaignCardData[];
+        setCampaigns(createdCampaigns);
       } catch (error) {
         console.error('Unable to load managed campaigns', error);
+        setCampaigns([]);
       }
     };
 
@@ -86,15 +63,21 @@ export default function ManageCampaignsPage() {
   }, []);
 
   const pauseCampaign = async (id: string) => {
-    const target = campaigns.find((item) => item.id === id);
-    const nextStatus = target?.status?.toLowerCase() === 'paused' ? 'Active' : 'Paused';
-    setCampaigns((prev) => prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item)));
     try {
-      await fetch('/api/secure', {
+      const target = campaigns.find((item) => item.id === id);
+      const nextStatus = target?.status?.toLowerCase() === 'paused' ? 'active' : 'paused';
+      
+      const response = await fetch('/api/campaigns/manage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
-        body: JSON.stringify({ mode: 'update_campaign_status', entityId: Number(id), status: nextStatus }),
+        body: JSON.stringify({ action: nextStatus === 'paused' ? 'pause' : 'resume', campaignId: id }),
       });
+
+      if (!response.ok) throw new Error('Failed to update campaign');
+
+      setCampaigns((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item))
+      );
     } catch (error) {
       console.error('Unable to update campaign status', error);
     }

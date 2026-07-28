@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMarketCards } from '@/lib/market';
 import { query } from '@/lib/db';
-import { seedMockData } from '@/lib/mock-seed';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -73,7 +72,6 @@ async function verifySocialAccount(profileUrl: string) {
 
 export async function GET() {
   try {
-    await seedMockData();
     const cards = await getMarketCards();
     return NextResponse.json(cards);
   } catch (error) {

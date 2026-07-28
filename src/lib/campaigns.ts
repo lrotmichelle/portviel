@@ -13,8 +13,8 @@ function toString(value: unknown, fallback = '') {
 function mapCampaignRow(row: Record<string, unknown>): CampaignCardData {
   return {
     id: toString(row.id ?? row.campaign_id ?? row.campaignId, 'campaign-1'),
-    publisherProfileIcon: toString(row.publisher_profile_icon ?? row.publisherProfileIcon ?? '/images/publisher-placeholder.png', '/images/publisher-placeholder.png'),
-    projectName: toString(row.project_name ?? row.projectName ?? row.name ?? 'Campaign', 'Campaign'),
+    publisherProfileIcon: toString(row.publisher_profile_icon ?? row.publisherProfileIcon ?? '', ''),
+    projectName: toString(row.title ?? row.project_name ?? row.projectName ?? row.name ?? 'Campaign', 'Campaign'),
     publisherUsername: toString(row.publisher_username ?? row.publisherUsername ?? row.username ?? 'publisher', 'publisher'),
     publisherRating: toNumber(row.publisher_rating ?? row.publisherRating, 4.5),
     timeRemainingDays: toNumber(row.time_remaining_days ?? row.timeRemainingDays, 7),

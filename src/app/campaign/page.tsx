@@ -22,6 +22,7 @@ export default function CampaignPage() {
   const [isAdvertOpen, setIsAdvertOpen] = useState(false);
   const [isCampaignOpen, setIsCampaignOpen] = useState(false);
   const [profile, setProfile] = useState<{ ownerName?: string; handle?: string } | null>(null);
+  const isSocialConnected = Boolean(profile?.handle && profile.handle !== '@martha' && profile.handle !== 'demo-user');
 
   const applyFilter = (key: 'sortBy' | 'status' | 'category' | 'niche', value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -92,7 +93,9 @@ export default function CampaignPage() {
 
     const loadCampaigns = async () => {
       try {
-        const response = await fetch('/api/campaigns');
+        const response = await fetch('/api/campaigns?filter=all', {
+          headers: { 'x-user-id': 'demo-user' },
+        });
         if (!response.ok) throw new Error('Request failed');
         const data = (await response.json()) as CampaignCardData[];
         setCampaigns(data);
@@ -107,31 +110,41 @@ export default function CampaignPage() {
   }, []);
 
   const handleJoinCampaign = async (id: string) => {
-    setCampaigns((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, hasJoined: true } : c))
-    );
-
-    try {
-      await fetch('/api/secure', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
-        body: JSON.stringify({ mode: 'interact', entityType: 'campaign', entityId: Number(id), actionType: 'join', message: 'Joined campaign' }),
-      });
-    } catch (error) {
-      console.error('Unable to record join event', error);
+    if (!isSocialConnected) {
+      window.alert('Connect your social account in your profile before joining campaigns.');
+      return;
     }
 
-    recordOfficeEvent({ type: 'campaign', title: 'Campaign joined', description: 'You joined a campaign.', status: 'active' });
+    try {
+      const response = await fetch('/api/campaigns/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
+        body: JSON.stringify({ action: 'join', campaignId: id }),
+      });
+
+      if (!response.ok) throw new Error('Failed to join campaign');
+
+      setCampaigns((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, hasJoined: true } : c))
+      );
+
+      recordOfficeEvent({ type: 'campaign', title: 'Campaign joined', description: 'You joined a campaign.', status: 'active' });
+    } catch (error) {
+      console.error('Failed to join campaign', error);
+    }
   };
 
   const handleUpdateCampaignStatus = async (id: string, status: string) => {
-    setCampaigns((prev) => prev.map((c) => (c.id === id ? { ...c, status } : c)));
     try {
-      await fetch('/api/secure', {
+      const response = await fetch('/api/campaigns/manage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
-        body: JSON.stringify({ mode: 'update_campaign_status', entityId: Number(id), status }),
+        body: JSON.stringify({ action: status === 'paused' ? 'pause' : 'resume', campaignId: id }),
       });
+
+      if (!response.ok) throw new Error('Failed to update campaign');
+
+      setCampaigns((prev) => prev.map((c) => (c.id === id ? { ...c, status } : c)));
     } catch (error) {
       console.error('Failed to update campaign status', error);
     }
@@ -139,24 +152,38 @@ export default function CampaignPage() {
 
   const handleDeleteCampaign = async (id: string) => {
     try {
-      const response = await fetch('/api/secure', {
+      const response = await fetch('/api/campaigns/manage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
-        body: JSON.stringify({ mode: 'delete_campaign', entityId: Number(id) }),
+        body: JSON.stringify({ action: 'delete', campaignId: id }),
       });
-      if (response.ok) {
-        setCampaigns((prev) => prev.filter((c) => c.id !== id));
-      }
+
+      if (!response.ok) throw new Error('Failed to delete campaign');
+
+      setCampaigns((prev) => prev.filter((c) => c.id !== id));
     } catch (error) {
       console.error('Failed to delete campaign', error);
     }
   };
 
-  const handleExitCampaign = (id: string) => {
-    setCampaigns((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, hasJoined: false } : c))
-    );
-    recordOfficeEvent({ type: 'campaign', title: 'Campaign left', description: 'You left a campaign.', status: 'updated' });
+  const handleExitCampaign = async (id: string) => {
+    try {
+      const response = await fetch('/api/campaigns/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
+        body: JSON.stringify({ action: 'leave', campaignId: id }),
+      });
+
+      if (!response.ok) throw new Error('Failed to leave campaign');
+
+      setCampaigns((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, hasJoined: false } : c))
+      );
+
+      recordOfficeEvent({ type: 'campaign', title: 'Campaign left', description: 'You left a campaign.', status: 'updated' });
+    } catch (error) {
+      console.error('Failed to leave campaign', error);
+    }
   };
 
   const filteredCampaigns = campaigns
@@ -572,8 +599,6 @@ export default function CampaignPage() {
               data={campaign}
               onJoinCampaign={handleJoinCampaign}
               onExitCampaign={handleExitCampaign}
-              onPauseCampaign={(id, status) => handleUpdateCampaignStatus(id, status)}
-              onDeleteCampaign={(id) => handleDeleteCampaign(id)}
             />
           ))
         ) : (
@@ -590,6 +615,8 @@ export default function CampaignPage() {
                       data={campaign}
                       onJoinCampaign={handleJoinCampaign}
                       onExitCampaign={handleExitCampaign}
+                      isJoinDisabled={!isSocialConnected}
+                      joinDisabledLabel="Connect your social account in profile to join."
                     />
                   ))}
                 </div>

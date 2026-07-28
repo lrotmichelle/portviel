@@ -14,6 +14,18 @@ export function Header({ data, onPause, onDelete }: HeaderProps) {
   const [timeLeft, setTimeLeft] = useState(data.timeRemainingDays * 24 * 60 * 60 * 1000);
   const [imageError, setImageError] = useState(false);
 
+  const getInitials = (name: string) => {
+    const words = name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word.charAt(0).toUpperCase());
+    if (words.length === 0) return 'C';
+    if (words.length === 1) return words[0];
+    return `${words[0]}${words[1]}`;
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(prevTime => {
@@ -49,14 +61,14 @@ export function Header({ data, onPause, onDelete }: HeaderProps) {
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neutral-800 to-neutral-950 border border-neutral-800 flex items-center justify-center select-none shrink-0 overflow-hidden">
             {!imageError && data.publisherProfileIcon ? (
-              <img 
-                src={data.publisherProfileIcon} 
-                alt="Publisher Profile" 
-                className="w-full h-full rounded-full object-cover" 
+              <img
+                src={data.publisherProfileIcon}
+                alt="Publisher Profile"
+                className="w-full h-full rounded-full object-cover"
                 onError={() => setImageError(true)}
               />
             ) : (
-              <span className="text-xs font-black text-zinc-500 uppercase">{data.projectName.slice(0, 2)}</span>
+              <span className="text-sm font-black text-zinc-200 uppercase">{getInitials(data.projectName)}</span>
             )}
           </div>
           <div className="flex flex-col min-w-0">
@@ -75,26 +87,30 @@ export function Header({ data, onPause, onDelete }: HeaderProps) {
           <span className="text-[6.5px] md:text-[8px] font-mono tracking-wider font-medium mt-1 text-zinc-500">
             Remaining
           </span>
-          {/* Manager controls: only show if current user is the creator (demo-user) */}
-          {data.publisherUsername === 'demo-user' && (
+          {/* Manager controls: only show if current user is the creator and handlers were provided */}
+          {data.publisherUsername === 'demo-user' && (onPause || onDelete) && (
             <div className="mt-2 flex items-center gap-2">
-              <button
-                onClick={() => onPause?.(data.id, data.status.toLowerCase() === 'paused' ? 'active' : 'paused')}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded bg-zinc-900/40 text-xs text-zinc-200 hover:bg-zinc-900"
-                aria-label="Pause or resume campaign"
-              >
-                {data.status.toLowerCase() === 'paused' ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
-                <span className="text-[10px] font-black uppercase tracking-wider">{data.status.toLowerCase() === 'paused' ? 'Resume' : 'Pause'}</span>
-              </button>
+              {onPause ? (
+                <button
+                  onClick={() => onPause(data.id, data.status.toLowerCase() === 'paused' ? 'active' : 'paused')}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded bg-zinc-900/40 text-xs text-zinc-200 hover:bg-zinc-900"
+                  aria-label="Pause or resume campaign"
+                >
+                  {data.status.toLowerCase() === 'paused' ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
+                  <span className="text-[10px] font-black uppercase tracking-wider">{data.status.toLowerCase() === 'paused' ? 'Resume' : 'Pause'}</span>
+                </button>
+              ) : null}
 
-              <button
-                onClick={() => { if (confirm('Delete this campaign? This cannot be undone.')) onDelete?.(data.id); }}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded bg-red-900/20 text-xs text-red-400 hover:bg-red-900/30"
-                aria-label="Delete campaign"
-              >
-                <Trash2 className="w-3 h-3" />
-                <span className="text-[10px] font-black uppercase tracking-wider">Delete</span>
-              </button>
+              {onDelete ? (
+                <button
+                  onClick={() => { if (confirm('Delete this campaign? This cannot be undone.')) onDelete(data.id); }}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded bg-red-900/20 text-xs text-red-400 hover:bg-red-900/30"
+                  aria-label="Delete campaign"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  <span className="text-[10px] font-black uppercase tracking-wider">Delete</span>
+                </button>
+              ) : null}
             </div>
           )}
         </div>
