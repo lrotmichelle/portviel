@@ -1,5 +1,6 @@
 import type { JobOffer } from '@/components/job-card/data';
-import { query } from './db';
+import type { Vacancy } from '@/generated/prisma/client';
+import { prisma } from './prisma';
 
 function toNumber(value: unknown, fallback = 0) {
   const parsed = typeof value === 'number' ? value : Number(value);
@@ -22,60 +23,55 @@ function toStringArray(value: unknown): string[] {
   return [];
 }
 
-function mapJobRow(row: Record<string, unknown>): JobOffer {
+function mapVacancyToJob(vacancy: Vacancy, hasApplied: boolean): JobOffer {
   return {
-    id: toString(row.id ?? row.job_id ?? row.jobId, 'job-1'),
-    employerName: toString(row.employer_name ?? row.employerName ?? row.company_name ?? row.companyName ?? 'Employer', 'Employer'),
-    handle: toString(row.handle ?? row.employer_handle ?? row.employerHandle ?? 'employer', 'employer'),
-    rating: toNumber(row.rating, 4.5),
-    title: toString(row.title ?? row.role ?? 'Open role', 'Open role'),
-    niche: toString(row.niche ?? row.industry ?? 'General', 'General'),
-    daysRemaining: toNumber(row.days_remaining ?? row.daysRemaining, 7),
-    requiredPeople: toNumber(row.required_people ?? row.requiredPeople, 3),
-    applicants: toNumber(row.applicants, 1),
-    accepted: toNumber(row.accepted, 0),
-    requirements: toStringArray(row.requirements ?? row.required_skills ?? row.skills),
-    minSalary: toNumber(row.min_salary ?? row.minSalary, 500000),
-    maxSalary: toNumber(row.max_salary ?? row.maxSalary, 1200000),
-    description: toString(row.description ?? row.summary ?? 'Live discovery listing', 'Live discovery listing'),
-    status: (row.status as JobOffer['status']) ?? 'apply',
-    statusUpdatedAt: new Date(toString(row.status_updated_at ?? row.statusUpdatedAt ?? new Date().toISOString())),
-    increaseCount: toNumber(row.increase_count ?? row.increaseCount, 0),
-    hasApplied: Boolean(row.has_applied ?? row.hasApplied ?? false),
+    id: String(vacancy.id),
+    employerName: vacancy.employerName ?? 'Employer',
+    handle: vacancy.handle ?? 'employer',
+    rating: toNumber(vacancy.rating, 4.5),
+    title: vacancy.title,
+    niche: vacancy.category ?? 'General',
+    daysRemaining: vacancy.daysRemaining,
+    requiredPeople: vacancy.requiredPeople,
+    applicants: vacancy.applicants,
+    accepted: vacancy.accepted,
+    requirements: toStringArray(vacancy.requirements ?? ''),
+    minSalary: vacancy.minSalary,
+    maxSalary: vacancy.maxSalary,
+    description: vacancy.description,
+    status: (vacancy.status as JobOffer['status']) ?? 'apply',
+    statusUpdatedAt: vacancy.statusUpdatedAt ?? vacancy.createdAt,
+    increaseCount: 0,
+    hasApplied,
   };
 }
- 
-export async function getDiscoverJobs(): Promise<JobOffer[]> {
-  const tables = ['vacancies', 'job_offers', 'discover_jobs', 'jobs'];
 
-  for (const table of tables) {
-    try {
-      const rows = await query<Record<string, unknown>>(`
-        SELECT t.*,
-          EXISTS(
-            SELECT 1 FROM engagement_events e
-            WHERE e.entity_type = 'vacancy'
-              AND e.entity_id = t.id
-              AND e.actor_id = 'demo-user'
-              AND e.action = 'apply'
-              AND NOT EXISTS (
-                SELECT 1 FROM engagement_events e2
-                WHERE e2.entity_type = 'vacancy'
-                  AND e2.entity_id = t.id
-                  AND e2.actor_id = 'demo-user'
-                  AND e2.action = 'withdraw'
-                  AND e2.created_at > e.created_at
-              )
-          ) AS has_applied
-        FROM ${table} t
-        ORDER BY t.created_at DESC
-        LIMIT 20
-      `);
-      return rows.map(mapJobRow);
-    } catch (error) {
-      console.warn(`Unable to query ${table}`, error);
+export async function getDiscoverJobs(): Promise<JobOffer[]> {
+  const vacancies = await prisma.vacancy.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 20,
+  });
+
+  const events = await prisma.engagementEvent.findMany({
+    where: {
+      entityType: 'vacancy',
+      actorId: 'demo-user',
+      action: { in: ['apply', 'withdraw'] },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 200,
+  });
+
+  const latestActionByVacancy = new Map<string, string>();
+
+  for (const event of events) {
+    const vacancyId = String(event.entityId);
+    if (!latestActionByVacancy.has(vacancyId)) {
+      latestActionByVacancy.set(vacancyId, event.action);
     }
   }
 
-  return [];
+  return vacancies.map((vacancy) =>
+    mapVacancyToJob(vacancy, latestActionByVacancy.get(String(vacancy.id)) === 'apply')
+  );
 }

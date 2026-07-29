@@ -1,0 +1,106 @@
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Campaign {
+  id                  Int               @id @default(autoincrement())
+  title               String
+  description         String
+  category            String            @default("Technology")
+  nicheHashtag        String            @default("growth") @map("niche_hashtag")
+  createdBy           String            @map("created_by")
+  status              String            @default("active")
+  publisherRating     Float             @default(4.8) @map("publisher_rating")
+  publisherProfileIcon String           @default("/images/publisher-placeholder.png") @map("publisher_profile_icon")
+  communitySize       Int               @default(12000) @map("community_size")
+  viewsGenerated      Int               @default(0) @map("views_generated")
+  likesGenerated      Int               @default(0) @map("likes_generated")
+  totalBudget         Int               @default(1000) @map("total_budget")
+  budgetUsed          Int               @default(0) @map("budget_used")
+  highestMcp          Int               @default(100) @map("highest_mcp")
+  timeRemainingDays   Int               @default(14) @map("time_remaining_days")
+  requiredPlatforms   String            @default("") @map("required_platforms")
+  startDate           DateTime?         @map("start_date")
+  minPayout           Int               @default(0) @map("min_payout")
+  maxPayout           Int               @default(0) @map("max_payout")
+  publishFee          Int               @default(1000) @map("publish_fee")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @default(now()) @map("updated_at")
+  members             CampaignMember[]
+
+  @@map("campaigns")
+}
+
+model CampaignMember {
+  id         Int      @id @default(autoincrement())
+  campaignId Int      @map("campaign_id")
+  userId     String   @map("user_id")
+  status     String   @default("active")
+  joinedAt   DateTime @default(now()) @map("joined_at")
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId])
+  @@map("campaign_members")
+}
+
+model Vacancy {
+  id              Int      @id @default(autoincrement())
+  title           String
+  description     String
+  category        String   @default("general")
+  createdBy       String   @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+  employerName    String   @default("Employer") @map("employer_name")
+  handle          String   @default("employer")
+  rating          Float    @default(5.0)
+  daysRemaining   Int      @default(14) @map("days_remaining")
+  requiredPeople  Int      @default(1) @map("required_people")
+  applicants      Int      @default(0)
+  accepted        Int      @default(0)
+  requirements    String   @default("")
+  minSalary       Int      @default(0) @map("min_salary")
+  maxSalary       Int      @default(0) @map("max_salary")
+  status          String   @default("apply")
+  statusUpdatedAt DateTime @default(now()) @map("status_updated_at")
+
+  @@map("vacancies")
+}
+
+model MarketListing {
+  id             Int      @id @default(autoincrement())
+  title          String
+  description    String
+  price          Float    @default(0)
+  profileUrl     String?  @map("profile_url")
+  platform       String? 
+  handle         String? 
+  followers      Int      @default(0)
+  likes          Int      @default(0)
+  engagementRate Float    @default(0) @map("engagement_rate")
+  niche          String? 
+  createdBy      String   @map("created_by")
+  status         String   @default("open")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("market_listings")
+}
+
+model EngagementEvent {
+  id         Int      @id @default(autoincrement())
+  entityType String   @map("entity_type")
+  entityId   Int      @map("entity_id")
+  actorId    String   @map("actor_id")
+  action     String
+  message    String? 
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("engagement_events")
+}

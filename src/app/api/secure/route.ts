@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, queryOne } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,97 +13,16 @@ function toString(value: unknown, fallback = '') {
   return typeof value === 'string' && value.trim() ? value : fallback;
 }
 
-async function ensureSchema() {
-  // Create base vacancies table
-  await query(`
-    CREATE TABLE IF NOT EXISTS vacancies (
-      id SERIAL PRIMARY KEY,
-      title TEXT NOT NULL,
-      description TEXT NOT NULL,
-      category TEXT DEFAULT 'general',
-      created_by TEXT NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )
-  `);
+function parseArray(raw: unknown) {
+  if (Array.isArray(raw)) {
+    return raw.filter((item) => typeof item === 'string').map((item) => item.trim()).filter(Boolean);
+  }
 
-  // Add expected vacancy card columns
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS employer_name TEXT DEFAULT 'Employer'`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS handle TEXT DEFAULT 'employer'`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS rating NUMERIC DEFAULT 5.0`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS days_remaining INTEGER DEFAULT 14`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS required_people INTEGER DEFAULT 1`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS applicants INTEGER DEFAULT 0`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS accepted INTEGER DEFAULT 0`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS requirements TEXT DEFAULT ''`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS min_salary INTEGER DEFAULT 0`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS max_salary INTEGER DEFAULT 0`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'apply'`);
-  await query(`ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS status_updated_at TIMESTAMPTZ DEFAULT NOW()`);
+  if (typeof raw === 'string') {
+    return raw.split(',').map((item) => item.trim()).filter(Boolean);
+  }
 
-  // Create base campaigns table
-  await query(`
-    CREATE TABLE IF NOT EXISTS campaigns (
-      id SERIAL PRIMARY KEY,
-      title TEXT NOT NULL,
-      description TEXT NOT NULL,
-      category TEXT DEFAULT 'Technology',
-      created_by TEXT NOT NULL,
-      status TEXT DEFAULT 'Active',
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )
-  `);
-
-  // Add expected campaign card columns
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS niche_hashtag TEXT DEFAULT 'growth'`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS total_budget INTEGER DEFAULT 1000`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS budget_used INTEGER DEFAULT 0`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS time_remaining_days INTEGER DEFAULT 14`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS publisher_rating NUMERIC DEFAULT 4.8`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS publisher_profile_icon TEXT DEFAULT '/images/publisher-placeholder.png'`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS community_size INTEGER DEFAULT 12000`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS views_generated INTEGER DEFAULT 10000`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS likes_generated INTEGER DEFAULT 1500`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS highest_mcp INTEGER DEFAULT 100`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS required_platforms TEXT DEFAULT ''`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS start_date DATE`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS min_payout INTEGER DEFAULT 0`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS max_payout INTEGER DEFAULT 0`);
-  await query(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS publish_fee INTEGER DEFAULT 1000`);
-
-  // Create base market_listings table
-  await query(`
-    CREATE TABLE IF NOT EXISTS market_listings (
-      id SERIAL PRIMARY KEY,
-      title TEXT NOT NULL,
-      description TEXT NOT NULL,
-      price NUMERIC DEFAULT 0,
-      created_by TEXT NOT NULL,
-      status TEXT DEFAULT 'open',
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )
-  `);
-
-  // Add expected market listing card columns
-  await query(`ALTER TABLE market_listings ADD COLUMN IF NOT EXISTS profile_url TEXT`);
-  await query(`ALTER TABLE market_listings ADD COLUMN IF NOT EXISTS platform TEXT`);
-  await query(`ALTER TABLE market_listings ADD COLUMN IF NOT EXISTS handle TEXT`);
-  await query(`ALTER TABLE market_listings ADD COLUMN IF NOT EXISTS followers INTEGER DEFAULT 0`);
-  await query(`ALTER TABLE market_listings ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0`);
-  await query(`ALTER TABLE market_listings ADD COLUMN IF NOT EXISTS engagement_rate NUMERIC DEFAULT 0`);
-  await query(`ALTER TABLE market_listings ADD COLUMN IF NOT EXISTS niche TEXT DEFAULT 'Growth'`);
-
-  // Create engagement_events table
-  await query(`
-    CREATE TABLE IF NOT EXISTS engagement_events (
-      id SERIAL PRIMARY KEY,
-      entity_type TEXT NOT NULL,
-      entity_id INTEGER NOT NULL,
-      actor_id TEXT NOT NULL,
-      action TEXT NOT NULL,
-      message TEXT,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )
-  `);
+  return [];
 }
 
 function mapCampaignRow(row: Record<string, unknown>) {
@@ -117,7 +36,7 @@ function mapCampaignRow(row: Record<string, unknown>) {
     nicheHashtag: toString(row.niche_hashtag ?? row.nicheHashtag, 'growth'),
     description: toString(row.description ?? 'Live campaign listing', 'Live campaign listing'),
     category: toString(row.category ?? 'Technology', 'Technology'),
-    status: toString(row.status ?? 'Active', 'Active'),
+    status: toString(row.status ?? 'active', 'active'),
     communitySize: toNumber(row.community_size ?? row.communitySize, 12000),
     viewsGenerated: toNumber(row.views_generated ?? row.viewsGenerated, 10000),
     likesGenerated: toNumber(row.likes_generated ?? row.likesGenerated, 1500),
@@ -188,41 +107,39 @@ function mapActivityRow(row: Record<string, unknown>) {
 
 export async function GET(request: NextRequest) {
   try {
-    await ensureSchema();
-
     const userId = toString(request.headers.get('x-user-id'), 'demo-user');
 
     const [vacancies, campaigns, marketListings, activity] = await Promise.all([
-      query<Record<string, unknown>>('SELECT * FROM vacancies ORDER BY created_at DESC LIMIT 20'),
-      query<Record<string, unknown>>('SELECT * FROM campaigns ORDER BY created_at DESC LIMIT 20'),
-      query<Record<string, unknown>>('SELECT * FROM market_listings ORDER BY created_at DESC LIMIT 20'),
-      query<Record<string, unknown>>('SELECT * FROM engagement_events ORDER BY created_at DESC LIMIT 50'),
+      prisma.vacancy.findMany({ orderBy: { createdAt: 'desc' }, take: 20 }),
+      prisma.campaign.findMany({ orderBy: { createdAt: 'desc' }, take: 20 }),
+      prisma.marketListing.findMany({ orderBy: { createdAt: 'desc' }, take: 20 }),
+      prisma.engagementEvent.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }),
     ]);
 
     const joinedCampaignIds = new Set(
       activity
-        .filter((entry) => entry.entity_type === 'campaign' && entry.action === 'join' && entry.actor_id === userId)
-        .map((entry) => String(entry.entity_id))
+        .filter((entry) => entry.entityType === 'campaign' && entry.action === 'join' && entry.actorId === userId)
+        .map((entry) => String(entry.entityId))
     );
 
     const participatedCampaignIds = new Set(
       activity
-        .filter((entry) => entry.entity_type === 'campaign' && entry.action === 'participate' && entry.actor_id === userId)
-        .map((entry) => String(entry.entity_id))
+        .filter((entry) => entry.entityType === 'campaign' && entry.action === 'participate' && entry.actorId === userId)
+        .map((entry) => String(entry.entityId))
     );
 
     const joinedCampaigns = campaigns
       .filter((campaign) => joinedCampaignIds.has(String(campaign.id)))
       .map((campaign) => ({
-        ...mapCampaignRow(campaign),
+        ...mapCampaignRow(campaign as unknown as Record<string, unknown>),
         submitted: participatedCampaignIds.has(String(campaign.id)),
       }));
 
     return NextResponse.json({
-      vacancies: vacancies.map(mapVacancyRow),
-      campaigns: campaigns.map(mapCampaignRow),
-      marketListings: marketListings.map(mapMarketRow),
-      activity: activity.map(mapActivityRow),
+      vacancies: vacancies.map((vacancy) => mapVacancyRow(vacancy as unknown as Record<string, unknown>)),
+      campaigns: campaigns.map((campaign) => mapCampaignRow(campaign as unknown as Record<string, unknown>)),
+      marketListings: marketListings.map((listing) => mapMarketRow(listing as unknown as Record<string, unknown>)),
+      activity: activity.map((eventItem) => mapActivityRow(eventItem as unknown as Record<string, unknown>)),
       joinedCampaigns,
     });
   } catch (error) {
@@ -233,13 +150,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await ensureSchema();
-
     const body = await request.json().catch(() => ({}));
     const userId = toString(request.headers.get('x-user-id') ?? body.userId ?? body.createdBy ?? body.actorId, 'demo-user');
     const role = toString(request.headers.get('x-user-role') ?? body.role ?? 'member', 'member');
 
-    if (!userId) {
+    if (\!userId) {
       return NextResponse.json({ error: 'A user identity is required' }, { status: 401 });
     }
 
@@ -253,32 +168,36 @@ export async function POST(request: NextRequest) {
       const handle = employerName.toLowerCase().replace(/\s+/g, '') || 'employer';
       const rating = 4.8;
       const daysRemaining = Number(body.daysRemaining ?? body.days_remaining) || 14;
-      const vacant = Number(body.vacant ?? body.requiredPeople ?? body.required_people) || 1;
+      const requiredPeople = Number(body.vacant ?? body.requiredPeople ?? body.required_people) || 1;
       const minSalary = Number(body.minSalary ?? body.min_salary) || 0;
       const maxSalary = Number(body.maxSalary ?? body.max_salary) || 0;
-      
-      const requirementsArray = Array.isArray(body.skills ?? body.requirements)
-        ? (body.skills ?? body.requirements)
-        : [];
-      const requirements = requirementsArray.join(',');
+      const requirements = parseArray(body.skills ?? body.requirements).join(',');
 
-      if (!title || !description) {
+      if (\!title || \!description) {
         return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
       }
 
-      const created = await queryOne<Record<string, unknown>>(
-        `INSERT INTO vacancies (
-          title, description, category, employer_name, handle, rating, 
-          days_remaining, required_people, min_salary, max_salary, requirements, status, created_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-        RETURNING *`,
-        [
-          title, description, category, employerName, handle, rating,
-          daysRemaining, vacant, minSalary, maxSalary, requirements, 'apply', userId
-        ]
-      );
+      const created = await prisma.vacancy.create({
+        data: {
+          title,
+          description,
+          category,
+          employerName,
+          handle,
+          rating,
+          daysRemaining,
+          requiredPeople,
+          applicants: 0,
+          accepted: 0,
+          requirements,
+          minSalary,
+          maxSalary,
+          status: 'apply',
+          createdBy: userId,
+        },
+      });
 
-      return NextResponse.json({ ok: true, item: mapVacancyRow(created ?? {}), role });
+      return NextResponse.json({ ok: true, item: mapVacancyRow(created as unknown as Record<string, unknown>), role });
     }
 
     if (mode === 'create_campaign') {
@@ -291,39 +210,49 @@ export async function POST(request: NextRequest) {
       const startDate = toString(body.startDate ?? body.start_date, '');
       const minPayout = Number(body.minPayout ?? body.min_payout) || 0;
       const maxPayout = Number(body.maxPayout ?? body.max_payout) || 0;
+      const publishFee = Number(body.publishFee ?? body.publish_fee) || 1000;
+      const requiredPlatforms = parseArray(body.requiredPlatforms ?? body.required_platforms).join(',');
 
-      if (!title || !description) {
+      if (\!title || \!description) {
         return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
       }
 
-      const publishFee = Number(body.publishFee ?? body.publish_fee) || 1000;
+      const created = await prisma.campaign.create({
+        data: {
+          title,
+          description,
+          category,
+          nicheHashtag,
+          totalBudget,
+          budgetUsed: 0,
+          timeRemainingDays,
+          publisherRating: 4.8,
+          publisherProfileIcon: '/images/publisher-placeholder.png',
+          communitySize: 12000,
+          viewsGenerated: 10000,
+          likesGenerated: 1500,
+          highestMcp: 100,
+          requiredPlatforms,
+          status: 'active',
+          startDate: startDate ? new Date(startDate) : null,
+          minPayout,
+          maxPayout,
+          publishFee,
+          createdBy: userId,
+        },
+      });
 
-      const requiredPlatforms = Array.isArray(body.requiredPlatforms)
-        ? body.requiredPlatforms.filter((platform: string) => typeof platform === 'string' && platform.trim()).map((platform: string) => platform.trim().toLowerCase())
-        : typeof body.requiredPlatforms === 'string'
-          ? body.requiredPlatforms.split(',').map((platform: string) => platform.trim().toLowerCase()).filter(Boolean)
-          : [];
+      await prisma.engagementEvent.create({
+        data: {
+          entityType: 'campaign',
+          entityId: created.id,
+          actorId: userId,
+          action: 'create',
+          message: `Campaign created by ${userId}`,
+        },
+      });
 
-      const created = await queryOne<Record<string, unknown>>(
-        `INSERT INTO campaigns (
-          title, description, category, niche_hashtag, total_budget, budget_used, 
-          time_remaining_days, publisher_rating, publisher_profile_icon, community_size, 
-          views_generated, likes_generated, highest_mcp, required_platforms, status, start_date, min_payout, max_payout, publish_fee, created_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
-        RETURNING *`,
-        [
-          title, description, category, nicheHashtag, totalBudget, 0,
-          timeRemainingDays, 4.8, '/images/publisher-placeholder.png', 12000,
-          10000, 1500, 100, requiredPlatforms.join(','), 'Active', startDate || null, minPayout, maxPayout, publishFee, userId
-        ]
-      );
-
-      await query(
-        'INSERT INTO engagement_events (entity_type, entity_id, actor_id, action, message) VALUES ($1, $2, $3, $4, $5)',
-        ['campaign', created?.id ?? 0, userId, 'create', `Campaign created by ${userId}`]
-      );
-
-      return NextResponse.json({ ok: true, item: mapCampaignRow(created ?? {}), role });
+      return NextResponse.json({ ok: true, item: mapCampaignRow(created as unknown as Record<string, unknown>), role });
     }
 
     if (mode === 'create_market') {
@@ -332,7 +261,7 @@ export async function POST(request: NextRequest) {
       const price = toNumber(body.price, 0);
       const profileUrl = toString(body.profileUrl ?? body.profile_url, '');
       const niche = toString(body.niche, 'Growth');
-      
+
       let platform = 'instagram.com';
       let handle = 'seller';
       if (profileUrl) {
@@ -341,211 +270,239 @@ export async function POST(request: NextRequest) {
           platform = parsed.hostname.toLowerCase().replace(/^www\./, '');
           const pathParts = parsed.pathname.split('/').filter(Boolean);
           handle = pathParts[0] ? pathParts[0].replace(/^@/, '') : 'seller';
-        } catch {}
+        } catch {
+          // ignore invalid URL
+        }
       }
 
-      if (!title || !description) {
+      if (\!title || \!description) {
         return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
       }
 
-      const created = await queryOne<Record<string, unknown>>(
-        `INSERT INTO market_listings (
-          title, description, price, profile_url, platform, handle, followers, likes, engagement_rate, niche, created_by, status
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-        RETURNING *`,
-        [
-          title, description, price, profileUrl, platform, handle, 3500, 12000, 4.5, niche, userId, 'open'
-        ]
-      );
+      const created = await prisma.marketListing.create({
+        data: {
+          title,
+          description,
+          price,
+          profileUrl,
+          platform,
+          handle,
+          followers: 3500,
+          likes: 12000,
+          engagementRate: 4.5,
+          niche,
+          createdBy: userId,
+          status: 'open',
+        },
+      });
 
-      await query(
-        'INSERT INTO engagement_events (entity_type, entity_id, actor_id, action, message) VALUES ($1, $2, $3, $4, $5)',
-        ['market', created?.id ?? 0, userId, 'create', `Market listing created by ${userId}`]
-      );
+      await prisma.engagementEvent.create({
+        data: {
+          entityType: 'market',
+          entityId: created.id,
+          actorId: userId,
+          action: 'create',
+          message: `Market listing created by ${userId}`,
+        },
+      });
 
-      return NextResponse.json({ ok: true, item: mapMarketRow(created ?? {}), role });
+      return NextResponse.json({ ok: true, item: mapMarketRow(created as unknown as Record<string, unknown>), role });
     }
 
+    const entityId = Number(body.entityId ?? body.entity_id ?? body.campaignId ?? 0);
+
     if (mode === 'pause_vacancy') {
-      const entityId = Number(body.entityId ?? body.entity_id);
-      if (!entityId) {
+      if (\!entityId) {
         return NextResponse.json({ error: 'Vacancy id is required' }, { status: 400 });
       }
 
-      const updated = await queryOne<Record<string, unknown>>(
-        `UPDATE vacancies 
-         SET status = CASE WHEN status = 'paused' THEN 'apply' ELSE 'paused' END,
-             status_updated_at = NOW()
-         WHERE id = $1
-         RETURNING *`,
-        [entityId]
-      );
+      const vacancy = await prisma.vacancy.findUnique({ where: { id: entityId } });
+      if (\!vacancy) {
+        return NextResponse.json({ error: 'Vacancy not found' }, { status: 404 });
+      }
 
-      return NextResponse.json({ ok: true, item: mapVacancyRow(updated ?? {}) });
+      const updated = await prisma.vacancy.update({
+        where: { id: entityId },
+        data: {
+          status: vacancy.status === 'paused' ? 'apply' : 'paused',
+          statusUpdatedAt: new Date(),
+        },
+      });
+
+      return NextResponse.json({ ok: true, item: mapVacancyRow(updated as unknown as Record<string, unknown>) });
     }
 
     if (mode === 'delete_vacancy') {
-      const entityId = Number(body.entityId ?? body.entity_id);
-      if (!entityId) {
+      if (\!entityId) {
         return NextResponse.json({ error: 'Vacancy id is required' }, { status: 400 });
       }
 
-      await query('DELETE FROM vacancies WHERE id = $1', [entityId]);
-      await query('DELETE FROM engagement_events WHERE entity_type = \'vacancy\' AND entity_id = $1', [entityId]);
+      await prisma.engagementEvent.deleteMany({ where: { entityType: 'vacancy', entityId } });
+      await prisma.vacancy.deleteMany({ where: { id: entityId } });
 
       return NextResponse.json({ ok: true });
     }
 
     if (mode === 'pause_campaign') {
-      const entityId = Number(body.entityId ?? body.entity_id);
-      if (!entityId) {
+      if (\!entityId) {
         return NextResponse.json({ error: 'Campaign id is required' }, { status: 400 });
       }
 
-      const updated = await queryOne<Record<string, unknown>>(
-        `UPDATE campaigns 
-         SET status = CASE WHEN status = 'Paused' THEN 'Active' ELSE 'Paused' END
-         WHERE id = $1
-         RETURNING *`,
-        [entityId]
-      );
+      const campaign = await prisma.campaign.findUnique({ where: { id: entityId } });
+      if (\!campaign) {
+        return NextResponse.json({ error: 'Campaign not found' }, { status: 404 });
+      }
 
-      return NextResponse.json({ ok: true, item: mapCampaignRow(updated ?? {}) });
+      const nextStatus = campaign.status.toLowerCase() === 'paused' ? 'active' : 'paused';
+      const updated = await prisma.campaign.update({ where: { id: entityId }, data: { status: nextStatus } });
+
+      return NextResponse.json({ ok: true, item: mapCampaignRow(updated as unknown as Record<string, unknown>) });
     }
 
     if (mode === 'delete_campaign') {
-      const entityId = Number(body.entityId ?? body.entity_id);
-      if (!entityId) {
+      if (\!entityId) {
         return NextResponse.json({ error: 'Campaign id is required' }, { status: 400 });
       }
 
-      await query('DELETE FROM campaigns WHERE id = $1', [entityId]);
-      await query('DELETE FROM engagement_events WHERE entity_type = \'campaign\' AND entity_id = $1', [entityId]);
+      await prisma.engagementEvent.deleteMany({ where: { entityType: 'campaign', entityId } });
+      await prisma.campaign.deleteMany({ where: { id: entityId } });
 
-      return NextResponse.json({ ok: true });
+      await prisma.engagementEvent.create({
+        data: {
+          entityType: 'campaign',
+          entityId,
+          actorId: userId,
+          action: 'delete',
+          message: `Campaign deleted by ${userId}`,
+        },
+      });
+
+      return NextResponse.json({ ok: true, deleted: true, entityId });
     }
 
     if (mode === 'pause_listing') {
-      const entityId = Number(body.entityId ?? body.entity_id);
-      if (!entityId) {
+      if (\!entityId) {
         return NextResponse.json({ error: 'Market listing id is required' }, { status: 400 });
       }
 
-      const updated = await queryOne<Record<string, unknown>>(
-        `UPDATE market_listings 
-         SET status = CASE WHEN status = 'paused' THEN 'open' ELSE 'paused' END
-         WHERE id = $1
-         RETURNING *`,
-        [entityId]
-      );
+      const listing = await prisma.marketListing.findUnique({ where: { id: entityId } });
+      if (\!listing) {
+        return NextResponse.json({ error: 'Market listing not found' }, { status: 404 });
+      }
 
-      return NextResponse.json({ ok: true, item: mapMarketRow(updated ?? {}) });
+      const nextStatus = listing.status === 'paused' ? 'open' : 'paused';
+      const updated = await prisma.marketListing.update({ where: { id: entityId }, data: { status: nextStatus } });
+
+      return NextResponse.json({ ok: true, item: mapMarketRow(updated as unknown as Record<string, unknown>) });
     }
 
     if (mode === 'delete_listing') {
-      const entityId = Number(body.entityId ?? body.entity_id);
-      if (!entityId) {
+      if (\!entityId) {
         return NextResponse.json({ error: 'Market listing id is required' }, { status: 400 });
       }
 
-      await query('DELETE FROM market_listings WHERE id = $1', [entityId]);
-      await query('DELETE FROM engagement_events WHERE entity_type = \'market\' AND entity_id = $1', [entityId]);
+      await prisma.engagementEvent.deleteMany({ where: { entityType: 'market', entityId } });
+      await prisma.marketListing.deleteMany({ where: { id: entityId } });
 
       return NextResponse.json({ ok: true });
     }
 
     if (mode === 'interact') {
       const entityType = toString(body.entityType ?? body.entity_type, 'campaign');
-      const entityId = toNumber(body.entityId ?? body.entity_id, 0);
       const action = toString(body.actionType ?? body.action ?? 'interact', 'interact');
       const message = toString(body.message ?? `${action} by ${userId}`, '');
 
-      if (!entityId) {
+      if (\!entityId) {
         return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
       }
 
-      await query(
-        'INSERT INTO engagement_events (entity_type, entity_id, actor_id, action, message) VALUES ($1, $2, $3, $4, $5)',
-        [entityType, entityId, userId, action, message]
-      );
+      await prisma.engagementEvent.create({
+        data: {
+          entityType,
+          entityId,
+          actorId: userId,
+          action,
+          message,
+        },
+      });
 
       return NextResponse.json({ ok: true, role, entityType, entityId, action, message });
     }
 
     if (mode === 'update_campaign') {
-      const entityId = toNumber(body.entityId ?? body.entity_id ?? body.campaignId, 0);
-      const minPayout = body.minPayout !== undefined || body.min_payout !== undefined ? Number(body.minPayout ?? body.min_payout ?? 0) : undefined;
-      const maxPayout = body.maxPayout !== undefined || body.max_payout !== undefined ? Number(body.maxPayout ?? body.max_payout ?? 0) : undefined;
-      const startDate = body.startDate !== undefined || body.start_date !== undefined ? toString(body.startDate ?? body.start_date, '') : undefined;
-      if (!entityId) return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
+      if (\!entityId) {
+        return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
+      }
 
-      const updates: string[] = [];
-      const values: unknown[] = [];
-      if (minPayout !== undefined) {
-        updates.push(`min_payout = $${values.length + 1}`);
-        values.push(minPayout);
+      const data: Record<string, unknown> = {};
+      if (body.minPayout \!== undefined || body.min_payout \!== undefined) {
+        data.minPayout = Number(body.minPayout ?? body.min_payout ?? 0);
       }
-      if (maxPayout !== undefined) {
-        updates.push(`max_payout = $${values.length + 1}`);
-        values.push(maxPayout);
+      if (body.maxPayout \!== undefined || body.max_payout \!== undefined) {
+        data.maxPayout = Number(body.maxPayout ?? body.max_payout ?? 0);
       }
-      if (startDate !== undefined) {
-        updates.push(`start_date = $${values.length + 1}`);
-        values.push(startDate || null);
+      if (body.startDate \!== undefined || body.start_date \!== undefined) {
+        const value = toString(body.startDate ?? body.start_date, '');
+        data.startDate = value ? new Date(value) : null;
       }
-      if (!updates.length) return NextResponse.json({ error: 'No campaign updates provided' }, { status: 400 });
 
-      await query(`UPDATE campaigns SET ${updates.join(', ')} WHERE id = $${values.length + 1}`, [...values, entityId]);
-      await query(
-        'INSERT INTO engagement_events (entity_type, entity_id, actor_id, action, message) VALUES ($1, $2, $3, $4, $5)',
-        ['campaign', entityId, userId, 'update', `Campaign updated by ${userId}`]
-      );
+      if (\!Object.keys(data).length) {
+        return NextResponse.json({ error: 'No campaign updates provided' }, { status: 400 });
+      }
+
+      await prisma.campaign.update({ where: { id: entityId }, data });
+      await prisma.engagementEvent.create({
+        data: {
+          entityType: 'campaign',
+          entityId,
+          actorId: userId,
+          action: 'update',
+          message: `Campaign updated by ${userId}`,
+        },
+      });
 
       return NextResponse.json({ ok: true, entityId });
     }
 
     if (mode === 'update_campaign_status') {
-      const entityId = toNumber(body.entityId ?? body.entity_id ?? body.campaignId, 0);
       const status = toString(body.status ?? body.newStatus ?? 'paused', 'paused');
-      if (!entityId) return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
+      if (\!entityId) {
+        return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
+      }
 
-      await query('UPDATE campaigns SET status = $1 WHERE id = $2', [status, entityId]);
-      await query(
-        'INSERT INTO engagement_events (entity_type, entity_id, actor_id, action, message) VALUES ($1, $2, $3, $4, $5)',
-        ['campaign', entityId, userId, 'status_update', `Status changed to ${status} by ${userId}`]
-      );
+      await prisma.campaign.update({ where: { id: entityId }, data: { status } });
+      await prisma.engagementEvent.create({
+        data: {
+          entityType: 'campaign',
+          entityId,
+          actorId: userId,
+          action: 'status_update',
+          message: `Status changed to ${status} by ${userId}`,
+        },
+      });
 
       return NextResponse.json({ ok: true, entityId, status });
     }
 
     if (mode === 'approve_campaign_submission') {
-      const entityId = toNumber(body.entityId ?? body.entity_id ?? body.campaignId, 0);
-      const approved = body.approved !== undefined ? Boolean(body.approved) : true;
-      if (!entityId) return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
+      const approved = body.approved \!== undefined ? Boolean(body.approved) : true;
+      if (\!entityId) {
+        return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
+      }
 
-      const nextStatus = approved ? 'Approved' : 'Pending Approval';
-      await query('UPDATE campaigns SET status = $1 WHERE id = $2', [nextStatus, entityId]);
-      await query(
-        'INSERT INTO engagement_events (entity_type, entity_id, actor_id, action, message) VALUES ($1, $2, $3, $4, $5)',
-        ['campaign', entityId, userId, 'approval', `Campaign submission ${approved ? 'approved' : 'submitted'} by ${userId}`]
-      );
+      const nextStatus = approved ? 'approved' : 'pending approval';
+      await prisma.campaign.update({ where: { id: entityId }, data: { status: nextStatus } });
+      await prisma.engagementEvent.create({
+        data: {
+          entityType: 'campaign',
+          entityId,
+          actorId: userId,
+          action: 'approval',
+          message: `Campaign submission ${approved ? 'approved' : 'submitted'} by ${userId}`,
+        },
+      });
 
       return NextResponse.json({ ok: true, entityId, status: nextStatus });
-    }
-
-    if (mode === 'delete_campaign') {
-      const entityId = toNumber(body.entityId ?? body.entity_id ?? body.campaignId, 0);
-      if (!entityId) return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
-
-      await query('DELETE FROM campaigns WHERE id = $1', [entityId]);
-      await query('DELETE FROM engagement_events WHERE entity_type = $1 AND entity_id = $2', ['campaign', entityId]);
-
-      await query(
-        'INSERT INTO engagement_events (entity_type, entity_id, actor_id, action, message) VALUES ($1, $2, $3, $4, $5)',
-        ['campaign', entityId, userId, 'delete', `Campaign deleted by ${userId}`]
-      );
-
-      return NextResponse.json({ ok: true, deleted: true, entityId });
     }
 
     return NextResponse.json({ error: 'Unsupported action' }, { status: 400 });

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMarketCards } from '@/lib/market';
-import { query } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -82,25 +82,6 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    await query(`
-      CREATE TABLE IF NOT EXISTS market_listings (
-        id SERIAL PRIMARY KEY,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL,
-        price NUMERIC DEFAULT 0,
-        profile_url TEXT,
-        platform TEXT,
-        handle TEXT,
-        followers INTEGER DEFAULT 0,
-        likes INTEGER DEFAULT 0,
-        engagement_rate NUMERIC DEFAULT 0,
-        niche TEXT,
-        created_by TEXT NOT NULL,
-        status TEXT DEFAULT 'open',
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      )
-    `);
-
     const body = await request.json().catch(() => ({}));
     const userId = toString(body.createdBy ?? body.userId ?? request.headers.get('x-user-id'), 'anonymous');
     const profileUrl = toString(body.profileUrl, '');
@@ -118,30 +99,8 @@ export async function POST(request: NextRequest) {
 
     const profile = await verifySocialAccount(profileUrl);
 
-    const inserted = await query<Record<string, unknown>>(
-      'INSERT INTO market_listings (title, description, price, profile_url, platform, handle, followers, likes, engagement_rate, niche, created_by, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, title, description, price, profile_url, platform, handle, followers, likes, engagement_rate, niche, created_by, status, created_at',
-      [
-        `Social account: ${profile.handle}`,
-        description,
-        price,
-        profile.profileUrl,
-        profile.platform,
-        profile.handle,
-        profile.followers,
-        profile.likes,
-        profile.engagementRate,
-        niche,
-        userId,
-        'open',
-      ]
-    );
-
-    const item = inserted[0];
-    return NextResponse.json({
-      ok: true,
-      item: {
-        id: String(item?.id ?? Date.now()),
-        title: `Social account: ${profile.handle}`,
+    const created = await prisma.marketListing.create({
+      data: {
         description,
         price,
         profileUrl: profile.profileUrl,
@@ -150,10 +109,27 @@ export async function POST(request: NextRequest) {
         followers: profile.followers,
         likes: profile.likes,
         engagementRate: profile.engagementRate,
-        niche,
         createdBy: userId,
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      item: {
+        id: String(created.id),
+        title: `Social account: ${created.handle}`,
+        description: created.description,
+        price: created.price,
+        profileUrl: created.profileUrl,
+        platform: created.platform,
+        handle: created.handle,
+        followers: created.followers,
+        likes: created.likes,
+        engagementRate: created.engagementRate,
+        niche,
+        createdBy: created.createdBy,
         status: 'open',
-        createdAt: item?.created_at ?? new Date().toISOString(),
+        createdAt: created.createdAt.toISOString(),
       },
     });
   } catch (error) {
