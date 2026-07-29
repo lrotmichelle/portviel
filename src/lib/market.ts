@@ -7,12 +7,12 @@ function toNumber(value: unknown, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-function formatCount(value: number): string {
-  return value.toLocaleString();
-}
-
 function toString(value: unknown, fallback = 'Seller') {
   return typeof value === 'string' && value.trim() ? value : fallback;
+}
+
+function computeViews(row: MarketListing): number {
+  return Math.max(500, Math.round(row.followers * 2 + row.likes * 1.5 + row.engagementRate * 25));
 }
 
 function mapMarketListing(row: MarketListing): MarketCardData {
@@ -23,8 +23,9 @@ function mapMarketListing(row: MarketListing): MarketCardData {
     sellerAvatar: undefined,
     description: row.description,
     handle: row.handle ?? 'seller',
-    followers: formatCount(row.followers),
-    likes: formatCount(row.likes),
+    followers: row.followers,
+    likes: row.likes,
+    views: computeViews(row),
     erCurrentRatio: row.engagementRate,
     erPreviousRatio: 0,
     vlCurrentRatio: row.engagementRate,

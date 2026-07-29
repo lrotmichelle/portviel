@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     const userId = toString(body.createdBy ?? body.userId ?? request.headers.get('x-user-id'), 'anonymous');
     const profileUrl = toString(body.profileUrl, '');
+    const title = toString(body.title ?? body.profileUrl ? `Social account: ${profileUrl.split('/').filter(Boolean).pop() ?? 'listing'}` : '', 'Market listing');
     const description = toString(body.description, '');
     const niche = toString(body.niche, 'General');
     const price = toNumber(body.price, 0);
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest) {
 
     const created = await prisma.marketListing.create({
       data: {
+        title,
         description,
         price,
         profileUrl: profile.profileUrl,
@@ -109,9 +111,12 @@ export async function POST(request: NextRequest) {
         followers: profile.followers,
         likes: profile.likes,
         engagementRate: profile.engagementRate,
+        niche,
         createdBy: userId,
       },
     });
+
+    const views = Math.max(500, Math.round(created.followers * 2 + created.likes * 1.5 + created.engagementRate * 25));
 
     return NextResponse.json({
       ok: true,
@@ -125,6 +130,7 @@ export async function POST(request: NextRequest) {
         handle: created.handle,
         followers: created.followers,
         likes: created.likes,
+        views,
         engagementRate: created.engagementRate,
         niche,
         createdBy: created.createdBy,

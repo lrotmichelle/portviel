@@ -33,32 +33,43 @@ export default function RecruitModal({ isOpen, onClose, onPublishSuccess }: Recr
 
     setIsSubmitting(true);
 
-    let calculatedDays = 14;
-    if (timeToHire === '7days') calculatedDays = 7;
-    if (timeToHire === '21days') calculatedDays = 21;
+    const calculatedDays = timeToHire === '7days' ? 7 : timeToHire === '21days' ? 21 : 14;
 
     try {
-      const formData = {
-        title,
-        employerName,
-        description,
-        skills,
-        vacant: parseInt(vacantSlots, 10) || 1,
-        minSalary: parseInt(minSalary, 10) || 0,
-        maxSalary: parseInt(maxSalary, 10) || 0,
-        daysRemaining: calculatedDays,
-        createdAt: new Date().toISOString()
-      };
+      const response = await fetch('/api/discover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
+        body: JSON.stringify({
+          title,
+          employerName,
+          description,
+          skills,
+          vacant: parseInt(vacantSlots, 10) || 1,
+          minSalary: parseInt(minSalary, 10) || 0,
+          maxSalary: parseInt(maxSalary, 10) || 0,
+          daysRemaining: calculatedDays,
+          category: 'general',
+        }),
+      });
 
-      console.log("Sending payload bundle straight to backend pipeline:", formData);
-
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      if (onPublishSuccess) {
-        onPublishSuccess(formData); 
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || 'Unable to publish vacancy');
       }
 
-      // Reset form states completely
+      if (onPublishSuccess) {
+        onPublishSuccess({
+          title: payload.item?.title ?? title,
+          employerName: payload.item?.employerName ?? employerName,
+          description: payload.item?.description ?? description,
+          skills: payload.item?.requirements ? String(payload.item.requirements).split(',').map((s: string) => s.trim()).filter(Boolean) : skills,
+          vacant: payload.item?.requiredPeople ?? (parseInt(vacantSlots, 10) || 1),
+          minSalary: payload.item?.minSalary ?? (parseInt(minSalary, 10) || 0),
+          maxSalary: payload.item?.maxSalary ?? (parseInt(maxSalary, 10) || 0),
+          daysRemaining: payload.item?.daysRemaining ?? calculatedDays,
+        });
+      }
+
       setTitle('');
       setEmployerName('');
       setDescription('');
@@ -66,11 +77,11 @@ export default function RecruitModal({ isOpen, onClose, onPublishSuccess }: Recr
       setVacantSlots('1');
       setMinSalary('');
       setMaxSalary('');
-      setTimeToHire('14days'); 
-      
+      setTimeToHire('14days');
       onClose();
     } catch (error) {
-      console.error("Submission transmission pipeline failed:", error);
+      console.error('Submission transmission pipeline failed:', error);
+      alert(error instanceof Error ? error.message : 'Unable to publish vacancy right now.');
     } finally {
       setIsSubmitting(false);
     }

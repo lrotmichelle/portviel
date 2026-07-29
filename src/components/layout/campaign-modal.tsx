@@ -279,11 +279,11 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
     setError('');
 
     try {
-      const response = await fetch('/api/secure', {
+      const response = await fetch('/api/campaigns/manage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo-user' },
         body: JSON.stringify({
-          mode: 'create_campaign',
+          action: 'create',
           title: projectName,
           description,
           category,

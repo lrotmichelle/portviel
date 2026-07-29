@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
     const [vacancies, campaigns, marketListings, activity] = await Promise.all([
       prisma.vacancy.findMany({ orderBy: { createdAt: 'desc' }, take: 20 }),
       prisma.campaign.findMany({ orderBy: { createdAt: 'desc' }, take: 20 }),
-      prisma.marketListing.findMany({ orderBy: { createdAt: 'desc' }, take: 20 }),
+      prisma.marketListing.findMany({ where: { createdBy: userId }, orderBy: { createdAt: 'desc' }, take: 20 }),
       prisma.engagementEvent.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }),
     ]);
 
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     const userId = toString(request.headers.get('x-user-id') ?? body.userId ?? body.createdBy ?? body.actorId, 'demo-user');
     const role = toString(request.headers.get('x-user-role') ?? body.role ?? 'member', 'member');
 
-    if (\!userId) {
+    if (!userId) {
       return NextResponse.json({ error: 'A user identity is required' }, { status: 401 });
     }
 
@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
       const maxSalary = Number(body.maxSalary ?? body.max_salary) || 0;
       const requirements = parseArray(body.skills ?? body.requirements).join(',');
 
-      if (\!title || \!description) {
+      if (!title || !description) {
         return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
       }
 
@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
       const publishFee = Number(body.publishFee ?? body.publish_fee) || 1000;
       const requiredPlatforms = parseArray(body.requiredPlatforms ?? body.required_platforms).join(',');
 
-      if (\!title || \!description) {
+      if (!title || !description) {
         return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
       }
 
@@ -275,7 +275,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      if (\!title || \!description) {
+      if (!title || !description) {
         return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
       }
 
@@ -312,12 +312,12 @@ export async function POST(request: NextRequest) {
     const entityId = Number(body.entityId ?? body.entity_id ?? body.campaignId ?? 0);
 
     if (mode === 'pause_vacancy') {
-      if (\!entityId) {
+      if (!entityId) {
         return NextResponse.json({ error: 'Vacancy id is required' }, { status: 400 });
       }
 
       const vacancy = await prisma.vacancy.findUnique({ where: { id: entityId } });
-      if (\!vacancy) {
+      if (!vacancy) {
         return NextResponse.json({ error: 'Vacancy not found' }, { status: 404 });
       }
 
@@ -333,7 +333,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (mode === 'delete_vacancy') {
-      if (\!entityId) {
+      if (!entityId) {
         return NextResponse.json({ error: 'Vacancy id is required' }, { status: 400 });
       }
 
@@ -344,12 +344,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (mode === 'pause_campaign') {
-      if (\!entityId) {
+      if (!entityId) {
         return NextResponse.json({ error: 'Campaign id is required' }, { status: 400 });
       }
 
       const campaign = await prisma.campaign.findUnique({ where: { id: entityId } });
-      if (\!campaign) {
+      if (!campaign) {
         return NextResponse.json({ error: 'Campaign not found' }, { status: 404 });
       }
 
@@ -360,7 +360,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (mode === 'delete_campaign') {
-      if (\!entityId) {
+      if (!entityId) {
         return NextResponse.json({ error: 'Campaign id is required' }, { status: 400 });
       }
 
@@ -381,12 +381,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (mode === 'pause_listing') {
-      if (\!entityId) {
+      if (!entityId) {
         return NextResponse.json({ error: 'Market listing id is required' }, { status: 400 });
       }
 
       const listing = await prisma.marketListing.findUnique({ where: { id: entityId } });
-      if (\!listing) {
+      if (!listing) {
         return NextResponse.json({ error: 'Market listing not found' }, { status: 404 });
       }
 
@@ -396,8 +396,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, item: mapMarketRow(updated as unknown as Record<string, unknown>) });
     }
 
+    if (mode === 'update_listing') {
+      if (!entityId) {
+        return NextResponse.json({ error: 'Market listing id is required' }, { status: 400 });
+      }
+
+      const newPrice = toNumber(body.price ?? body.newPrice ?? body.amount, NaN);
+      if (!Number.isFinite(newPrice) || newPrice < 0) {
+        return NextResponse.json({ error: 'A valid new price is required' }, { status: 400 });
+      }
+
+      const listing = await prisma.marketListing.findUnique({ where: { id: entityId } });
+      if (!listing) {
+        return NextResponse.json({ error: 'Market listing not found' }, { status: 404 });
+      }
+
+      const updated = await prisma.marketListing.update({
+        where: { id: entityId },
+        data: { price: newPrice },
+      });
+
+      await prisma.engagementEvent.create({
+        data: {
+          entityType: 'market',
+          entityId,
+          actorId: userId,
+          action: 'update_price',
+          message: `Market listing price updated to ${newPrice} by ${userId}`,
+        },
+      });
+
+      return NextResponse.json({ ok: true, item: mapMarketRow(updated as unknown as Record<string, unknown>) });
+    }
+
     if (mode === 'delete_listing') {
-      if (\!entityId) {
+      if (!entityId) {
         return NextResponse.json({ error: 'Market listing id is required' }, { status: 400 });
       }
 
@@ -412,7 +445,7 @@ export async function POST(request: NextRequest) {
       const action = toString(body.actionType ?? body.action ?? 'interact', 'interact');
       const message = toString(body.message ?? `${action} by ${userId}`, '');
 
-      if (\!entityId) {
+      if (!entityId) {
         return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
       }
 
@@ -430,23 +463,23 @@ export async function POST(request: NextRequest) {
     }
 
     if (mode === 'update_campaign') {
-      if (\!entityId) {
+      if (!entityId) {
         return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
       }
 
       const data: Record<string, unknown> = {};
-      if (body.minPayout \!== undefined || body.min_payout \!== undefined) {
+      if (body.minPayout !== undefined || body.min_payout !== undefined) {
         data.minPayout = Number(body.minPayout ?? body.min_payout ?? 0);
       }
-      if (body.maxPayout \!== undefined || body.max_payout \!== undefined) {
+      if (body.maxPayout !== undefined || body.max_payout !== undefined) {
         data.maxPayout = Number(body.maxPayout ?? body.max_payout ?? 0);
       }
-      if (body.startDate \!== undefined || body.start_date \!== undefined) {
+      if (body.startDate !== undefined || body.start_date !== undefined) {
         const value = toString(body.startDate ?? body.start_date, '');
         data.startDate = value ? new Date(value) : null;
       }
 
-      if (\!Object.keys(data).length) {
+      if (!Object.keys(data).length) {
         return NextResponse.json({ error: 'No campaign updates provided' }, { status: 400 });
       }
 
@@ -466,7 +499,7 @@ export async function POST(request: NextRequest) {
 
     if (mode === 'update_campaign_status') {
       const status = toString(body.status ?? body.newStatus ?? 'paused', 'paused');
-      if (\!entityId) {
+      if (!entityId) {
         return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
       }
 
@@ -485,8 +518,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (mode === 'approve_campaign_submission') {
-      const approved = body.approved \!== undefined ? Boolean(body.approved) : true;
-      if (\!entityId) {
+      const approved = body.approved !== undefined ? Boolean(body.approved) : true;
+      if (!entityId) {
         return NextResponse.json({ error: 'An entity id is required' }, { status: 400 });
       }
 

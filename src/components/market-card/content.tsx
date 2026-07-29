@@ -61,18 +61,18 @@ export default function Content({ cardData }: ContentProps) {
                 Followers
               </span>
               <span className="text-sm font-black font-mono tracking-tight leading-none text-emerald-400">
-                {cardData.followers}
+                {cardData.followers.toLocaleString()}
               </span>
             </div>
           </div>
           <div className="flex items-center gap-3 bg-[#0B0B0B]/90 border border-neutral-800/80 rounded-xl px-3 py-2.5 shadow-sm">
-            <ShoppingCart className="w-4 h-4 text-emerald-500/80 shrink-0" />
+            <Eye className="w-4 h-4 text-sky-400 shrink-0" />
             <div className="flex flex-col">
               <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider leading-none mb-1">
-                Value
+                Views
               </span>
-              <span className="text-sm font-black font-mono tracking-tight leading-none text-emerald-400">
-                {formatValue(cardData.valueRaw)}
+              <span className="text-sm font-black font-mono tracking-tight leading-none text-sky-400">
+                {cardData.views?.toLocaleString() ?? '0'}
               </span>
             </div>
           </div>

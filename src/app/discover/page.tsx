@@ -105,26 +105,67 @@ export default function DiscoverPage() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8 bg-transparent">
-      
-      {/* 🚀 ACTION CONTAINER: Placed search bar and Recruit button side-by-side */}
-      <div className="w-full max-w-2xl mx-auto mb-4 flex items-center gap-3">
+
+      {/* Intro: Heading + short description + CV link */}
+      <div className="w-full max-w-2xl mx-auto mb-4 text-center sm:text-left">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">work & hiring</h1>
+        <p className="mt-2 text-sm text-zinc-400">professionals , talented & dynamic people who are ready to work. <Link href="/office/cv" className="text-emerald-400 underline ml-2">Update CV</Link></p>
+      </div>
+
+      {/* Mobile (<=400px) action row: show buttons side-by-side before search on very small screens */}
+      <div className="hidden max-[400px]:flex w-full max-w-2xl mx-auto mb-3 flex-col gap-3">
+        <div className="grid w-full grid-cols-3 gap-2">
+          <Link href="/manage/vacancies" className="w-full rounded-2xl border border-zinc-700 bg-zinc-900/70 px-3 py-2 text-center text-sm font-semibold text-zinc-200">
+            <span className="-mx-1">Manage</span>
+          </Link>
+          <Link href="/profile" className="w-full rounded-2xl border border-zinc-700 bg-zinc-900/70 px-3 py-2 text-center text-sm font-semibold text-zinc-200">
+            <span className="-mx-1">Applications</span>
+          </Link>
+          <button onClick={() => setIsRecruitOpen(true)} className="w-full rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-amber-400">
+            <span className="-mx-1">Recruit</span>
+          </button>
+        </div>
+        <div className="flex items-center gap-2 bg-zinc-950/40 border border-zinc-800 rounded-2xl p-2.5">
+          <Search className="w-4 h-4 text-zinc-500 shrink-0" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Type to search roles, skills, companies..."
+            className="w-full bg-transparent border-0 outline-none text-zinc-200 placeholder-zinc-500 text-sm min-w-0 focus:ring-0 focus:outline-none"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="text-zinc-500 hover:text-zinc-300 p-1 rounded-full transition-colors duration-150"
+              aria-label="Clear search input"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 🚀 ACTION CONTAINER: Placed search bar and Recruit button side-by-side (hidden on very small screens) */}
+      <div className="hidden min-[401px]:flex w-full max-w-2xl mx-auto mb-4 items-center gap-2">
         
         {/* Sleek, Instant Live Search Bar Container */}
-        <div className="flex-1 flex items-center gap-2 bg-zinc-950/40 border border-zinc-800 rounded-2xl p-2.5 focus-within:border-zinc-700/80 transition-all duration-200">
+        <div className="flex-1 flex items-center gap-2 bg-zinc-950/40 border border-zinc-800 rounded-2xl p-2 focus-within:border-zinc-700/80 transition-all duration-200">
           <Search className="w-4 h-4 text-zinc-500 shrink-0 ml-1" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Type to search roles, skills, companies..."
-            className="w-full bg-transparent border-0 outline-none text-zinc-200 placeholder-zinc-500 text-xs sm:text-sm min-w-0 focus:ring-0 focus:outline-none"
+            className="w-full bg-transparent border-0 outline-none text-zinc-200 placeholder-zinc-500 text-sm min-w-0 focus:ring-0 focus:outline-none"
           />
           
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="text-zinc-500 hover:text-zinc-300 p-1 rounded-full transition-colors duration-150 mr-1"
+              className="text-zinc-500 hover:text-zinc-300 p-1 rounded-full transition-colors duration-150"
               aria-label="Clear search input"
             >
               <X className="w-4 h-4" />
@@ -135,30 +176,37 @@ export default function DiscoverPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/manage/vacancies"
-            className="flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800/80 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-3 py-3 rounded-2xl transition-all duration-150 font-bold uppercase text-[10px] tracking-widest shrink-0"
+            className="flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800/80 text-zinc-200 border border-zinc-700 hover:border-zinc-600 px-3 py-2 rounded-2xl transition-all duration-150 font-bold uppercase text-[10px] tracking-widest shrink-0"
           >
             <ClipboardList className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">Vacancies</span>
+            <span className="-mx-1 hidden sm:inline">Manage</span>
+          </Link>
+          <Link
+            href="/profile"
+            className="flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800/80 text-zinc-200 border border-zinc-700 hover:border-zinc-600 px-3 py-2 rounded-2xl transition-all duration-150 font-bold uppercase text-[10px] tracking-widest shrink-0"
+          >
+            <ClipboardList className="w-4 h-4 text-emerald-400" />
+            <span className="-mx-1 hidden sm:inline">Applications</span>
           </Link>
           <button
             type="button"
             onClick={() => setIsRecruitOpen(true)}
-            className="flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800/80 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-2xl transition-all duration-150 font-bold uppercase text-[10px] tracking-widest shrink-0"
+            className="flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800/80 text-zinc-200 border border-zinc-700 hover:border-zinc-600 px-3 py-2 rounded-2xl transition-all duration-150 font-bold uppercase text-[10px] tracking-widest shrink-0"
           >
             <Briefcase className="w-4 h-4 text-emerald-400" />
-            <span className="hidden sm:inline">Recruit</span>
+            <span className="-mx-1 hidden sm:inline">Recruit</span>
           </button>
         </div>
       </div>
 
-      {/* 🧭 SINGLE ROW BADGE CHIP FILTERS */}
-      <div className="w-full max-w-2xl mx-auto mb-10 overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 pb-2">
+      {/* 🧭 Filters: two rows on small screens, single row on larger screens */}
+      <div className="w-full max-w-2xl mx-auto mb-10 grid grid-cols-2 gap-2 sm:grid-cols-4 pb-2">
         
         <button
           type="button"
           disabled={hasNoMatches}
           onClick={() => setActiveSort('newest')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold whitespace-nowrap transition-all duration-150 ${
+          className={`flex items-center justify-center gap-1 px-3 py-2 rounded-2xl border border-zinc-700 text-[11px] font-semibold whitespace-nowrap transition-all duration-150 ${
             hasNoMatches
               ? 'bg-transparent text-zinc-700 border-zinc-900 cursor-not-allowed opacity-40'
               : activeSort === 'newest'
@@ -166,7 +214,7 @@ export default function DiscoverPage() {
               : 'bg-transparent text-zinc-400 border-zinc-800/80 hover:border-zinc-700 hover:text-zinc-200'
           }`}
         >
-          <Timer className="w-3.5 h-3.5 shrink-0" />
+          <Timer className="w-4 h-4 shrink-0" />
           <span>Newest</span>
         </button>
 
@@ -174,7 +222,7 @@ export default function DiscoverPage() {
           type="button"
           disabled={hasNoMatches}
           onClick={() => setActiveSort('applicants')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold whitespace-nowrap transition-all duration-150 ${
+          className={`flex items-center justify-center gap-1 px-3 py-2 rounded-2xl border border-zinc-700 text-[11px] font-semibold whitespace-nowrap transition-all duration-150 ${
             hasNoMatches
               ? 'bg-transparent text-zinc-700 border-zinc-900 cursor-not-allowed opacity-40'
               : activeSort === 'applicants'
@@ -182,7 +230,7 @@ export default function DiscoverPage() {
               : 'bg-transparent text-zinc-400 border-zinc-800/80 hover:border-zinc-700 hover:text-zinc-200'
           }`}
         >
-          <ArrowUpWideNarrow className="w-3.5 h-3.5 shrink-0" />
+          <ArrowUpWideNarrow className="w-4 h-4 shrink-0" />
           <span>Applicants</span>
         </button>
 
@@ -190,7 +238,7 @@ export default function DiscoverPage() {
           type="button"
           disabled={hasNoMatches}
           onClick={() => setActiveSort('payment')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold whitespace-nowrap transition-all duration-150 ${
+          className={`flex items-center justify-center gap-1 px-3 py-2 rounded-2xl border border-zinc-700 text-[11px] font-semibold whitespace-nowrap transition-all duration-150 ${
             hasNoMatches
               ? 'bg-transparent text-zinc-700 border-zinc-900 cursor-not-allowed opacity-40'
               : activeSort === 'payment'
@@ -198,7 +246,7 @@ export default function DiscoverPage() {
               : 'bg-transparent text-zinc-400 border-zinc-800/80 hover:border-zinc-700 hover:text-zinc-200'
           }`}
         >
-          <Flame className="w-3.5 h-3.5 shrink-0" />
+          <Flame className="w-4 h-4 shrink-0" />
           <span>Payment</span>
         </button>
 
@@ -206,7 +254,7 @@ export default function DiscoverPage() {
           type="button"
           disabled={hasNoMatches}
           onClick={() => setActiveSort('vacants')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold whitespace-nowrap transition-all duration-150 ${
+          className={`flex items-center justify-center gap-1 px-3 py-2 rounded-2xl border border-zinc-700 text-[11px] font-semibold whitespace-nowrap transition-all duration-150 ${
             hasNoMatches
               ? 'bg-transparent text-zinc-700 border-zinc-900 cursor-not-allowed opacity-40'
               : activeSort === 'vacants'
@@ -214,11 +262,15 @@ export default function DiscoverPage() {
               : 'bg-transparent text-zinc-400 border-zinc-800/80 hover:border-zinc-700 hover:text-zinc-200'
           }`}
         >
-          <UserCheck className="w-3.5 h-3.5 shrink-0" />
+          <UserCheck className="w-4 h-4 shrink-0" />
           <span>Vacants</span>
         </button>
 
       </div>
+      {/* Result count or empty states */}
+      {sortedJobs.length > 0 && (
+        <div className="max-w-2xl mx-auto mb-4 text-sm text-zinc-300">{sortedJobs.length} have a look</div>
+      )}
 
       {/* Grid Rendering Zone */}
       {sortedJobs.length > 0 ? (
@@ -229,7 +281,13 @@ export default function DiscoverPage() {
         </Grid>
       ) : (
         <div className="text-center py-20 border border-dashed border-zinc-800 rounded-2xl">
-          <p className="text-zinc-500 text-sm font-medium">No active listings match your search criteria.</p>
+          {jobsList.length === 0 ? (
+            <p className="text-zinc-500 text-sm font-medium">No vacancies available.</p>
+          ) : hasNoMatches ? (
+            <p className="text-zinc-500 text-sm font-medium">{searchQuery} doesn't match any vacants yet</p>
+          ) : (
+            <p className="text-zinc-500 text-sm font-medium">No results yet — adjust the filters criteria</p>
+          )}
           <button 
             type="button"
             onClick={() => {
