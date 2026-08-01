@@ -1,5 +1,4 @@
 import type { Offer, Order } from '@/types';
-import { prisma } from './prisma';
 
 function toNumber(value: unknown, fallback = 0) {
   const parsed = typeof value === 'number' ? value : Number(value);
@@ -56,18 +55,8 @@ function mapOffer(row: any): Offer {
 }
 
 export async function getNegotiationData() {
-  const orders = await prisma.order.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 20,
-  });
-
-  const offers = await prisma.offer.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 20,
-  });
-
   return {
-    orders: orders.map(mapOrder),
-    offers: offers.map(mapOffer),
+    orders: [],
+    offers: [],
   };
 }

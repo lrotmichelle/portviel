@@ -140,6 +140,7 @@ export default function MarketPage() {
             sellerAvatar: undefined,
             productPriceRaw: Number(item?.price ?? 0),
             valueRaw: Number(item?.price ?? 0),
+            views: Number(item?.views ?? 0),
             sellerBuys: 4,
             sellerSells: 2,
             sellerStars: 4.9,

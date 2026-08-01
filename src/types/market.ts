@@ -8,6 +8,7 @@ export interface MarketCardData {
   handle: string;
   followers: string;
   valueRaw: number;
+  views: number;
   erCurrentRatio: number;
   erPreviousRatio: number;
   likes: string;

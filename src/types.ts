@@ -76,6 +76,7 @@ export interface MarketCardData extends BaseCardData {
   sellerAvatar?: string;
   productPriceRaw: number;
   valueRaw: number;
+  views: number;
   sellerBuys: number;
   sellerSells: number;
   sellerStars: number;

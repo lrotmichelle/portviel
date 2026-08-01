@@ -48,3 +48,27 @@ node_modules/
 npm-cache/
 .next/
 .env
+
+# large files / bulky assets
+# Keep large archives and media out of Git; use Git LFS or external storage if needed.
+*.zip
+*.tar
+*.gz
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.iso
+*.dmg
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.mp3
+*.wav
+*.flac
+*.bin
+*.dat
+
+

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { desc } from 'drizzle-orm';
+
+import { marketListings } from '@/db/schema';
 import { getMarketCards } from '@/lib/market';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -100,21 +103,20 @@ export async function POST(request: NextRequest) {
 
     const profile = await verifySocialAccount(profileUrl);
 
-    const created = await prisma.marketListing.create({
-      data: {
-        title,
-        description,
-        price,
-        profileUrl: profile.profileUrl,
-        platform: profile.platform,
-        handle: profile.handle,
-        followers: profile.followers,
-        likes: profile.likes,
-        engagementRate: profile.engagementRate,
-        niche,
-        createdBy: userId,
-      },
-    });
+    const [created] = await db.insert(marketListings).values({
+      title,
+      description,
+      price,
+      profileUrl: profile.profileUrl,
+      platform: profile.platform,
+      handle: profile.handle,
+      followers: profile.followers,
+      likes: profile.likes,
+      engagementRate: profile.engagementRate,
+      niche,
+      createdBy: userId,
+      status: 'open',
+    }).returning();
 
     const views = Math.max(500, Math.round(created.followers * 2 + created.likes * 1.5 + created.engagementRate * 25));
 

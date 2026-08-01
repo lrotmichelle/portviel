@@ -1,21 +1,14 @@
 import type { MarketCardData } from '@/types';
-import type { MarketListing } from '@/generated/prisma/client';
-import { prisma } from './prisma';
+import { desc } from 'drizzle-orm';
 
-function toNumber(value: unknown, fallback = 0) {
-  const parsed = typeof value === 'number' ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
+import { marketListings } from '@/db/schema';
+import { db } from '@/lib/db';
 
-function toString(value: unknown, fallback = 'Seller') {
-  return typeof value === 'string' && value.trim() ? value : fallback;
-}
-
-function computeViews(row: MarketListing): number {
+function computeViews(row: any): number {
   return Math.max(500, Math.round(row.followers * 2 + row.likes * 1.5 + row.engagementRate * 25));
 }
 
-function mapMarketListing(row: MarketListing): MarketCardData {
+function mapMarketListing(row: any): MarketCardData {
   return {
     id: String(row.id),
     sellerName: row.createdBy,
@@ -43,10 +36,9 @@ function mapMarketListing(row: MarketListing): MarketCardData {
 }
 
 export async function getMarketCards(): Promise<MarketCardData[]> {
-  const rows = await prisma.marketListing.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 12,
-  });
+  const rows = await db.select().from(marketListings)
+    .orderBy(desc(marketListings.createdAt))
+    .limit(12);
 
   return rows.map(mapMarketListing);
 }

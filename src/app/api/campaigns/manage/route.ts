@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import type { Campaign } from '@/generated/prisma/client';
+import { eq } from 'drizzle-orm';
+
+import { campaigns } from '@/db/schema';
+import { db } from '@/lib/db';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -24,7 +26,7 @@ function parseArray(raw: unknown): string[] {
   return [];
 }
 
-function mapCampaignRow(row: Campaign) {
+function mapCampaignRow(row: any) {
   return {
     id: String(row.id),
     publisherProfileIcon: row.publisherProfileIcon,
@@ -42,7 +44,7 @@ function mapCampaignRow(row: Campaign) {
     totalBudget: row.totalBudget,
     budgetUsed: row.budgetUsed,
     highestMcp: row.highestMcp,
-    requiredPlatforms: row.requiredPlatforms ? row.requiredPlatforms.split(',').map((item) => item.trim()).filter(Boolean) : [],
+    requiredPlatforms: row.requiredPlatforms ? row.requiredPlatforms.split(',').map((item: string) => item.trim()).filter(Boolean) : [],
     startDate: row.startDate?.toISOString() ?? '',
     minPayout: row.minPayout ?? undefined,
     maxPayout: row.maxPayout ?? undefined,
@@ -78,30 +80,28 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
       }
 
-      const created = await prisma.campaign.create({
-        data: {
-          title,
-          description,
-          category,
-          nicheHashtag,
-          createdBy: userId,
-          status: 'active',
-          totalBudget,
-          budgetUsed: 0,
-          timeRemainingDays,
-          publisherRating: 4.8,
-          publisherProfileIcon: '/images/publisher-placeholder.png',
-          communitySize: 12000,
-          viewsGenerated: 10000,
-          likesGenerated: 1500,
-          highestMcp: 100,
-          requiredPlatforms,
-          publishFee,
-          startDate: startDateValue ? new Date(startDateValue) : null,
-          minPayout,
-          maxPayout,
-        },
-      });
+      const [created] = await db.insert(campaigns).values({
+        title,
+        description,
+        category,
+        nicheHashtag,
+        createdBy: userId,
+        status: 'active',
+        totalBudget,
+        budgetUsed: 0,
+        timeRemainingDays,
+        publisherRating: 4.8,
+        publisherProfileIcon: '/images/publisher-placeholder.png',
+        communitySize: 12000,
+        viewsGenerated: 10000,
+        likesGenerated: 1500,
+        highestMcp: 100,
+        requiredPlatforms,
+        publishFee,
+        startDate: startDateValue ? new Date(startDateValue) : null,
+        minPayout,
+        maxPayout,
+      }).returning();
 
       return NextResponse.json({ ok: true, item: mapCampaignRow(created) });
     }
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Campaign id is required' }, { status: 400 });
     }
 
-    const campaign = await prisma.campaign.findUnique({ where: { id: campaignId } });
+    const [campaign] = await db.select().from(campaigns).where(eq(campaigns.id, campaignId)).limit(1);
     if (!campaign) {
       return NextResponse.json({ error: 'Campaign not found' }, { status: 404 });
     }
@@ -138,10 +138,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ ok: true, message: 'No updates provided' });
       }
 
-      await prisma.campaign.update({
-        where: { id: campaignId },
-        data: { ...updateData, updatedAt: new Date() },
-      });
+      await db.update(campaigns)
+        .set({ ...updateData, updatedAt: new Date() })
+        .where(eq(campaigns.id, campaignId));
 
       return NextResponse.json({ ok: true, message: 'Campaign updated successfully' });
     }
@@ -151,13 +150,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: `Only the campaign creator can ${action} it` }, { status: 403 });
       }
 
-      await prisma.campaign.update({
-        where: { id: campaignId },
-        data: {
+      await db.update(campaigns)
+        .set({
           status: action === 'pause' ? 'paused' : 'active',
           updatedAt: new Date(),
-        },
-      });
+        })
+        .where(eq(campaigns.id, campaignId));
 
       return NextResponse.json({ ok: true, message: `Campaign ${action}d` });
     }
@@ -167,7 +165,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Only the campaign creator can delete it' }, { status: 403 });
       }
 
-      await prisma.campaign.delete({ where: { id: campaignId } });
+      await db.delete(campaigns).where(eq(campaigns.id, campaignId));
       return NextResponse.json({ ok: true, message: 'Campaign deleted' });
     }
 

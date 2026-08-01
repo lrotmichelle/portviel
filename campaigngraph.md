@@ -26,3 +26,25 @@ keep the chart size constant
 two curves to mark, likes -{gold}
                     views -{green}
 lines that mark x & y axes, white 
+
+for the competitions, {container}
+organise it in a tabular format like this.
+rank    name      likes       views    rate   owe
+ X       Y          Z           R       P      T
+
+ where X is rank
+ Y -> username 
+ Z -> likes in that campaign
+ R -> views in that campaign
+ P -> line sparkline compared with 7days of the week, views, if its increasing should be green, no increase gold   on decline red
+ T -> amount the campaign manager should pay
+
+ on update changes in ranks, the flip down effect 2s for the top, the rest 1s increase.
+
+ this should occupy 70% of the width,
+  to the right of it, add block buttons select campaign, date 5d, 10d, 16d, 1m, this year & this month
+
+  i see you tampered with the transactions container, its heigh must be equal to thats of the payment methods container, plz restore the height of the transactions container
+
+  convert all values to k, unless its ≥1m should be converted to m,
+  also border the contaer to leave no spaces

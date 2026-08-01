@@ -1,14 +1,12 @@
 import type { JobOffer } from '@/components/job-card/data';
-import type { Vacancy } from '@/generated/prisma/client';
-import { prisma } from './prisma';
+import { and, desc, eq, inArray } from 'drizzle-orm';
+
+import { engagementEvents, vacancies } from '@/db/schema';
+import { db } from '@/lib/db';
 
 function toNumber(value: unknown, fallback = 0) {
   const parsed = typeof value === 'number' ? value : Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-function toString(value: unknown, fallback = '') {
-  return typeof value === 'string' && value.trim() ? value : fallback;
 }
 
 function toStringArray(value: unknown): string[] {
@@ -23,7 +21,7 @@ function toStringArray(value: unknown): string[] {
   return [];
 }
 
-function mapVacancyToJob(vacancy: Vacancy, hasApplied: boolean): JobOffer {
+function mapVacancyToJob(vacancy: any, hasApplied: boolean): JobOffer {
   return {
     id: String(vacancy.id),
     employerName: vacancy.employerName ?? 'Employer',
@@ -47,31 +45,25 @@ function mapVacancyToJob(vacancy: Vacancy, hasApplied: boolean): JobOffer {
 }
 
 export async function getDiscoverJobs(): Promise<JobOffer[]> {
-  const vacancies = await prisma.vacancy.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 20,
-  });
+  const vacancyRows = await db.select().from(vacancies)
+    .orderBy(desc(vacancies.createdAt))
+    .limit(20);
 
-  const events = await prisma.engagementEvent.findMany({
-    where: {
-      entityType: 'vacancy',
-      actorId: 'demo-user',
-      action: { in: ['apply', 'withdraw'] },
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 200,
-  });
+  const activityRows = await db.select().from(engagementEvents)
+    .where(and(eq(engagementEvents.entityType, 'vacancy'), eq(engagementEvents.actorId, 'demo-user'), inArray(engagementEvents.action, ['apply', 'withdraw'])))
+    .orderBy(desc(engagementEvents.createdAt))
+    .limit(200);
 
   const latestActionByVacancy = new Map<string, string>();
 
-  for (const event of events) {
+  for (const event of activityRows) {
     const vacancyId = String(event.entityId);
     if (!latestActionByVacancy.has(vacancyId)) {
       latestActionByVacancy.set(vacancyId, event.action);
     }
   }
 
-  return vacancies.map((vacancy) =>
+  return vacancyRows.map((vacancy: any) =>
     mapVacancyToJob(vacancy, latestActionByVacancy.get(String(vacancy.id)) === 'apply')
   );
 }

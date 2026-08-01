@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { desc } from 'drizzle-orm';
+
+import { vacancies } from '@/db/schema';
 import { getDiscoverJobs } from '@/lib/discover';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -45,25 +48,24 @@ export async function POST(request: NextRequest) {
       : [];
     const requirements = requirementsArray.join(',');
 
-    const created = await prisma.vacancy.create({
-      data: {
-        title,
-        description,
-        category,
-        employerName,
-        handle,
-        rating: 4.8,
-        daysRemaining,
-        requiredPeople,
-        applicants: 0,
-        accepted: 0,
-        requirements,
-        minSalary,
-        maxSalary,
-        status: 'apply',
-        createdBy,
-      },
-    });
+    const [created] = await db.insert(vacancies).values({
+      title,
+      description,
+      category,
+      employerName,
+      handle,
+      rating: 4.8,
+      daysRemaining,
+      requiredPeople,
+      applicants: 0,
+      accepted: 0,
+      requirements,
+      minSalary,
+      maxSalary,
+      status: 'apply',
+      createdBy,
+      statusUpdatedAt: new Date(),
+    }).returning();
 
     return NextResponse.json({ ok: true, item: created });
   } catch (error) {

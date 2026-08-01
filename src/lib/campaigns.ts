@@ -1,17 +1,10 @@
-import type { Campaign } from '@/generated/prisma/client';
 import type { CampaignCardData } from '@/types/campaign';
-import { prisma } from './prisma';
+import { desc, eq } from 'drizzle-orm';
 
-function toNumber(value: unknown, fallback = 0) {
-  const parsed = typeof value === 'number' ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
+import { campaignMembers, campaigns } from '@/db/schema';
+import { db } from '@/lib/db';
 
-function toString(value: unknown, fallback = '') {
-  return typeof value === 'string' && value.trim() ? value : fallback;
-}
-
-function mapCampaignRow(row: Campaign, hasJoined = false): CampaignCardData {
+function mapCampaignRow(row: any, hasJoined = false): CampaignCardData {
   return {
     id: String(row.id),
     publisherProfileIcon: row.publisherProfileIcon,
@@ -30,7 +23,7 @@ function mapCampaignRow(row: Campaign, hasJoined = false): CampaignCardData {
     budgetUsed: row.budgetUsed,
     highestMcp: row.highestMcp,
     hasJoined,
-    requiredPlatforms: row.requiredPlatforms ? row.requiredPlatforms.split(',').map((platform) => platform.trim()).filter(Boolean) : [],
+    requiredPlatforms: row.requiredPlatforms ? row.requiredPlatforms.split(',').map((platform: string) => platform.trim()).filter(Boolean) : [],
     startDate: row.startDate?.toISOString(),
     minPayout: row.minPayout,
     maxPayout: row.maxPayout,
@@ -39,21 +32,15 @@ function mapCampaignRow(row: Campaign, hasJoined = false): CampaignCardData {
 }
 
 export async function getCampaigns(): Promise<CampaignCardData[]> {
-  const campaigns = await prisma.campaign.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 20,
-    include: {
-      members: {
-        where: {
-          userId: 'demo-user',
-          status: 'active',
-        },
-        select: { id: true },
-      },
-    },
-  });
+  const rows = await db.select().from(campaigns)
+    .where(eq(campaigns.status, 'active'))
+    .orderBy(desc(campaigns.createdAt))
+    .limit(20);
 
-  return campaigns.map((campaign) =>
-    mapCampaignRow(campaign, (campaign.members?.length ?? 0) > 0)
-  );
+  const memberRows = await db.select().from(campaignMembers)
+    .where(eq(campaignMembers.userId, 'demo-user'));
+
+  const joinedCampaignIds = new Set(memberRows.map((member) => String(member.campaignId)));
+
+  return rows.map((row: any) => mapCampaignRow(row, joinedCampaignIds.has(String(row.id))));
 }

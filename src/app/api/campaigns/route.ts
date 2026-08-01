@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import type { Campaign } from '@/generated/prisma/client';
+import { desc, eq } from 'drizzle-orm';
+
+import { campaignMembers, campaigns } from '@/db/schema';
+import { db } from '@/lib/db';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,7 +16,7 @@ function toString(value: unknown, fallback = '') {
   return typeof value === 'string' && value.trim() ? value : fallback;
 }
 
-function mapCampaignRow(row: Campaign & { members?: { id: number }[] }, hasJoined = false) {
+function mapCampaignRow(row: any, hasJoined = false) {
   return {
     id: String(row.id),
     publisherProfileIcon: row.publisherProfileIcon ?? '/images/publisher-placeholder.png',
@@ -32,7 +34,7 @@ function mapCampaignRow(row: Campaign & { members?: { id: number }[] }, hasJoine
     totalBudget: row.totalBudget,
     budgetUsed: row.budgetUsed,
     highestMcp: row.highestMcp,
-    requiredPlatforms: row.requiredPlatforms ? row.requiredPlatforms.split(',').map((value) => value.trim()).filter(Boolean) : [],
+    requiredPlatforms: row.requiredPlatforms ? row.requiredPlatforms.split(',').map((value: string) => value.trim()).filter(Boolean) : [],
     hasJoined,
     startDate: row.startDate?.toISOString() ?? '',
     minPayout: row.minPayout,
@@ -70,22 +72,24 @@ export async function GET(request: NextRequest) {
       where.status = 'active';
     }
 
-    const campaigns = await prisma.campaign.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-      include: filter === 'joined' ? undefined : include,
-    });
+    const rows = await db.select().from(campaigns)
+      .where(where.createdBy ? eq(campaigns.createdBy, where.createdBy) : where.status ? eq(campaigns.status, 'active') : undefined)
+      .orderBy(desc(campaigns.createdAt))
+      .limit(50);
 
     if (filter === 'joined') {
-      return NextResponse.json(campaigns.map((campaign) => mapCampaignRow(campaign as Campaign, true)));
+      const memberRows = await db.select().from(campaignMembers)
+        .where(eq(campaignMembers.userId, userId));
+
+      const joinedCampaignIds = new Set(memberRows.map((member) => member.campaignId));
+      return NextResponse.json(rows.filter((row) => joinedCampaignIds.has(row.id)).map((row) => mapCampaignRow(row, true)));
     }
 
-    return NextResponse.json(
-      campaigns.map((campaign) =>
-        mapCampaignRow(campaign as Campaign & { members?: { id: number }[] }, (campaign as any).members?.length > 0)
-      )
-    );
+    const memberRows = await db.select().from(campaignMembers)
+      .where(eq(campaignMembers.userId, userId));
+
+    const joinedCampaignIds = new Set(memberRows.map((member) => member.campaignId));
+    return NextResponse.json(rows.map((row) => mapCampaignRow(row, joinedCampaignIds.has(row.id))));
   } catch (error) {
     console.error('Failed to load campaigns', error);
     return NextResponse.json([], { status: 500 });
@@ -109,26 +113,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
     }
 
-    const created = await prisma.campaign.create({
-      data: {
-        title,
-        description,
-        category,
-        nicheHashtag,
-        createdBy: userId,
-        status: 'active',
-        totalBudget,
-        budgetUsed: 0,
-        timeRemainingDays,
-        publisherRating,
-        publisherProfileIcon: '/images/publisher-placeholder.png',
-        communitySize,
-        viewsGenerated: 0,
-        likesGenerated: 0,
-        highestMcp: 100,
-        requiredPlatforms: '',
-      },
-    });
+    const [created] = await db.insert(campaigns).values({
+      title,
+      description,
+      category,
+      nicheHashtag,
+      createdBy: userId,
+      status: 'active',
+      totalBudget,
+      budgetUsed: 0,
+      timeRemainingDays,
+      publisherRating,
+      publisherProfileIcon: '/images/publisher-placeholder.png',
+      communitySize,
+      viewsGenerated: 0,
+      likesGenerated: 0,
+      highestMcp: 100,
+      requiredPlatforms: '',
+    }).returning();
 
     return NextResponse.json({ ok: true, item: mapCampaignRow(created) });
   } catch (error) {
