@@ -6,12 +6,12 @@ export interface MarketCardData {
   productPriceRaw: number;
   description: string;
   handle: string;
-  followers: string;
+  followers: number;
   valueRaw: number;
   views: number;
   erCurrentRatio: number;
   erPreviousRatio: number;
-  likes: string;
+  likes: number;
   vlCurrentRatio: number;
   vlPreviousRatio: number;
   sentimentRate: number;

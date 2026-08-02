@@ -4,21 +4,21 @@ import { desc } from 'drizzle-orm';
 import { marketListings } from '@/db/schema';
 import { db } from '@/lib/db';
 
-function computeViews(row: any): number {
-  return Math.max(500, Math.round(row.followers * 2 + row.likes * 1.5 + row.engagementRate * 25));
+function computeViews(row: { followers?: number; likes?: number; engagementRate?: number }): number {
+  return Math.max(500, Math.round((row.followers ?? 0) * 2 + (row.likes ?? 0) * 1.5 + (row.engagementRate ?? 0) * 25));
 }
 
-function mapMarketListing(row: any): MarketCardData {
+function mapMarketListing(row: { id: number; createdBy?: string | null; handle?: string | null; description?: string | null; followers?: number | null; likes?: number | null; engagementRate?: number | null; price?: number | null; createdAt: Date | string; }): MarketCardData {
   return {
     id: String(row.id),
-    sellerName: row.createdBy,
-    sellerUsername: row.handle ?? 'seller',
+    sellerName: 'Portville Seller',
+    sellerUsername: 'portville-seller',
     sellerAvatar: undefined,
     description: row.description,
     handle: row.handle ?? 'seller',
-    followers: row.followers,
-    likes: row.likes,
-    views: computeViews(row),
+    followers: Number(row.followers ?? 0),
+    likes: Number(row.likes ?? 0),
+    views: Number(row.views ?? computeViews(row)),
     erCurrentRatio: row.engagementRate,
     erPreviousRatio: 0,
     vlCurrentRatio: row.engagementRate,

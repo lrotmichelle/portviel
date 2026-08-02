@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import type { MarketCardData, Order } from '@/types';
+import type { MarketCardData } from '@/types';
 import { recordOfficeEvent } from '@/lib/office-history';
 import { useNegotiationContext } from '@/context/NegotiationContext';
 import ListingModal from '@/components/layout/listing-modal';
@@ -14,12 +14,7 @@ const MarketCard = dynamic(() => import('@/components/market-card'), {
   loading: () => <div className="h-40 bg-neutral-900/20 rounded animate-pulse" />,
 });
 
-const BUYER_ID = 'buyer-001';
 const BUYER_NAME = 'You';
-
-function generateOrderId() {
-  return `order-${Date.now()}`;
-}
 
 export default function MarketPage() {
   const [marketCards, setMarketCards] = useState<MarketCardData[]>([]);
@@ -74,24 +69,24 @@ export default function MarketPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
-      <section className="border-b bg-gradient-to-r from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-800 py-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 dark:text-white mb-2">
+    <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-black text-white">
+      <section className="border-b border-white/10 bg-black px-4 py-8">
+        <div className="mx-auto max-w-7xl">
+          <h1 className="mb-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
             Market
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-zinc-400">
             Browse available listings and make counter offers
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <button
               onClick={() => setIsListingOpen(true)}
-              className="flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-400"
+              className="flex items-center gap-2 rounded-full border border-emerald-500/70 bg-transparent px-4 py-2 text-sm font-semibold text-emerald-500 transition-colors duration-150 hover:bg-emerald-500 hover:text-white active:bg-emerald-500 active:text-white"
             >
               <Plus className="h-4 w-4" />
-              Listing
+              Sale
             </button>
-            <Link href="/manage/listings" className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/70 px-4 py-2 text-sm font-semibold text-zinc-200">
+            <Link href="/manage/listings" className="flex items-center gap-2 rounded-full border border-amber-400/70 bg-transparent px-4 py-2 text-sm font-semibold text-amber-400 transition-colors duration-150 hover:bg-amber-400 hover:text-white active:bg-amber-400 active:text-white">
               <ClipboardList className="h-4 w-4" />
               My listings
             </Link>
@@ -99,10 +94,10 @@ export default function MarketPage() {
         </div>
       </section>
 
-      <main className="flex-1 py-12 px-4">
-        <div className="max-w-7xl mx-auto">
+      <main className="flex-1 bg-black px-4 py-12">
+        <div className="mx-auto max-w-7xl">
           {visibleMarketCards.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/70 p-8 text-center text-muted-foreground">
+            <div className="rounded-2xl border border-white/10 bg-transparent p-8 text-center text-zinc-400">
               No active market listings are available right now.
             </div>
           ) : (
@@ -127,8 +122,8 @@ export default function MarketPage() {
         onPublishSuccess={(item) => {
           const newCard: MarketCardData = {
             id: String(item?.id ?? Date.now()),
-            sellerName: item?.handle ? `@${item.handle}` : 'demo-user',
-            sellerUsername: item?.handle ? `@${item.handle}` : 'demo-user',
+            sellerName: 'Portville Seller',
+            sellerUsername: 'portville-seller',
             description: item?.description ?? 'New market listing',
             handle: item?.handle ? `@${item.handle}` : '@demo-user',
             followers: Number(item?.followers ?? 0),

@@ -1,23 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-// Removed unused/incorrect import
 import { recordOfficeEvent } from '@/lib/office-history';
 import OfferCard from '@/components/offer-card';
-import { getUnreadNotificationCount } from '@/lib/notifications';
-import { useNegotiationContext } from '@/context/NegotiationContext';
+import { useNegotiationContext, type NegotiationSession } from '@/context/NegotiationContext';
 import { useNotification } from '@/hooks/useNotification';
 
 export default function OffersPage() {
   const [offerActions, setOfferActions] = useState<Record<string, 'view' | 'counter' | null>>({});
-  
+  const [offerFilter, setOfferFilter] = useState<'all' | 'acquired' | 'counter'>('all');
+
   const {
     sessions,
-    notifications,
-    events: negotiations,
     buyerRespondToOffer,
     finalizeNegotiation,
-    markAllNotificationsRead: markAllRead,
   } = useNegotiationContext();
 
   const { orders: allOrders, offers: allOffers } = useNotification();
@@ -45,16 +41,15 @@ export default function OffersPage() {
   };
 
   // Map active sessions to OfferCardData
-  const activeOffersList = Object.entries(sessions)
-    .filter(([_, session]) => session.status !== 'idle')
+  const activeOffersList = Object.entries(sessions as Record<string, NegotiationSession>)
+    .filter(([, session]) => session.status !== 'idle')
     .map(([cardId, session]) => {
-      // Find the latest order and offer for this card to get details
-      const cardOrders = allOrders.filter((o) => o.cardId === cardId);
+      const cardOrders = allOrders.filter((o: { cardId?: string }) => o.cardId === cardId);
       const latestOrder = cardOrders[cardOrders.length - 1];
 
       const latestOffer = allOffers
-        .filter((o) => {
-          const ord = allOrders.find((ord) => ord.id === o.orderId);
+        .filter((o: { orderId: string }) => {
+          const ord = allOrders.find((ord: { id: string; cardId?: string }) => ord.id === o.orderId);
           return ord?.cardId === cardId;
         })
         .pop();
@@ -70,41 +65,58 @@ export default function OffersPage() {
       };
     });
 
+  const acquiredCount = activeOffersList.filter(({ session, latestOffer }) => {
+    return session.status === 'finalized' || latestOffer?.status === 'completed';
+  }).length;
+
+  const counterCount = activeOffersList.filter(({ latestOffer }) => {
+    return latestOffer?.status === 'received';
+  }).length;
+
+  const filteredOffersList = activeOffersList.filter(({ session, latestOffer, latestOrder }) => {
+    if (offerFilter === 'acquired') {
+      return session.status === 'finalized' || latestOffer?.status === 'completed' || latestOrder?.status === 'completed';
+    }
+
+    if (offerFilter === 'counter') {
+      return latestOffer?.status === 'received' || latestOrder?.status === 'countered';
+    }
+
+    return true;
+  });
+
   return (
     <div className="py-10 px-4 max-w-6xl mx-auto">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold">Offers</h1>
-        <div className="flex items-center gap-3 rounded-full border border-neutral-800 bg-neutral-950/70 px-3 py-2 text-sm text-zinc-300">
-          <span>{getUnreadNotificationCount(notifications)} new updates</span>
+      <div className="mb-6 flex flex-wrap items-center justify-end gap-2">
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => markAllRead()}
-            className="rounded-full border border-neutral-700 px-2 py-1 text-xs uppercase tracking-[0.2em] text-zinc-400"
+            onClick={() => setOfferFilter((current) => (current === 'acquired' ? 'all' : 'acquired'))}
+            className={`rounded-full border px-3 py-2 text-sm font-medium ${offerFilter === 'acquired' ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-200' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'}`}
           >
-            Mark all read
+            {acquiredCount} acquired
+          </button>
+          <button
+            type="button"
+            onClick={() => setOfferFilter((current) => (current === 'counter' ? 'all' : 'counter'))}
+            className={`rounded-full border px-3 py-2 text-sm font-medium ${offerFilter === 'counter' ? 'border-amber-500/50 bg-amber-500/20 text-amber-200' : 'border-amber-500/30 bg-amber-500/10 text-amber-300'}`}
+          >
+            {counterCount} counter
           </button>
         </div>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-neutral-800 bg-neutral-950/60 p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-white">Notification manager</p>
-            <p className="text-sm text-zinc-400">Buyer and seller actions now update the shared notification stream and negotiation log.</p>
-          </div>
-          <div className="rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">
-            {negotiations.length} negotiation events
-          </div>
-        </div>
-      </div>
-
-      {activeOffersList.length === 0 ? (
+      {filteredOffersList.length === 0 ? (
         <div className="text-center py-12 text-zinc-400">
-          <p>No new offers</p>
+          <p>{offerFilter === 'acquired' ? 'No purchases yet' : offerFilter === 'counter' ? 'No counter offers yet' : 'No new offers'}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {activeOffersList.map(({ cardId, session, latestOrder, latestOffer, sellerName }) => {
+        <>
+          <div className="mb-6 rounded-full border border-neutral-800 bg-neutral-950/70 px-4 py-2 text-sm text-zinc-400">
+            <span>Offers expire within a week if ignored.</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredOffersList.map(({ cardId, session, latestOrder, latestOffer, sellerName }) => {
             const isInactive = ['passed', 'declined', 'timed-out', 'finalized'].includes(session.status);
 
             return (
@@ -145,7 +157,8 @@ export default function OffersPage() {
               />
             );
           })}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

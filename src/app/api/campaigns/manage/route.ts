@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 
 import { campaigns } from '@/db/schema';
-import { db } from '@/lib/db';
+import { db, ensureDatabaseSchema } from '@/lib/db';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -54,6 +54,7 @@ function mapCampaignRow(row: any) {
 
 export async function POST(request: NextRequest) {
   try {
+    await ensureDatabaseSchema();
     const body = await request.json().catch(() => ({}));
     const userId = toString(request.headers.get('x-user-id') ?? body.userId ?? body.createdBy, 'demo-user');
     const action = toString(body.action ?? body.mode, '').toLowerCase();

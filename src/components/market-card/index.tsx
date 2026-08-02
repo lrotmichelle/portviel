@@ -81,7 +81,7 @@ export default function MarketCard({ cardData, hideFooter = false, hideBorder = 
     };
 
     return (
-        <div className={`w-full max-w-[350px] mx-auto bg-black p-4 flex flex-col gap-4 transition-all duration-300 ${hideBorder ? '' : 'rounded-2xl border border-neutral-800'} ${isInactive ? 'opacity-60 grayscale bg-neutral-900/40 pointer-events-none' : ''}`}>
+        <div className={`mx-auto flex w-full max-w-[350px] flex-col gap-4 bg-transparent p-4 transition-all duration-300 ${hideBorder ? '' : 'rounded-2xl border border-white/10'} ${isInactive ? 'pointer-events-none bg-black/20 opacity-60 grayscale' : ''}`}>
             <Header
                 name={cardData.sellerName}
                 username={cardData.sellerUsername}

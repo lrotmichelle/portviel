@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Users, ShoppingCart, Triangle, Eye, Heart } from 'lucide-react';
+import { Users, Triangle, Eye, Heart } from 'lucide-react';
 import type { MarketCardData } from '@/types';
 
 interface ContentProps {
@@ -26,21 +26,8 @@ export default function Content({ cardData }: ContentProps) {
   const erIconColor = getRatioColor(erRatio);
   const vlIconColor = getRatioColor(vlRatio);
 
-  // Format value for display
-  const formatValue = (valueRaw: number): string => {
-    if (valueRaw >= 1_000_000) {
-      const millions = valueRaw / 1_000_000;
-      return `${millions.toFixed(2).replace(/\.0+$/, '').replace(/\.$/, '')}M`;
-    }
-    if (valueRaw >= 1_000) {
-      const thousands = valueRaw / 1_000;
-      return `${thousands.toFixed(1).replace(/\.0$/, '')}k`;
-    }
-    return valueRaw.toString();
-  };
-
   return (
-    <div className="bg-zinc-950/20 border border-neutral-900 rounded-2xl p-3.5 flex flex-col gap-4 text-left mt-3">
+    <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-white/10 bg-transparent p-3.5 text-left">
       <div className="flex flex-col gap-2 px-0.5">
         <p className="text-[11px] leading-relaxed font-normal text-zinc-400">
           {cardData.description}
@@ -54,7 +41,7 @@ export default function Content({ cardData }: ContentProps) {
 
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex items-center gap-3 bg-[#0B0B0B]/90 border border-neutral-800/80 rounded-xl px-3 py-2.5 shadow-sm">
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-transparent px-3 py-2.5 shadow-sm">
             <Users className="w-4 h-4 text-emerald-500/40 shrink-0" />
             <div className="flex flex-col">
               <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider leading-none mb-1">
@@ -65,7 +52,7 @@ export default function Content({ cardData }: ContentProps) {
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-3 bg-[#0B0B0B]/90 border border-neutral-800/80 rounded-xl px-3 py-2.5 shadow-sm">
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-transparent px-3 py-2.5 shadow-sm">
             <Eye className="w-4 h-4 text-sky-400 shrink-0" />
             <div className="flex flex-col">
               <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider leading-none mb-1">

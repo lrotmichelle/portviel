@@ -3,7 +3,7 @@ import { desc } from 'drizzle-orm';
 
 import { vacancies } from '@/db/schema';
 import { getDiscoverJobs } from '@/lib/discover';
-import { db } from '@/lib/db';
+import { db, ensureDatabaseSchema } from '@/lib/db';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -24,6 +24,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    await ensureDatabaseSchema();
     const body = await request.json().catch(() => ({}));
     const title = toString(body.title, '');
     const description = toString(body.description, '');

@@ -93,9 +93,9 @@ export default function Header({
                 )}
             </div>
 
-            <div className="flex items-center justify-between gap-3 p-3 border border-neutral-900 bg-[#060606]/40 rounded-2xl w-full">
+            <div className="flex w-full items-center justify-between gap-3 rounded-2xl border border-white/10 bg-transparent p-3">
                 <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neutral-800 to-neutral-950 border border-neutral-800 flex items-center justify-center shrink-0 overflow-hidden">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-transparent">
                         {avatar ? (
                             <img src={avatar} alt={name} className="w-full h-full object-cover grayscale opacity-90" />
                         ) : (

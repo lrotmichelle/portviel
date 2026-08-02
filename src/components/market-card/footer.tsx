@@ -27,11 +27,11 @@ export default function Footer({
     const isCostlyDisabled = hasVotedCostly || isCostlyMaxed || isMaxed;
 
     const getBtnClasses = (color: 'emerald' | 'amber' | 'red', isDisabled: boolean) => {
-        const base = "group flex items-center justify-center gap-1 py-2 px-1 border rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-150 active:scale-[0.98] truncate";
+        const base = "group flex items-center justify-center gap-1 rounded-xl border py-2 px-1 text-[10px] font-black uppercase tracking-wider transition-all duration-150 active:scale-[0.98] truncate";
         const themes = {
-            emerald: "bg-transparent text-emerald-500 border-emerald-900/40 hover:bg-emerald-600 hover:text-white active:bg-emerald-600 active:text-white",
-            amber: "bg-transparent text-amber-500 border-amber-900/40 hover:bg-amber-500 hover:text-white active:bg-amber-500 active:text-white",
-            red: "bg-transparent text-red-500 border-red-900/40 hover:bg-red-600 hover:text-white active:bg-red-600 active:text-white"
+            emerald: "border-emerald-500/70 bg-transparent text-emerald-500 hover:bg-emerald-500 hover:text-white active:bg-emerald-500 active:text-white",
+            amber: "border-amber-400/70 bg-transparent text-amber-400 hover:bg-amber-400 hover:text-white active:bg-amber-400 active:text-white",
+            red: "border-red-500/70 bg-transparent text-red-500 hover:bg-red-500 hover:text-white active:bg-red-500 active:text-white"
         };
         const disabledClass = isDisabled ? "opacity-20 cursor-not-allowed" : "";
         return `${base} ${themes[color]} ${disabledClass}`;

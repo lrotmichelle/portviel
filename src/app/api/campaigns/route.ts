@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { desc, eq } from 'drizzle-orm';
 
 import { campaignMembers, campaigns } from '@/db/schema';
-import { db } from '@/lib/db';
+import { db, ensureDatabaseSchema } from '@/lib/db';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -45,6 +45,7 @@ function mapCampaignRow(row: any, hasJoined = false) {
 
 export async function GET(request: NextRequest) {
   try {
+    await ensureDatabaseSchema();
     const userId = toString(request.headers.get('x-user-id') ?? request.nextUrl.searchParams.get('userId'), 'demo-user');
     const filter = toString(request.nextUrl.searchParams.get('filter'), '');
 
