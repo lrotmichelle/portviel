@@ -120,12 +120,19 @@ export default function MarketPage() {
         isOpen={isListingOpen}
         onClose={() => setIsListingOpen(false)}
         onPublishSuccess={(item) => {
+          const normalizedDescription = typeof item?.description === 'string' && item.description.trim()
+            ? item.description
+            : 'New market listing';
+          const normalizedHandle = typeof item?.handle === 'string' && item.handle.trim()
+            ? `@${item.handle.replace(/^@/, '')}`
+            : '@demo-user';
+
           const newCard: MarketCardData = {
             id: String(item?.id ?? Date.now()),
             sellerName: 'Portville Seller',
             sellerUsername: 'portville-seller',
-            description: item?.description ?? 'New market listing',
-            handle: item?.handle ? `@${item.handle}` : '@demo-user',
+            description: normalizedDescription,
+            handle: normalizedHandle,
             followers: Number(item?.followers ?? 0),
             likes: Number(item?.likes ?? 0),
             erCurrentRatio: Number(item?.engagementRate ?? 0),

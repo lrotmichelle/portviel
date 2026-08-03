@@ -6,7 +6,7 @@ import { X, CheckCircle2 } from 'lucide-react';
 interface ListingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onPublishSuccess?: (item: Record<string, unknown>) => void;
+  onPublishSuccess?: (item: any) => void;
 }
 
 export default function ListingModal({ isOpen, onClose, onPublishSuccess }: ListingModalProps) {

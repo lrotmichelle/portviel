@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       {/* REMOVED: bg-neutral-50, text-neutral-900, dark:bg-neutral-900, dark:text-neutral-50
         ADDED: bg-background text-foreground to sync directly with your dark globals variables!
       */}

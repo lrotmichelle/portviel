@@ -72,7 +72,6 @@ export default function OrdersPage() {
           {filteredOrdersList.map((order) => {
             const currentAction = orderActions[order.id];
             const session = order.cardId ? sessions[order.cardId] : undefined;
-            const currentStatus = session?.status ?? order.status;
 
             return (
               <OrderCard
@@ -87,7 +86,7 @@ export default function OrdersPage() {
                   description: order.description,
                   handle: order.handle ?? `@${(order.sellerName || order.buyerName).toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '')}`,
                   hashtags: order.hashtags,
-                  status: currentStatus as Order['status'],
+                  status: order.status,
                   customStatus: session ? session.status : undefined,
                   createdAt: order.createdAt,
                   followers: Math.max(order.followers ?? 3000, 3000),

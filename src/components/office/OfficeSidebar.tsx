@@ -24,8 +24,10 @@ export default function OfficeSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`block px-4 py-2 rounded-lg transition-colors ${
-                isActive ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-neutral-800'
+              className={`block rounded-lg border px-4 py-2 transition-colors ${
+                isActive
+                  ? 'border-amber-500/30 bg-amber-500/15 text-amber-300'
+                  : 'border-transparent text-zinc-300 hover:border-emerald-500/25 hover:bg-neutral-900 hover:text-emerald-300'
               }`}
             >
               {item.label}
@@ -38,7 +40,7 @@ export default function OfficeSidebar() {
       <div className="p-4 border-t border-neutral-800">
         <Link 
           href="/office/cv"
-          className="group block p-3 rounded-xl border border-neutral-700 bg-gradient-to-br from-neutral-900 to-black hover:border-neutral-500 transition-all"
+          className="group block rounded-xl border border-neutral-700 bg-gradient-to-br from-neutral-900 to-black transition-all hover:border-emerald-500/40"
         >
           {/* Changed text color to green */}
           <p className="text-[10px] text-emerald-500 uppercase font-bold tracking-wider mb-2">Make a new CV</p>

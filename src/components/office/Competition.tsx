@@ -61,7 +61,7 @@ export default function Competition({ items }: { items?: CompetitionItem[] }) {
       <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-3 h-full">
         <div className="mb-3 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div>
-            <h4 className="text-sm font-semibold text-zinc-200">Competition</h4>
+            <h4 className="text-sm font-semibold text-zinc-200">Victory in campaign</h4>
           </div>
         </div>
 

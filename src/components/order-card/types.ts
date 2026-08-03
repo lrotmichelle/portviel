@@ -24,7 +24,7 @@ export interface OrderCardData {
   offeredPrice?: number;
   originalPrice?: number;
   orderDescription?: string;
-  status?: 'pending' | 'accepted' | 'countered' | 'declined' | 'completed';
+  status?: 'pending' | 'accepted' | 'countered' | 'declined' | 'completed' | 'passed' | 'timed-out';
   createdAt?: string;
   isInactive?: boolean;
 }

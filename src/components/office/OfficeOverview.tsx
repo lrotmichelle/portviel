@@ -424,7 +424,7 @@ export default function OfficeOverview() {
             <h1 className="text-3xl font-black text-white">Welcome</h1>
             <h2 className="mt-1 text-xl font-semibold text-zinc-300">Martha Mukisa</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
-              Track your progress with office insights.
+              Track your campaign momentum, creator reach, and recent income in one view.
             </p>
           </div>
 
@@ -466,10 +466,9 @@ export default function OfficeOverview() {
           <div className="rounded-[28px] border border-zinc-800 p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm text-zinc-500">Championship</p>
-                <h2 className="mt-1 text-xl font-semibold text-white">Leaderboard rankings</h2>
+                <p className="text-sm text-zinc-500">Campaign league</p>
+                <h2 className="mt-1 text-xl font-semibold text-white">Campaign leaderboard</h2>
               </div>
-              <div className="rounded-full border border-zinc-800 px-3 py-1 text-sm text-zinc-400">Live</div>
             </div>
 
             {championshipRankings.length === 0 ? (
@@ -516,8 +515,8 @@ export default function OfficeOverview() {
             <div className="rounded-[28px] border border-zinc-800/70 p-5">
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <h3 className="text-lg font-semibold text-white">Momentum overview</h3>
-                  <p className="mt-1 text-sm text-zinc-400">Rank up to maximum payout.</p>
+                    <h3 className="text-lg font-semibold text-white">Campaign target</h3>
+                  <p className="mt-1 text-sm text-zinc-400">Track campaign reach against your target audience.</p>
                 </div>
                 <div className="rounded-full border border-zinc-800 px-3 py-1 text-xs text-zinc-400">Championship</div>
               </div>
@@ -544,7 +543,7 @@ export default function OfficeOverview() {
                   </div>
                   <div className="flex-1">
                     <div className="flex flex-col items-center text-center">
-                      <CircularCoverageChart value={selectedCampaignCoverage.percentage} label="Coverage" />
+                      <CircularCoverageChart value={selectedCampaignCoverage.percentage} label="Campaign reach" />
                     </div>
                   </div>
                 </div>
@@ -577,7 +576,7 @@ export default function OfficeOverview() {
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
               <div className="flex-1 min-w-0 rounded-[20px] border border-amber-500/70 p-2.5 sm:p-3 h-fit">
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-base font-black uppercase tracking-[0.2em] text-amber-400">offers</span>
+                  <span className="text-base font-black uppercase tracking-[0.2em] text-amber-400">campaigners</span>
                   <span className="text-sm font-medium text-amber-400">conv {marketActivity.offers.averageConversion}</span>
                 </div>
 
@@ -660,7 +659,7 @@ export default function OfficeOverview() {
 
               <div className="flex-1 min-w-0 rounded-[20px] border border-emerald-500/70 p-2.5 sm:p-3 xl:order-2 h-fit">
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-base font-black uppercase tracking-[0.2em] text-emerald-400">orders</span>
+                  <span className="text-base font-black uppercase tracking-[0.2em] text-emerald-400">recent income</span>
                   <span className="text-sm font-medium text-emerald-400">conv {marketActivity.orders.averageConversion}</span>
                 </div>
 
@@ -800,9 +799,9 @@ export default function OfficeOverview() {
             </div>
 
           </div>
-</div>
         </div>
-        </div>
+      </div>
+    </div>
     </>
   );
 }

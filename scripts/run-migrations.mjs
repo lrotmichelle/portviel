@@ -42,6 +42,17 @@ try {
   await migrate(db, { migrationsFolder: migrationsDir });
   console.log('Migrations complete');
 } catch (error) {
+  const isNetworkError =
+    error?.cause?.code === 'ENETUNREACH' ||
+    error?.cause?.code === 'ECONNREFUSED' ||
+    error?.code === 'ENETUNREACH' ||
+    error?.code === 'ECONNREFUSED';
+
+  if (process.env.NODE_ENV === 'development' && isNetworkError) {
+    console.warn('Database is unreachable. Skipping migrations in development mode.');
+    process.exit(0);
+  }
+
   console.error('Migration failed', error);
   process.exit(1);
 } finally {
