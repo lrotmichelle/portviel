@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PortViel - Campaign Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      /* Hide scrollbars completely while maintaining scrolling functionality */
+      ::-webkit-scrollbar { display: none; }
+      * { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-black text-white font-sans antialiased selection:bg-purple-500 selection:text-white">
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar -->
+        <aside class="w-[8.1rem] lg:w-[9.24rem] bg-black/40 backdrop-blur-md text-white flex flex-col justify-between shrink-0 select-none border-r border-white/10 transition-all duration-300">
+            <div>
+                <!-- Brand Logo -->
+                <div class="h-20 flex items-center justify-center px-2">
+                    <span class="text-lg font-bold tracking-tight text-white">PortViel</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="px-2 py-4 space-y-4 text-xs font-medium text-center">
+                    <a href="#" class="flex flex-col items-center gap-1 text-white hover:text-purple-300 transition group">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span class="text-[10px] scale-90">Overview</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition group">
+                        <i data-lucide="compass" class="w-5 h-5"></i>
+                        <span class="text-[10px] scale-90">Discover</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition group">
+                        <i data-lucide="megaphone" class="w-5 h-5"></i>
+                        <span class="text-[10px] scale-90">Campaign</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition group">
+                        <i data-lucide="store" class="w-5 h-5"></i>
+                        <span class="text-[10px] scale-90">Market</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition group">
+                        <i data-lucide="award" class="w-5 h-5"></i>
+                        <span class="text-[10px] scale-90">Sponsor</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-1 text-white/60 hover:text-white transition group">
+                        <i data-lucide="gift" class="w-5 h-5"></i>
+                        <span class="text-[10px] scale-90">Grants</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Profile Center section at bottom of sidebar -->
+            <div class="p-3 space-y-3 border-t border-white/10 text-center">
+                <div class="text-[9px] font-semibold uppercase tracking-wider text-white/40 truncate">Profile</div>
+                <div class="space-y-1 text-[10px] text-white/70">
+                    <div class="hover:text-white cursor-pointer transition truncate">Pro</div>
+                    <div class="hover:text-white cursor-pointer transition truncate">Hustels</div>
+                    <div class="hover:text-white cursor-pointer transition truncate">Talent</div>
+                    <div class="hover:text-white cursor-pointer transition truncate">Career</div>
+                </div>
+                <div class="pt-1">
+                    <button class="w-full py-1.5 px-1 bg-transparent border border-white/20 rounded text-[9px] font-medium text-white hover:bg-white/10 transition truncate">
+                        CV
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <div class="flex-1 flex flex-col overflow-y-auto bg-black">
+            
+            <!-- Top Header Navbar -->
+            <header class="h-20 bg-black/40 backdrop-blur-md text-white flex items-center justify-between px-8 shrink-0 border-b border-white/10">
+                <div></div>
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-1.5 text-xs font-medium cursor-pointer text-white/80 hover:text-white transition">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i> Orders
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs font-medium cursor-pointer text-white/80 hover:text-white transition">
+                        <i data-lucide="tag" class="w-4 h-4"></i> Offers
+                    </div>
+                    <div class="flex items-center gap-3 pl-4 border-l border-white/20">
+                        <div class="text-right">
+                            <p class="text-sm font-bold leading-none">UserName</p>
+                            <p class="text-[11px] text-white/60 mt-1">Paid off: UGX 4.5M | Balance: UGX 1.2M</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold">
+                            U
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="p-8 space-y-6">
+
+                <!-- Welcome Title Banner -->
+                <div class="bg-transparent p-5 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-center">
+                    <h1 class="text-xl font-bold text-white tracking-wide">Welcom Back <span class="text-white/60 font-normal">User name</span></h1>
+                    <p class="text-xs text-white/50 mt-1">Stay organized with realtime campaign analytics, activity & payouts</p>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- COMPONENT 1: MYCAMPAIGN -->
+                <!-- ========================================== -->
+                <section id="myCampaignComponent" class="space-y-6">
+                    
+                    <!-- Top Section -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                        
+                        <!-- Recent Transactions Box -->
+                        <div onclick="openTransactionsModal()" class="lg:col-span-6 bg-transparent p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-purple-500/50 transition group">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-bold text-sm text-white group-hover:text-purple-300 transition">Recent Transactions</span>
+                                <span class="text-[9px] text-white/50 uppercase tracking-wider">Payout Log</span>
+                            </div>
+
+                            <!-- 4 Data Rows (Slightly relaxed spacing) -->
+                            <div class="space-y-2 pr-1 pointer-events-none">
+                                <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-[11px]">
+                                    <div class="w-[60%] truncate pr-2">
+                                        <p class="font-bold text-white leading-normal truncate">Ronald Mutesasira Kiggundu</p>
+                                    </div>
+                                    <div class="w-[25%] truncate px-1 leading-normal">
+                                        <p class="text-[10px] font-medium text-white/80 truncate">MTN MoMo</p>
+                                        <p class="text-[8px] text-white/40 truncate">Aug 03, 2026</p>
+                                    </div>
+                                    <div class="w-[15%] text-right shrink-0">
+                                        <span class="text-green-400 font-semibold text-[10px]">+UGX 150K</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-[11px]">
+                                    <div class="w-[60%] truncate pr-2">
+                                        <p class="font-bold text-white leading-normal truncate">Grace Nakato Namubiru</p>
+                                    </div>
+                                    <div class="w-[25%] truncate px-1 leading-normal">
+                                        <p class="text-[10px] font-medium text-white/80 truncate">Airtel Money</p>
+                                        <p class="text-[8px] text-white/40 truncate">Aug 02, 2026</p>
+                                    </div>
+                                    <div class="w-[15%] text-right shrink-0">
+                                        <span class="text-green-400 font-semibold text-[10px]">+UGX 95K</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-[11px]">
+                                    <div class="w-[60%] truncate pr-2">
+                                        <p class="font-bold text-white leading-normal truncate">Brian Mugisha Kakuru</p>
+                                    </div>
+                                    <div class="w-[25%] truncate px-1 leading-normal">
+                                        <p class="text-[10px] font-medium text-white/80 truncate">Bank Transfer</p>
+                                        <p class="text-[8px] text-white/40 truncate">Jul 30, 2026</p>
+                                    </div>
+                                    <div class="w-[15%] text-right shrink-0">
+                                        <span class="text-green-400 font-semibold text-[10px]">+UGX 320K</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-[11px]">
+                                    <div class="w-[60%] truncate pr-2">
+                                        <p class="font-bold text-white leading-normal truncate">Daphine Akello Auma</p>
+                                    </div>
+                                    <div class="w-[25%] truncate px-1 leading-normal">
+                                        <p class="text-[10px] font-medium text-white/80 truncate">MTN MoMo</p>
+                                        <p class="text-[8px] text-white/40 truncate">Jul 28, 2026</p>
+                                    </div>
+                                    <div class="w-[15%] text-right shrink-0">
+                                        <span class="text-green-400 font-semibold text-[10px]">+UGX 75K</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Structure Box -->
+                        <div class="lg:col-span-4 bg-transparent p-4 rounded-2xl border border-white/10 shadow-sm space-y-3 flex flex-col justify-between">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-bold text-sm text-white">Payment Structure</h3>
+                                <span class="text-[9px] bg-white/10 text-white px-2 py-0.5 rounded-full font-semibold border border-white/10">Fund Campaign</span>
+                            </div>
+
+                            <!-- Campaign target progress bar -->
+                            <div class="space-y-1.5 text-[11px] text-white">
+                                <div class="flex justify-between text-white/80 text-[10px]">
+                                    <span>Joined vs Targeted (820 / 1,260)</span>
+                                    <div class="space-x-3">
+                                        <span class="text-purple-400 font-medium">65%</span>
+                                    </div>
+                                </div>
+                                <div class="w-full bg-white/10 rounded-full h-2">
+                                    <div class="bg-[#87e85c] h-2 rounded-full" style="width: 65%;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Multi-segmented Progress Bar -->
+                            <div class="space-y-1 text-[11px] text-white">
+                                <div class="flex justify-between text-[9px] text-white/70">
+                                    <span class="text-green-400">Paid off: 45%</span>
+                                    <span class="text-yellow-400">Owe: 25%</span>
+                                    <span class="text-blue-400">Remaining Budget: 30%</span>
+                                </div>
+                                <div class="w-full bg-white/10 rounded-full h-2 flex overflow-hidden">
+                                    <div class="bg-green-500 h-full" style="width: 45%;" title="Paid off 45%"></div>
+                                    <div class="bg-yellow-500 h-full" style="width: 25%;" title="Owe 25%"></div>
+                                    <div class="bg-blue-500 h-full" style="width: 30%;" title="Remaining Budget 30%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Expanded Sponsors List -->
+                            <div class="bg-transparent p-2 rounded-lg border border-white/10 space-y-1 text-[10px]">
+                                <div class="flex justify-between items-center pb-1 border-b border-white/10 font-medium text-white/60">
+                                    <span>Sponsors</span>
+                                    <span>2 Active</span>
+                                </div>
+                                <div class="grid grid-cols-1 gap-y-0.5 text-white/90">
+                                    <div class="truncate">• Apex Brands Ltd</div>
+                                    <div class="truncate">• Nile Holdings</div>
+                                </div>
+                            </div>
+
+                            <div class="pt-1 text-[10px] text-white/70 flex justify-between items-center border-t border-white/10">
+                                <span>Paid off: UGX 4.5M</span>
+                                <span class="text-white/60 font-medium">Owe: UGX 1.2M</span>
+                            </div>
+                        </div>
+
+                        <!-- Payment Methods Container -->
+                        <div class="lg:col-span-2 bg-transparent p-4 rounded-2xl border border-white/10 shadow-sm space-y-3 flex flex-col justify-between">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-bold text-xs text-white">Methods</h3>
+                                <span class="text-[8px] text-white/50 uppercase tracking-wider">Gateway</span>
+                            </div>
+
+                            <!-- 3 Payment Methods Stacked -->
+                            <div class="space-y-1.5">
+                                <div class="bg-transparent p-2 rounded-xl border border-white/10 flex items-center justify-between hover:border-purple-500/50 transition cursor-pointer">
+                                    <div class="flex items-center gap-2 truncate">
+                                        <div class="p-1 bg-purple-500/10 rounded-lg text-purple-400 shrink-0">
+                                            <i data-lucide="landmark" class="w-3 h-3"></i>
+                                        </div>
+                                        <div class="truncate">
+                                            <p class="text-[10px] font-semibold text-white truncate">Bank</p>
+                                            <p class="text-[8px] text-green-400 truncate">...8482</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] text-green-400 font-medium hover:underline shrink-0">edit</span>
+                                </div>
+
+                                <div class="bg-transparent p-2 rounded-xl border border-white/10 flex items-center justify-between hover:border-yellow-500/50 transition cursor-pointer">
+                                    <div class="flex items-center gap-2 truncate">
+                                        <div class="p-1 bg-yellow-500/10 rounded-lg text-yellow-400 shrink-0">
+                                            <i data-lucide="smartphone" class="w-3 h-3"></i>
+                                        </div>
+                                        <div class="truncate">
+                                            <p class="text-[10px] font-semibold text-white truncate">MoMo</p>
+                                            <p class="text-[8px] text-green-400 truncate">...3456</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] text-green-400 font-medium hover:underline shrink-0">edit</span>
+                                </div>
+
+                                <div class="bg-transparent p-2 rounded-xl border border-white/10 flex items-center justify-between hover:border-red-500/50 transition cursor-pointer">
+                                    <div class="flex items-center gap-2 truncate">
+                                        <div class="p-1 bg-red-500/10 rounded-lg text-red-400 shrink-0">
+                                            <i data-lucide="phone-call" class="w-3 h-3"></i>
+                                        </div>
+                                        <div class="truncate">
+                                            <p class="text-[10px] font-semibold text-white truncate">Airtel</p>
+                                            <p class="text-[8px] text-white/40 truncate">Not Linked</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] text-red-400 font-medium hover:underline shrink-0">configure</span>
+                                </div>
+                            </div>
+
+                            <!-- Deposit & Withdraw buttons -->
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
+                                <button class="py-1.5 px-1 bg-transparent hover:bg-white/10 text-white text-[10px] font-semibold rounded-lg border border-white/20 transition text-center truncate">
+                                    Deposit
+                                </button>
+                                <button class="py-1.5 px-1 bg-transparent hover:bg-white/10 text-white text-[10px] font-semibold rounded-lg border border-white/20 transition text-center truncate">
+                                    Withdraw
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Middle Row: My Campaign, CampaignFlow, Top Managers -->
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
+                        
+                        <!-- My Campaign Bar Chart Box -->
+                        <div class="bg-transparent p-5 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between xl:col-span-4 h-[380px]">
+                            <div>
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-bold text-sm text-white">My Campaign</h3>
+                                    <button class="px-3 py-1 bg-transparent text-white text-[11px] font-medium rounded-full border border-white/20 hover:bg-white/10 transition">Analyze</button>
+                                </div>
+                                
+                                <!-- Bar Graph Area -->
+                                <div id="campaignChartContainer" class="h-44 flex items-end justify-between gap-1 px-2 pt-6 relative">
+                                    <!-- Dynamic Bars Rendered via JS -->
+                                </div>
+                            </div>
+
+                            <!-- 3 Segmented Toggle Buttons -->
+                            <div class="grid grid-cols-3 gap-1.5 mt-3 bg-black/60 p-1 border border-white/20 rounded-xl">
+                                <button id="btnToday" onclick="setCampaignFilter('today')" class="py-1.5 text-xs font-medium rounded-lg bg-white/20 text-white transition cursor-pointer text-center">Today</button>
+                                <button id="btnWeek" onclick="setCampaignFilter('week')" class="py-1.5 text-xs font-medium rounded-lg text-white/70 hover:text-white transition cursor-pointer text-center">Week</button>
+                                <button id="btnYear" onclick="setCampaignFilter('year')" class="py-1.5 text-xs font-medium rounded-lg text-white/70 hover:text-white transition cursor-pointer text-center">Year</button>
+                            </div>
+                        </div>
+
+                        <!-- CampaignFlow (Bigger Donut Chart) -->
+                        <div class="bg-transparent p-5 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between xl:col-span-4 h-[380px]">
+                            <h3 class="font-bold text-sm text-white mb-2">CampaignFlow</h3>
+                            
+                            <div class="relative w-64 h-64 mx-auto flex items-center justify-center my-auto">
+                                <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 36 36">
+                                    <path class="text-white/10" stroke-width="3.8" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="text-red-500" stroke-dasharray="35, 100" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="text-blue-500" stroke-dasharray="15, 100" stroke-dashoffset="-35" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="text-indigo-400" stroke-dasharray="30, 100" stroke-dashoffset="-50" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="text-purple-500" stroke-dasharray="20, 100" stroke-dashoffset="-80" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <span class="text-[11px] font-bold text-white bg-black/80 px-2 py-0.5 rounded border border-white/10">100%</span>
+                                </div>
+
+                                <!-- Pointer Callout Labels -->
+                                <div class="absolute left-0 top-6 flex items-start gap-1">
+                                    <div class="flex flex-col items-center bg-black/90 px-2 py-1 rounded-lg border border-red-500/40 text-[9px] text-red-400 font-semibold shadow-md">
+                                        <div class="flex items-center gap-1 mb-1">
+                                            <i data-lucide="video" class="w-3 h-3 text-red-500"></i>
+                                            <span>TK</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 text-[8px] text-white/90">
+                                            <span class="flex items-center gap-0.5"><i data-lucide="eye" class="w-2.5 h-2.5 text-white/60"></i><span class="metric-val" data-val="1400000">1.4M</span></span>
+                                            <span class="flex items-center gap-0.5"><i data-lucide="heart" class="w-2.5 h-2.5 text-red-400"></i><span class="metric-val" data-val="450000">450K</span></span>
+                                        </div>
+                                    </div>
+                                    <svg class="w-3 h-3 text-red-500 mt-2 rotate-0 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+                                </div>
+
+                                <div class="absolute left-0 bottom-6 flex items-start gap-1">
+                                    <div class="flex flex-col items-center bg-black/90 px-2 py-1 rounded-lg border border-blue-500/40 text-[9px] text-blue-400 font-semibold shadow-md">
+                                        <div class="flex items-center gap-1 mb-1">
+                                            <i data-lucide="facebook" class="w-3 h-3 text-blue-500"></i>
+                                            <span>FB</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 text-[8px] text-white/90">
+                                            <span class="flex items-center gap-0.5"><i data-lucide="eye" class="w-2.5 h-2.5 text-white/60"></i><span class="metric-val" data-val="125400">125.4K</span></span>
+                                            <span class="flex items-center gap-0.5"><i data-lucide="heart" class="w-2.5 h-2.5 text-red-400"></i><span class="metric-val" data-val="12300">12.3K</span></span>
+                                        </div>
+                                    </div>
+                                    <svg class="w-3 h-3 text-blue-500 mt-2 rotate-0 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+                                </div>
+
+                                <div class="absolute right-0 top-6 flex items-start gap-1">
+                                    <svg class="w-3 h-3 text-indigo-400 mt-2 rotate-180 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+                                    <div class="flex flex-col items-center bg-black/90 px-2 py-1 rounded-lg border border-indigo-400/40 text-[9px] text-indigo-300 font-semibold shadow-md">
+                                        <div class="flex items-center gap-1 mb-1">
+                                            <i data-lucide="camera" class="w-3 h-3 text-indigo-400"></i>
+                                            <span>IG</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 text-[8px] text-white/90">
+                                            <span class="flex items-center gap-0.5"><i data-lucide="eye" class="w-2.5 h-2.5 text-white/60"></i><span class="metric-val" data-val="2100000">2.1M</span></span>
+                                            <span class="flex items-center gap-0.5"><i data-lucide="heart" class="w-2.5 h-2.5 text-red-400"></i><span class="metric-val" data-val="98500">98.5K</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="absolute right-0 bottom-6 flex items-start gap-1">
+                                    <svg class="w-3 h-3 text-purple-500 mt-2 rotate-180 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+                                    <div class="flex flex-col items-center bg-black/90 px-2 py-1 rounded-lg border border-purple-500/40 text-[9px] text-purple-400 font-semibold shadow-md">
+                                        <div class="flex items-center gap-1 mb-1">
+                                            <i data-lucide="play-square" class="w-3 h-3 text-purple-500"></i>
+                                            <span>YT</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 text-[8px] text-white/90">
+                                            <span class="flex items-center gap-0.5"><i data-lucide="eye" class="w-2.5 h-2.5 text-white/60"></i><span class="metric-val" data-val="89200">89.2K</span></span>
+                                            <span class="flex items-center gap-0.5"><i data-lucide="heart" class="w-2.5 h-2.5 text-red-400"></i><span class="metric-val" data-val="8100">8.1K</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Managers Box -->
+                        <div class="bg-transparent p-5 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between xl:col-span-4 h-[380px]">
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-bold text-sm text-white">Top Managers</h3>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="bg-transparent p-2 rounded border border-white/10 text-[11px] text-white flex items-center justify-between">
+                                        <div class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center font-bold text-[9px]">1</span><span>Manager_Alpha</span></div>
+                                        <span class="text-[10px] text-green-400 font-semibold metric-val" data-val="1400000">1.4M</span>
+                                    </div>
+                                    <div class="bg-transparent p-2 rounded border border-white/10 text-[11px] text-white flex items-center justify-between">
+                                        <div class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center font-bold text-[9px]">2</span><span>Manager_Beta</span></div>
+                                        <span class="text-[10px] text-green-400 font-semibold metric-val" data-val="950000">950K</span>
+                                    </div>
+                                    <div class="bg-transparent p-2 rounded border border-white/10 text-[11px] text-white flex items-center justify-between">
+                                        <div class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center font-bold text-[9px]">3</span><span>Manager_Gamma</span></div>
+                                        <span class="text-[10px] text-green-400 font-semibold metric-val" data-val="780000">780K</span>
+                                    </div>
+                                    <div class="bg-transparent p-2 rounded border border-white/10 text-[11px] text-white flex items-center justify-between">
+                                        <div class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center font-bold text-[9px]">4</span><span>Manager_Delta</span></div>
+                                        <span class="text-[10px] text-green-400 font-semibold metric-val" data-val="540000">540K</span>
+                                    </div>
+                                    <div class="bg-transparent p-2 rounded border border-white/10 text-[11px] text-white flex items-center justify-between">
+                                        <div class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center font-bold text-[9px]">5</span><span>Manager_Echo</span></div>
+                                        <span class="text-[10px] text-green-400 font-semibold metric-val" data-val="320000">320K</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pt-2">
+                                <button class="w-full py-1.5 bg-transparent hover:bg-white/10 text-white text-xs font-semibold rounded-xl border border-white/20 transition shadow-sm">
+                                    Pay Campaigneers
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ========================================== -->
+                <!-- COMPONENT 2: JOINEDCAMPAIGN -->
+                <!-- ========================================== -->
+                <section id="joinedCampaignComponent" class="space-y-6 pt-4 border-t border-white/10">
+                    
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-purple-400">Joined Campaign Analytics & Payouts</h2>
+                        <span class="text-[10px] text-white/40">Component: JoinedCampaign</span>
+                    </div>
+
+                    <!-- Middle Grid Row (3 Columns: Selected Campaign, Competition Pressure, Leaderboard) -->
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
+                        
+                        <!-- Selected Campaign Container (xl:col-span-4) - Hugging Content -->
+                        <div class="bg-transparent p-3 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between xl:col-span-4 h-auto">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="font-bold text-sm text-white">Selected Campaign</h3>
+                                    <button class="px-3 py-1 bg-transparent text-white text-[11px] font-medium rounded-full border border-white/20 hover:bg-white/10 transition">Analyze</button>
+                                </div>
+                                
+                                <!-- Bar Graph Area -->
+                                <div id="selectedCampaignChartContainer" class="h-36 flex items-end justify-between gap-1 px-1 pt-3 relative">
+                                    <!-- Dynamic Bars Rendered via JS -->
+                                </div>
+                            </div>
+
+                            <!-- 3 Filter Buttons (Today, Week, Year) -->
+                            <div class="grid grid-cols-3 gap-1.5 mt-2 bg-black/60 p-1 border border-white/20 rounded-xl">
+                                <button id="selBtnToday" onclick="setSelectedCampaignFilter('today')" class="py-1.5 text-xs font-medium rounded-lg bg-white/20 text-white transition cursor-pointer text-center">Today</button>
+                                <button id="selBtnWeek" onclick="setSelectedCampaignFilter('week')" class="py-1.5 text-xs font-medium rounded-lg text-white/70 hover:text-white transition cursor-pointer text-center">Week</button>
+                                <button id="selBtnYear" onclick="setSelectedCampaignFilter('year')" class="py-1.5 text-xs font-medium rounded-lg text-white/70 hover:text-white transition cursor-pointer text-center">Year</button>
+                            </div>
+                        </div>
+
+                        <!-- Competition Pressure Container (xl:col-span-4) - Hugging Content -->
+                        <div class="bg-transparent p-3 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between xl:col-span-4 h-auto">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="font-bold text-sm text-white">Competition Pressure</h3>
+                                    <span class="text-[9px] text-white/50 uppercase tracking-wider">Index</span>
+                                </div>
+                                <p class="text-[11px] text-white/60">Relative engagement momentum against competing campaigns.</p>
+                                
+                                <div class="space-y-2.5 pt-1">
+                                    <div>
+                                        <div class="flex justify-between text-[11px] mb-1">
+                                            <span class="text-white font-medium">Remaining Budget</span>
+                                            <span class="text-purple-400 font-semibold">78%</span>
+                                        </div>
+                                        <div class="w-full bg-white/10 rounded-full h-2">
+                                            <div class="bg-purple-500 h-2 rounded-full" style="width: 78%;"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-[11px] mb-1">
+                                            <span class="text-white/80">hit target</span>
+                                            <span class="text-white/60">85%</span>
+                                        </div>
+                                        <div class="w-full bg-white/10 rounded-full h-2">
+                                            <div class="bg-white/40 h-2 rounded-full" style="width: 85%;"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-[11px] mb-1">
+                                            <span class="text-white/80">secured Amount</span>
+                                            <span class="text-white/60">62%</span>
+                                        </div>
+                                        <div class="w-full bg-white/10 rounded-full h-2">
+                                            <div class="bg-white/30 h-2 rounded-full" style="width: 62%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Platform Views Row with Icons: tk, fb, yt & ig -->
+                                <div class="grid grid-cols-4 gap-1.5 pt-2 border-t border-white/10">
+                                    <div class="bg-black/40 p-1.5 rounded-xl border border-white/10 flex flex-col items-center justify-center text-center">
+                                        <div class="flex items-center gap-1 text-red-500 mb-0.5">
+                                            <i data-lucide="video" class="w-3 h-3"></i>
+                                            <span class="text-[9px] font-bold">tk</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold text-white metric-val" data-val="1400000">1.4M</span>
+                                    </div>
+                                    <div class="bg-black/40 p-1.5 rounded-xl border border-white/10 flex flex-col items-center justify-center text-center">
+                                        <div class="flex items-center gap-1 text-blue-500 mb-0.5">
+                                            <i data-lucide="facebook" class="w-3 h-3"></i>
+                                            <span class="text-[9px] font-bold">fb</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold text-white metric-val" data-val="125400">125.4K</span>
+                                    </div>
+                                    <div class="bg-black/40 p-1.5 rounded-xl border border-white/10 flex flex-col items-center justify-center text-center">
+                                        <div class="flex items-center gap-1 text-purple-500 mb-0.5">
+                                            <i data-lucide="play-square" class="w-3 h-3"></i>
+                                            <span class="text-[9px] font-bold">yt</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold text-white metric-val" data-val="89200">89.2K</span>
+                                    </div>
+                                    <div class="bg-black/40 p-1.5 rounded-xl border border-white/10 flex flex-col items-center justify-center text-center">
+                                        <div class="flex items-center gap-1 text-indigo-400 mb-0.5">
+                                            <i data-lucide="camera" class="w-3 h-3"></i>
+                                            <span class="text-[9px] font-bold">ig</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold text-white metric-val" data-val="2100000">2.1M</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pt-2 mt-2 text-[10px] text-white/50 border-t border-white/10 flex justify-between items-center">
+                                <div>
+                                    <!-- Dynamic Live Financial Status: if paid -> text-green-400 + "paid", if owe -> text-amber-400 (gold) + "owe" -->
+                                    <span id="liveStatusText" class="font-semibold text-green-400">paid: UGX 1.2M</span>
+                                </div>
+                                <!-- Dynamic Button: if owe -> "demand" button, if paid -> gray inactive "Received" button with check mark -->
+                                <div>
+                                    <button id="liveActionBtn" class="px-2.5 py-1 rounded-lg text-[10px] font-medium bg-zinc-800 text-zinc-400 border border-zinc-700 cursor-not-allowed flex items-center gap-1">
+                                        <i data-lucide="check" class="w-3 h-3"></i> Received
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Leaderboard Container (xl:col-span-4, exactly 5 rows, clickable to modal) - Hugging Content -->
+                        <div onclick="openLeaderboardModal()" class="bg-transparent p-3 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between space-y-2 xl:col-span-4 cursor-pointer hover:border-purple-500/50 transition group h-auto">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-bold text-sm text-white group-hover:text-purple-300 transition">Leaderboard</h3>
+                                    <span class="text-[9px] text-white/50 uppercase tracking-wider">Top 5</span>
+                                </div>
+                                <div class="space-y-1.5 pointer-events-none">
+                                    <div class="bg-transparent p-2 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                                        <div class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center font-bold text-[10px]">1</span><span class="font-bold">Manager_Alpha</span></div>
+                                        <span class="text-green-400 font-semibold metric-val" data-val="1400000">1.4M</span>
+                                    </div>
+                                    <div class="bg-transparent p-2 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                                        <div class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center font-bold text-[10px]">2</span><span class="font-bold">Manager_Beta</span></div>
+                                        <span class="text-green-400 font-semibold metric-val" data-val="950000">950K</span>
+                                    </div>
+                                    <div class="bg-transparent p-2 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                                        <div class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center font-bold text-[10px]">3</span><span class="font-bold">Manager_Gamma</span></div>
+                                        <span class="text-green-400 font-semibold metric-val" data-val="780000">780K</span>
+                                    </div>
+                                    <div class="bg-transparent p-2 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                                        <div class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center font-bold text-[10px]">4</span><span class="font-bold">Manager_Delta</span></div>
+                                        <span class="text-green-400 font-semibold metric-val" data-val="540000">540K</span>
+                                    </div>
+                                    <div class="bg-transparent p-2 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                                        <div class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center font-bold text-[10px]">5</span><span class="font-bold">Manager_Echo</span></div>
+                                        <span class="text-green-400 font-semibold metric-val" data-val="320000">320K</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Bottom Section: Campaign Payouts & Income Received (Relaxed spacing with +5% padding & line-height adjustments) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                        
+                        <!-- Campaign Payouts Container -->
+                        <div class="w-full">
+                            <div onclick="openCampaignPayoutsModal()" class="bg-transparent p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-purple-500/50 transition group">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-bold text-sm text-white group-hover:text-purple-300 transition">Campaign Payouts</h3>
+                                    <span class="text-[9px] text-white/50 uppercase tracking-wider">Campaign Log</span>
+                                </div>
+
+                                <div class="space-y-2 pr-1 pointer-events-none">
+                                    <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-xs">
+                                        <div class="w-[60%] truncate pr-2">
+                                            <p class="font-bold text-white leading-normal truncate">Ivan Ssempijja</p>
+                                        </div>
+                                        <div class="w-[25%] truncate px-1 leading-normal">
+                                            <p class="text-[10px] font-medium text-white/80 truncate">MTN MoMo</p>
+                                            <p class="text-[8px] text-white/40 truncate">Aug 04, 2026</p>
+                                        </div>
+                                        <div class="w-[15%] text-right shrink-0">
+                                            <span class="text-green-400 font-semibold text-[11px]">+UGX 180K</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-xs">
+                                        <div class="w-[60%] truncate pr-2">
+                                            <p class="font-bold text-white leading-normal truncate">Prossy Namubiru</p>
+                                        </div>
+                                        <div class="w-[25%] truncate px-1 leading-normal">
+                                            <p class="text-[10px] font-medium text-white/80 truncate">Airtel Money</p>
+                                            <p class="text-[8px] text-white/40 truncate">Aug 03, 2026</p>
+                                        </div>
+                                        <div class="w-[15%] text-right shrink-0">
+                                            <span class="text-green-400 font-semibold text-[11px]">+UGX 110K</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-xs">
+                                        <div class="w-[60%] truncate pr-2">
+                                            <p class="font-bold text-white leading-normal truncate">Samson Kasule</p>
+                                        </div>
+                                        <div class="w-[25%] truncate px-1 leading-normal">
+                                            <p class="text-[10px] font-medium text-white/80 truncate">Bank Transfer</p>
+                                            <p class="text-[8px] text-white/40 truncate">Aug 02, 2026</p>
+                                        </div>
+                                        <div class="w-[15%] text-right shrink-0">
+                                            <span class="text-green-400 font-semibold text-[11px]">+UGX 250K</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-xs">
+                                        <div class="w-[60%] truncate pr-2">
+                                            <p class="font-bold text-white leading-normal truncate">Anitah Najjuma</p>
+                                        </div>
+                                        <div class="w-[25%] truncate px-1 leading-normal">
+                                            <p class="text-[10px] font-medium text-white/80 truncate">MTN MoMo</p>
+                                            <p class="text-[8px] text-white/40 truncate">Aug 01, 2026</p>
+                                        </div>
+                                        <div class="w-[15%] text-right shrink-0">
+                                            <span class="text-green-400 font-semibold text-[11px]">+UGX 90K</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Income Received Container -->
+                        <div class="w-full">
+                            <div onclick="openIncomeModal()" class="bg-transparent p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-purple-500/50 transition group">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-bold text-sm text-white group-hover:text-purple-300 transition">Income Received</h3>
+                                    <span class="text-[9px] text-white/50 uppercase tracking-wider">Inflows Log</span>
+                                </div>
+
+                                <div class="space-y-2 pr-1 pointer-events-none">
+                                    <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-xs">
+                                        <div class="w-[60%] truncate pr-2">
+                                            <p class="font-bold text-white leading-normal truncate">Apex Brands Ltd</p>
+                                        </div>
+                                        <div class="w-[25%] truncate px-1 leading-normal">
+                                            <p class="text-[10px] font-medium text-white/80 truncate">Bank Transfer</p>
+                                            <p class="text-[8px] text-white/40 truncate">Aug 04, 2026</p>
+                                        </div>
+                                        <div class="w-[15%] text-right shrink-0">
+                                            <span class="text-green-400 font-semibold text-[11px]">+UGX 1.5M</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-xs">
+                                        <div class="w-[60%] truncate pr-2">
+                                            <p class="font-bold text-white leading-normal truncate">Nile Holdings</p>
+                                        </div>
+                                        <div class="w-[25%] truncate px-1 leading-normal">
+                                            <p class="text-[10px] font-medium text-white/80 truncate">MTN MoMo</p>
+                                            <p class="text-[8px] text-white/40 truncate">Aug 02, 2026</p>
+                                        </div>
+                                        <div class="w-[15%] text-right shrink-0">
+                                            <span class="text-green-400 font-semibold text-[11px]">+UGX 800K</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-xs">
+                                        <div class="w-[60%] truncate pr-2">
+                                            <p class="font-bold text-white leading-normal truncate">Victoria Group</p>
+                                        </div>
+                                        <div class="w-[25%] truncate px-1 leading-normal">
+                                            <p class="text-[10px] font-medium text-white/80 truncate">Airtel Money</p>
+                                            <p class="text-[8px] text-white/40 truncate">Jul 30, 2026</p>
+                                        </div>
+                                        <div class="w-[15%] text-right shrink-0">
+                                            <span class="text-green-400 font-semibold text-[11px]">+UGX 450K</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-transparent px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center justify-between text-xs">
+                                        <div class="w-[60%] truncate pr-2">
+                                            <p class="font-bold text-white leading-normal truncate">Pearl Logistics</p>
+                                        </div>
+                                        <div class="w-[25%] truncate px-1 leading-normal">
+                                            <p class="text-[10px] font-medium text-white/80 truncate">Bank Transfer</p>
+                                            <p class="text-[8px] text-white/40 truncate">Jul 28, 2026</p>
+                                        </div>
+                                        <div class="w-[15%] text-right shrink-0">
+                                            <span class="text-green-400 font-semibold text-[11px]">+UGX 1.2M</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- All Transactions Modal Popup -->
+    <div id="transactionsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden">
+        <div class="bg-zinc-950 border border-white/20 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden m-4">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+                <div>
+                    <h2 class="text-base font-bold text-white">All Transactions</h2>
+                    <p class="text-[11px] text-white/50">Complete log of all payout and deposit records</p>
+                </div>
+                <button onclick="closeTransactionsModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-2.5 flex-1">
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Ronald Mutesasira Kiggundu</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">MTN MoMo</p><p class="text-[9px] text-white/40 truncate">Aug 03, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 150K</span></div>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Grace Nakato Namubiru</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">Airtel Money</p><p class="text-[9px] text-white/40 truncate">Aug 02, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 95K</span></div>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Brian Mugisha Kakuru</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">Bank Transfer</p><p class="text-[9px] text-white/40 truncate">Jul 30, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 320K</span></div>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Daphine Akello Auma</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">MTN MoMo</p><p class="text-[9px] text-white/40 truncate">Jul 28, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 75K</span></div>
+                </div>
+            </div>
+            <div class="px-6 py-3 border-t border-white/10 text-[11px] text-white/50 flex justify-between items-center shrink-0">
+                <span>Total records: 4</span>
+                <span class="text-purple-400 font-medium">PortViel Secure Ledger</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal Popup -->
+    <div id="leaderboardModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden">
+        <div class="bg-zinc-950 border border-white/20 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden m-4">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+                <div>
+                    <h2 class="text-base font-bold text-white">Full Leaderboard</h2>
+                    <p class="text-[11px] text-white/50">Complete rankings across all participating members</p>
+                </div>
+                <button onclick="closeLeaderboardModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-2.5 flex-1">
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                    <div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs">1</span><span class="font-bold">Manager_Alpha</span></div>
+                    <span class="text-green-400 font-semibold metric-val" data-val="1400000">1.4M</span>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                    <div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs">2</span><span class="font-bold">Manager_Beta</span></div>
+                    <span class="text-green-400 font-semibold metric-val" data-val="950000">950K</span>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                    <div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs">3</span><span class="font-bold">Manager_Gamma</span></div>
+                    <span class="text-green-400 font-semibold metric-val" data-val="780000">780K</span>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                    <div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs">4</span><span class="font-bold">Manager_Delta</span></div>
+                    <span class="text-green-400 font-semibold metric-val" data-val="540000">540K</span>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                    <div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs">5</span><span class="font-bold">Manager_Echo</span></div>
+                    <span class="text-green-400 font-semibold metric-val" data-val="320000">320K</span>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                    <div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs">6</span><span class="font-bold">SubLeader_Zeta</span></div>
+                    <span class="text-green-400 font-semibold metric-val" data-val="290000">290K</span>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs text-white">
+                    <div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs">7</span><span class="font-bold">SubLeader_Eta</span></div>
+                    <span class="text-green-400 font-semibold metric-val" data-val="180000">180K</span>
+                </div>
+            </div>
+            <div class="px-6 py-3 border-t border-white/10 text-[11px] text-white/50 flex justify-between items-center shrink-0">
+                <span>Total ranked members: 7</span>
+                <span class="text-purple-400 font-medium">PortViel Leaderboard Ledger</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Payout Transactions Modal Popup -->
+    <div id="campaignPayoutsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden">
+        <div class="bg-zinc-950 border border-white/20 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden m-4">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+                <div>
+                    <h2 class="text-base font-bold text-white">Campaign Payout Transactions</h2>
+                    <p class="text-[11px] text-white/50">All transactions paid out by this specific campaign</p>
+                </div>
+                <button onclick="closeCampaignPayoutsModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-2.5 flex-1">
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Ivan Ssempijja</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">MTN MoMo</p><p class="text-[9px] text-white/40 truncate">Aug 04, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 180K</span></div>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Prossy Namubiru</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">Airtel Money</p><p class="text-[9px] text-white/40 truncate">Aug 03, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 110K</span></div>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Samson Kasule</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">Bank Transfer</p><p class="text-[9px] text-white/40 truncate">Aug 02, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 250K</span></div>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Anitah Najjuma</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">MTN MoMo</p><p class="text-[9px] text-white/40 truncate">Aug 01, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 90K</span></div>
+                </div>
+            </div>
+            <div class="px-6 py-3 border-t border-white/10 text-[11px] text-white/50 flex justify-between items-center shrink-0">
+                <span>Total campaign payouts: 4</span>
+                <span class="text-purple-400 font-medium">PortViel Campaign Ledger</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Income Received Modal Popup -->
+    <div id="incomeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden">
+        <div class="bg-zinc-950 border border-white/20 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden m-4">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+                <div>
+                    <h2 class="text-base font-bold text-white">Income Received</h2>
+                    <p class="text-[11px] text-white/50">All funding inflows received by this campaign</p>
+                </div>
+                <button onclick="closeIncomeModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-2.5 flex-1">
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Apex Brands Ltd</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">Bank Transfer</p><p class="text-[9px] text-white/40 truncate">Aug 04, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 1.5M</span></div>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Nile Holdings</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">MTN MoMo</p><p class="text-[9px] text-white/40 truncate">Aug 02, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 800K</span></div>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Victoria Group</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">Airtel Money</p><p class="text-[9px] text-white/40 truncate">Jul 30, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 450K</span></div>
+                </div>
+                <div class="bg-transparent p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+                    <div class="w-[60%] truncate pr-2"><p class="font-bold text-white truncate">Pearl Logistics</p></div>
+                    <div class="w-[25%] truncate px-1"><p class="text-[11px] font-medium text-white/80 truncate">Bank Transfer</p><p class="text-[9px] text-white/40 truncate">Jul 28, 2026</p></div>
+                    <div class="w-[15%] text-right shrink-0"><span class="text-green-400 font-semibold">+UGX 1.2M</span></div>
+                </div>
+            </div>
+            <div class="px-6 py-3 border-t border-white/10 text-[11px] text-white/50 flex justify-between items-center shrink-0">
+                <span>Total inflows: 4</span>
+                <span class="text-purple-400 font-medium">PortViel Inflow Ledger</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Numeric scaling logic
+        function formatMetric(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+            }
+            return num.toString();
+        }
+
+        document.querySelectorAll('.metric-val').forEach(el => {
+            const rawVal = parseFloat(el.getAttribute('data-val'));
+            if (!isNaN(rawVal)) {
+                el.textContent = formatMetric(rawVal);
+            }
+        });
+
+        // Dynamic My Campaign Chart Generator
+        let currentFilter = 'today';
+
+        function setCampaignFilter(filterType) {
+            currentFilter = filterType;
+
+            ['today', 'week', 'year'].forEach(type => {
+                const btn = document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1));
+                if (type === filterType) {
+                    btn.className = 'py-1.5 text-xs font-medium rounded-lg bg-white/20 text-white transition cursor-pointer text-center';
+                } else {
+                    btn.className = 'py-1.5 text-xs font-medium rounded-lg text-white/70 hover:text-white transition cursor-pointer text-center';
+                }
+            });
+
+            updateCampaignChart();
+        }
+
+        function updateCampaignChart() {
+            const container = document.getElementById('campaignChartContainer');
+            container.innerHTML = '';
+
+            let labels = [];
+
+            if (currentFilter === 'today') {
+                labels = ['12am', '2am', '4am', '6am', '8am', '10am', '12pm', '2pm', '4pm', '6pm', '8pm', '10pm'];
+            } else if (currentFilter === 'week') {
+                labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            } else if (currentFilter === 'year') {
+                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            }
+
+            labels.forEach((lbl) => {
+                const randomHeight = Math.floor(Math.random() * 65) + 30;
+                
+                const colDiv = document.createElement('div');
+                colDiv.className = 'bar-col flex flex-col items-center justify-end h-full flex-1 group relative';
+                
+                const bar = document.createElement('div');
+                bar.className = 'w-2 bg-[#87e85c] rounded-t-sm transition-all duration-300 group-hover:bg-purple-400';
+                bar.style.height = randomHeight + '%';
+                
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'text-[7.5px] text-white/50 mt-1 truncate w-full text-center';
+                labelSpan.textContent = lbl;
+
+                colDiv.appendChild(bar);
+                colDiv.appendChild(labelSpan);
+                container.appendChild(colDiv);
+            });
+        }
+
+        // Dynamic Selected Campaign Chart Generator
+        let currentSelectedFilter = 'today';
+
+        function setSelectedCampaignFilter(filterType) {
+            currentSelectedFilter = filterType;
+
+            ['today', 'week', 'year'].forEach(type => {
+                const btn = document.getElementById('selBtn' + type.charAt(0).toUpperCase() + type.slice(1));
+                if (type === filterType) {
+                    btn.className = 'py-1.5 text-xs font-medium rounded-lg bg-white/20 text-white transition cursor-pointer text-center';
+                } else {
+                    btn.className = 'py-1.5 text-xs font-medium rounded-lg text-white/70 hover:text-white transition cursor-pointer text-center';
+                }
+            });
+
+            updateSelectedCampaignChart();
+        }
+
+        function updateSelectedCampaignChart() {
+            const container = document.getElementById('selectedCampaignChartContainer');
+            container.innerHTML = '';
+
+            let labels = [];
+
+            if (currentSelectedFilter === 'today') {
+                labels = ['12am', '2am', '4am', '6am', '8am', '10am', '12pm', '2pm', '4pm', '6pm', '8pm', '10pm'];
+            } else if (currentSelectedFilter === 'week') {
+                labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            } else if (currentSelectedFilter === 'year') {
+                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            }
+
+            labels.forEach((lbl) => {
+                const randomHeight = Math.floor(Math.random() * 65) + 30;
+                
+                const colDiv = document.createElement('div');
+                colDiv.className = 'bar-col flex flex-col items-center justify-end h-full flex-1 group relative';
+                
+                const bar = document.createElement('div');
+                bar.className = 'w-2 bg-[#87e85c] rounded-t-sm transition-all duration-300 group-hover:bg-purple-400';
+                bar.style.height = randomHeight + '%';
+                
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'text-[7.5px] text-white/50 mt-1 truncate w-full text-center';
+                labelSpan.textContent = lbl;
+
+                colDiv.appendChild(bar);
+                colDiv.appendChild(labelSpan);
+                container.appendChild(colDiv);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateCampaignChart();
+            updateSelectedCampaignChart();
+        });
+
+        // Modal Controls
+        function openTransactionsModal() {
+            document.getElementById('transactionsModal').classList.remove('hidden');
+        }
+
+        function closeTransactionsModal() {
+            document.getElementById('transactionsModal').classList.add('hidden');
+        }
+
+        function openLeaderboardModal() {
+            document.getElementById('leaderboardModal').classList.remove('hidden');
+        }
+
+        function closeLeaderboardModal() {
+            document.getElementById('leaderboardModal').classList.add('hidden');
+        }
+
+        function openCampaignPayoutsModal() {
+            document.getElementById('campaignPayoutsModal').classList.remove('hidden');
+        }
+
+        function closeCampaignPayoutsModal() {
+            document.getElementById('campaignPayoutsModal').classList.add('hidden');
+        }
+
+        function openIncomeModal() {
+            document.getElementById('incomeModal').classList.remove('hidden');
+        }
+
+        function closeIncomeModal() {
+            document.getElementById('incomeModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
