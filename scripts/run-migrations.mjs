@@ -27,6 +27,12 @@ loadEnvFromLocalFile();
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('DATABASE_URL is not configured — skipping migrations in development.');
+    // exit with success so dev workflow can continue without a database
+    process.exit(0);
+  }
+
   console.error('DATABASE_URL is not configured');
   process.exit(1);
 }
