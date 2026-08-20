@@ -1,0 +1,6 @@
+- User identity is resolved uniformly from the `x-user-id` header, falling back to `body.userId` / `body.createdBy` / `body.actorId`, then defaulting to `'demo-user'` or `'anonymous'`.
+- Input sanitization is done with per-route local `toString`, `toNumber`, and `parseArray` helpers that coerce values and apply defaults instead of using an external validation library.
+- Database writes wrap each mutation in try/catch blocks that log errors and return `NextResponse.json({ error: ... }, { status })` with appropriate HTTP codes (400 for validation, 401/403 for auth, 404 for not found, 500 for failures).
+- Read-only routes call `ensureDatabaseSchema()` before querying to guarantee tables exist at runtime.
+- Domain-specific row mappers (`mapCampaignRow`, `mapVacancyRow`, `mapMarketRow`, `mapActivityRow`) normalize heterogeneous DB rows into consistent response shapes with sensible defaults.
+- Multi-action endpoints (`campaigns/manage`, `secure`) dispatch behavior by reading a `mode`/`action` string from the request body and branching on known values, returning `{ error: 'Unknown action' }` for unrecognized ones.

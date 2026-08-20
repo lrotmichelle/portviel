@@ -1,0 +1,7 @@
+The module is split into two sibling feature folders under `src/components/`.
+
+- `office/` is the main dashboard surface. `OfficeOverview.tsx` is the top-level page component that composes all sub-panels: it fetches joined/created campaigns via `/api/campaigns`, reads finance state from `@/lib/finance` (listening to `storage` and a custom `financeStateChanged` event), and renders leaderboards, channel health, recent income/offers, payment methods, and inserts `CampaignContainer`, `Competition`, and `TransactionsContainer`. A standalone `index.html` in this folder provides a self-contained static mock of the same layout using Tailwind CDN + Lucide icons for prototyping. `layout.tsx` exports a Next.js layout shell with a fixed sidebar and scrollable main area.
+- Charting is done with hand-rolled SVG inside pure React components: `CampaignProgressCurveGraph.tsx` draws a dual-line smooth curve (likes/views) over days/months/years; `DualTrackGaugeWidget.tsx` renders concentric circular gauges per platform; `Competition.tsx` builds sparklines from point arrays; `TransactionsContainer.tsx` cycles rows with a flip animation.
+- `campaign-manager/` contains smaller reusable widgets (`RecentTransactions.tsx`, `Wallet.tsx`) that accept props and render tables/cards formatted with `@/lib/currency` helpers.
+
+Dependency direction is one-way: `OfficeOverview` imports child components; chart widgets depend only on local state; both folders import shared libs (`@/lib/currency`, `@/lib/finance`, `@/context/NotificationContext`, `@/types/campaign`) but never each other.

@@ -1,0 +1,1 @@
+React + TypeScript, Tailwind CSS classes, `class-variance-authority` for variant-driven styling, and raw SVG for the chart; intentionally avoids Radix UI by implementing a lightweight `Slot` and a hand-rolled `Popover` context.

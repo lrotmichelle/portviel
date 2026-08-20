@@ -1,0 +1,1 @@
+Next.js App Router client pages that display and let users act on negotiation offers, incoming orders, and cart items by composing shared card components with global negotiation state.

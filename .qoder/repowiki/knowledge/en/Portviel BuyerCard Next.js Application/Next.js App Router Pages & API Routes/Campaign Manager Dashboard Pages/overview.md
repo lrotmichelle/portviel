@@ -1,0 +1,1 @@
+Next.js App Router pages and UI components that render the campaign manager dashboard, including a manage view with wallet, transactions, members, reminders, and progress bars, plus a joined campaigns placeholder.

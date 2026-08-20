@@ -1,0 +1,1 @@
+React Server Components disabled per-page via 'use client'; Next.js App Router file-based routing; Tailwind CSS for styling; fetch-based calls to a centralized '/api/secure' backend endpoint.

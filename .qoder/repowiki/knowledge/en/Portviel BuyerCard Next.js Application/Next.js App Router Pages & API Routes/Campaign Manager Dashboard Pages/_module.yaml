@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: pages_and_layout/campaign_manager
+title: Campaign Manager Dashboard Pages
+scope:
+    - src/app/campaign-manager/
+source_files: []
+depends_on: []
+related_to: []

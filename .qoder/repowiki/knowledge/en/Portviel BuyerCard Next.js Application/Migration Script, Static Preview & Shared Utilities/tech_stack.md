@@ -1,0 +1,1 @@
+Node.js ESM script using `drizzle-orm` with `node-postgres` for schema migrations; TypeScript utility built on `clsx` + `tailwind-merge` for CSS class resolution.

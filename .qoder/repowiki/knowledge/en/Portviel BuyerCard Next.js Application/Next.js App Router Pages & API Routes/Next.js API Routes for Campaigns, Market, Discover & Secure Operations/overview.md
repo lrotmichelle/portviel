@@ -1,0 +1,1 @@
+Next.js App Router server-side API endpoints that expose CRUD and discovery operations over campaigns, vacancies, market listings, negotiations, profile data, and secure multi-entity actions.

@@ -1,0 +1,1 @@
+React client components that render buyer profiles and interactive negotiation cards (offers and orders) with counter-offer flows, payment panels, and sentiment metrics.

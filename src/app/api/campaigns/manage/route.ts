@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
-import { campaigns } from '@/db/schema';
+import { campaignMembers, campaigns } from '@/db/schema';
 import { db, ensureDatabaseSchema } from '@/lib/db';
 
 export const runtime = 'nodejs';
@@ -168,6 +168,21 @@ export async function POST(request: NextRequest) {
 
       await db.delete(campaigns).where(eq(campaigns.id, campaignId));
       return NextResponse.json({ ok: true, message: 'Campaign deleted' });
+    }
+
+    if (action === 'join') {
+      const existing = await db.select().from(campaignMembers).where(and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, userId))).limit(1);
+      if (existing.length > 0) {
+        return NextResponse.json({ ok: true, message: 'Already joined' });
+      }
+
+      await db.insert(campaignMembers).values({ campaignId, userId, status: 'active' });
+      return NextResponse.json({ ok: true, message: 'Joined campaign' });
+    }
+
+    if (action === 'leave') {
+      await db.delete(campaignMembers).where(and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, userId)));
+      return NextResponse.json({ ok: true, message: 'Left campaign' });
     }
 
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 });

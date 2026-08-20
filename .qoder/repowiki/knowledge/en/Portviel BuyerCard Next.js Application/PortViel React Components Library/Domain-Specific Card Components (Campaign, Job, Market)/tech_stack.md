@@ -1,0 +1,1 @@
+React functional components with TypeScript, Tailwind CSS for styling, Next.js client components (`'use client'`) where interactivity is needed, and shared project utilities (`@/types`, `@/context/NegotiationContext`, `@/lib/currency`).

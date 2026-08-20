@@ -1,0 +1,1 @@
+Next.js App Router with React Server/Client components (`'use client'`), Tailwind CSS for styling, and a custom `DonutChart` component; mock data sourced from `@/lib/mockCampaigns` and currency formatting via `@/lib/currency`.

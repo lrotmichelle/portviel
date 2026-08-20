@@ -1,0 +1,3 @@
+- Global theme colors are exposed as CSS custom properties (`--background`, `--foreground`) and re-exported into Tailwind's color namespace via `@theme inline` rather than being hardcoded in components.
+- App-wide state is provided by wrapping `children` in context providers (`NotificationProvider`, `NegotiationProvider`) inside the root layout instead of per-page.
+- Persistent chrome (navbar, footer) is composed directly in `RootLayout` around `{children}`, keeping page components focused on route-specific content.

@@ -1,0 +1,1 @@
+Every route sets `export const runtime = 'nodejs'` and `export const dynamic = 'force-dynamic'` so handlers execute per-request on the Node runtime rather than being statically generated at build time.

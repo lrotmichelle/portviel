@@ -1,0 +1,11 @@
+schema_version: 1
+module_path: pages_and_layout/api_routes
+title: Next.js API Routes for Campaigns, Market, Discover & Secure Operations
+scope:
+    - src/app/api/
+source_files: []
+depends_on: []
+related_to:
+    - path: pages_and_layout/campaign_pages
+    - path: pages_and_layout/manage_dashboard
+    - path: pages_and_layout/office

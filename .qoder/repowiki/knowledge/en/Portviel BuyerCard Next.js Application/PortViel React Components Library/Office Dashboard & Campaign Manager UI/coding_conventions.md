@@ -1,0 +1,6 @@
+- Each React component is a `'use client'` function component that owns its own local state via `useState`/`useEffect` and renders purely with Tailwind utility classes.
+- Data fetching is performed inside `useEffect` with an async `load()` function that calls `fetch('/api/campaigns?filter=...')` and falls back to internal mock data when the request fails.
+- Numeric values are displayed through shared formatters from `@/lib/currency` (`formatCompactValue`, `formatCompactNumber`) rather than ad-hoc rounding logic.
+- Time-range filtering is implemented as a small set of string keys (`days|months|years`, `5d|10d|16d|this month`, etc.) stored in state and used to switch between precomputed datasets or toggle button styles.
+- Charts are built with raw SVG elements (`path`, `circle`, `line`) computed from local data arrays instead of third-party chart libraries.
+- Mock/static data is co-located next to the component that renders it (e.g., `transactions` array in `TransactionsContainer.tsx`, `defaultItems` in `Competition.tsx`, sample rows in `RecentTransactions.tsx`) so components work out-of-the-box without a backend.

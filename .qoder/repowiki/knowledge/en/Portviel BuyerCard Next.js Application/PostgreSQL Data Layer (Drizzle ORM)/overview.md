@@ -1,0 +1,1 @@
+Defines Drizzle ORM schema models and a singleton PostgreSQL client for the application's campaigns, vacancies, market listings, and engagement data.

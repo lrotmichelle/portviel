@@ -1,0 +1,1 @@
+Next.js App Router server-side API routes exposing campaigns, market listings, discover vacancies, negotiations, profile data, and a unified secure CRUD endpoint backed by Drizzle ORM.

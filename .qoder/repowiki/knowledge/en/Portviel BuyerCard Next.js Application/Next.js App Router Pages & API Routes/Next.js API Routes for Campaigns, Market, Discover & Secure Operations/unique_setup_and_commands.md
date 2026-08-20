@@ -1,0 +1,1 @@
+Every route handler opts into Node.js runtime via `export const runtime = 'nodejs'` and disables static generation with `export const dynamic = 'force-dynamic'`, so these endpoints must be served in a Node.js environment rather than Edge.

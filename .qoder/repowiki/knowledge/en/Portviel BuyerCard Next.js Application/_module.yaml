@@ -1,0 +1,32 @@
+schema_version: 1
+module_path: ""
+title: Portviel BuyerCard Next.js Application
+scope:
+    - README.md
+    - AGENTS.md
+    - AI_MEMORY.md
+    - CLAUDE.md
+    - .gitignore
+    - .nixpacks.toml
+    - drizzle.config.ts
+    - next.config.ts
+    - package.json
+    - package-lock.json
+    - tsconfig.json
+    - eslint.config.mjs
+    - postcss.config.mjs
+    - local.env
+    - campaignplan.md
+    - discover.md
+    - joinedcampaign.md
+    - officeplan.md
+    - plan.md
+    - campaigngraph.md
+    - +campaignplan.md
+    - Users:.fileloc
+    - notifications.cmd
+    - plan.cmd
+    - .http.log
+source_files: []
+depends_on: []
+related_to: []

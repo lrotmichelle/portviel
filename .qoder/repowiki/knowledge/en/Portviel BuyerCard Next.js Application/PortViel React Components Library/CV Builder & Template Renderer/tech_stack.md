@@ -1,0 +1,1 @@
+React client components (`'use client'`) with Tailwind utility classes; iconography via `lucide-react` in cv3; inline styles used for print-like page layout in cv1/cv2.

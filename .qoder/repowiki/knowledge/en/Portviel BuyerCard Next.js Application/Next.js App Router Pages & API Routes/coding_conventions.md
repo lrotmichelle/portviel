@@ -1,0 +1,3 @@
+- Each domain under `src/app/` exposes its UI as a `page.tsx` client component and its data access as a co-located `api/<domain>/route.ts` server handler.
+- Pages fetch data by calling sibling API routes rather than importing server modules directly, keeping client bundles free of database logic.
+- Shared UI chrome (navbar, footer, providers) is rendered once in the root `layout.tsx` so individual pages focus only on domain content.

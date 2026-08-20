@@ -1,0 +1,6 @@
+- Each context file defines a private `createContext<T | undefined>(undefined)` and exports a matching `useXxxContext` hook that throws if called outside its provider.
+- State is persisted to `localStorage` by pairing an `useEffect` that writes on every state change with an initialization `useEffect` that reads and parses stored JSON on mount, guarded by `typeof window !== 'undefined'` checks.
+- Business actions return a new session object built through a shared `buildSession` factory that fills defaults (`createdAt`/`updatedAt` timestamps, counter counts, cooldown/payment due dates) so mutation logic stays focused on status transitions.
+- Every state mutation that changes a session also pushes a notification via `pushNotification` and appends a corresponding `createNegotiationEvent` entry, keeping the notification list and event log in lockstep with session state.
+- Cross-context synchronization follows a pattern of computing updated `orders`/`offers` arrays locally and calling `updateOrders`/`updateOffers` once at the end of an action, rather than dispatching multiple separate updates.
+- Timeout and rate-limiting rules are expressed as constants (`DAY_IN_MS`, `COOLDOWN_MS`) and enforced uniformly in the periodic tick and in action guards like `canStartBuyerAction`.

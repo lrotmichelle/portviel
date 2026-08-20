@@ -1,0 +1,1 @@
+React Server Components with `'use client'` pages, Tailwind CSS for styling, Lucide icons, and a custom `NegotiationContext` plus `useNotification` hook for cross-page commerce state.

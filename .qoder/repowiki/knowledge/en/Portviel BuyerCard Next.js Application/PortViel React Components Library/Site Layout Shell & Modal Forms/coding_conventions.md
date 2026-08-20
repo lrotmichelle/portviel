@@ -1,0 +1,6 @@
+- Modal components follow a uniform contract: props `{ isOpen, onClose, onPublishSuccess? }`, early return `null` when closed, and a fixed `z-50` backdrop overlay rendered only while open.
+- Form submissions POST JSON to Next.js API routes with a hardcoded `x-user-id: 'demo-user'` header and handle success by invoking `onPublishSuccess` with a constructed item before resetting local state and calling `onClose()`.
+- Numeric inputs are sanitized inline by stripping non-digit characters and capping values (e.g., vacant slots capped at 80, campaign name trimmed to 14 chars, description to 325 chars) before being sent to the server.
+- Validation errors are surfaced as local string state (`error` / `nameError` / `budgetRules.violations`) and rendered as red text beneath the relevant field rather than via a toast or alert.
+- Reusable selection lists (platforms, categories, niches, skills) are implemented as controlled arrays with add/remove chips, each limited by a hard cap enforced in the handler (e.g., up to 3 platforms, up to 4 niches, up to 6 skills).
+- Styling uses a consistent dark-mode palette built from Tailwind utility classes (`bg-zinc-950`, `border-zinc-800`, `text-zinc-200`, `backdrop-blur-sm`) across all modal overlays.

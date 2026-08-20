@@ -1,0 +1,5 @@
+- Each page declares 'use client' at the top and manages data with useState plus an async useEffect that loads from '/api/secure'.
+- Pages share a consistent visual template: a dark zinc-950 background, amber 'Manage' breadcrumb label, bold h1 title, and a bordered card per item with status/category badges.
+- Data mutations are implemented by POSTing JSON bodies to '/api/secure' with a 'mode' discriminator (e.g., update_listing, delete_listing) and an 'x-user-id' header set to 'demo-user'.
+- List items are typed via local interface declarations (AdvertItem, ListingItem, VacancyItem) before being mapped from the loosely-typed API response.
+- Empty states use a uniform placeholder message ('No X published yet.') rendered when the fetched array is empty.

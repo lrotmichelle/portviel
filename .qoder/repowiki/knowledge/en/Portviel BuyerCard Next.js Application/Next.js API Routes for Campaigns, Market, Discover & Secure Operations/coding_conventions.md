@@ -1,0 +1,6 @@
+- Request input is normalized through local `toString(value, fallback)` and `toNumber(value, fallback)` helpers that accept mixed casing and coerce invalid values to defaults.
+- User identity is read from the `x-user-id` header first, then falls back to `body.userId` / `body.createdBy`, defaulting to `'demo-user'` or `'anonymous'`.
+- Multi-action endpoints dispatch on a single `action`/`mode` string field parsed from the request body and branch into case blocks for each operation.
+- Database mutations are wrapped in try/catch blocks that log errors and return `NextResponse.json({ error: ... }, { status })` with appropriate 400/401/404/500 codes.
+- Row-to-JSON mapping is isolated in per-entity `mapCampaignRow`/`mapVacancyRow`/`mapMarketRow`/`mapActivityRow` functions that normalize both snake_case and camelCase column names to a stable response shape.
+- Write operations on campaigns, market listings, and vacancies append an `engagementEvents` audit record capturing `entityType`, `entityId`, `actorId`, `action`, and a human-readable `message`.

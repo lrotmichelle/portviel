@@ -1,0 +1,1 @@
+Next.js App Router client components (`'use client'`), React + TypeScript, Tailwind CSS for all styling, lucide-react for icons, and direct `fetch` calls to Next.js API route handlers (`/api/*`).

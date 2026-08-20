@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { CheckCircle, Pause, Play, Trash2 } from 'lucide-react';
 import type { CampaignCardData } from '@/types/campaign';
 
@@ -73,7 +74,9 @@ export function Header({ data, onPause, onDelete }: HeaderProps) {
           </div>
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-1">
-              <h3 className="text-xs md:text-sm font-black truncate tracking-tight text-white">{data.projectName}</h3>
+              <Link href="/campaign-manager/manage" className="truncate">
+                <h3 className="text-xs md:text-sm font-black truncate tracking-tight text-white">{data.projectName}</h3>
+              </Link>
               <CheckCircle className="w-3 md:w-3.5 h-3 md:h-3.5 text-amber-500 fill-amber-500/10 shrink-0" strokeWidth={2.5} />
             </div>
             <span className="text-[10px] md:text-xs text-zinc-500 font-medium truncate">@{data.publisherUsername} ({data.publisherRating} / 5)</span>

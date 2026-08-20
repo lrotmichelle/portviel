@@ -1,0 +1,11 @@
+schema_version: 1
+module_path: pages_and_layout/commerce
+title: Commerce Pages (Offers, Orders & Cart)
+scope:
+    - src/app/offers/
+    - src/app/orders/
+    - src/app/cart/
+source_files: []
+depends_on: []
+related_to:
+    - path: context_hooks

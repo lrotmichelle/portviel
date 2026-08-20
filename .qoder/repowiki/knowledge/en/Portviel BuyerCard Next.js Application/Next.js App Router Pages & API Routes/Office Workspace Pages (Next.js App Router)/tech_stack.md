@@ -1,0 +1,1 @@
+Next.js App Router with React Server/Client components; Tailwind CSS for styling; Lucide React icons; dynamic imports via `next/dynamic` for heavy components like `MarketCard`; client-side state via React hooks; API calls to internal `/api/*` endpoints.

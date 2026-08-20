@@ -1,0 +1,1 @@
+React client components (`'use client'`) styled with Tailwind CSS; inline SVG charts (no chart library); Lucide icons loaded via `lucide-react` (components) and CDN `<script>` in the static `index.html`; data fetched from a Next.js API route `/api/campaigns` and cross-component finance state via `@/lib/finance` plus `window.storage`/custom events.

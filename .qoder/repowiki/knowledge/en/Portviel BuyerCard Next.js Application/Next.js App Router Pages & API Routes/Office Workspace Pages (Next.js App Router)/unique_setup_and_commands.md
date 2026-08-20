@@ -1,0 +1,1 @@
+No special build or setup commands — standard Next.js dev/build pipeline. Pages depend on the existence of `/api/discover` and `/api/market` API routes and the `@/lib/office-history` event logger.

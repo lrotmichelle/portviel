@@ -1,0 +1,1 @@
+Next.js App Router application that wires domain pages, server API routes, React components, shared contexts, and a Drizzle-backed PostgreSQL data layer into a unified buyer-card marketplace.

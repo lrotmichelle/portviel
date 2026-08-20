@@ -1,0 +1,1 @@
+Top-level Next.js App Router module that wires shared root layout and providers to per-domain page routes (campaigns, office, manage, commerce) and their server-side API endpoints.

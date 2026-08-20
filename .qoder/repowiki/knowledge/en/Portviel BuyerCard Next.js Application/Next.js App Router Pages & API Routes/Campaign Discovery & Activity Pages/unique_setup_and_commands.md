@@ -1,0 +1,1 @@
+None beyond standard Next.js dev/build; the pages expect a running backend exposing `/api/campaigns`, `/api/secure`, and `/api/profile` — if those endpoints fail, the main campaign page falls back to `generateMockCampaigns(30)`.

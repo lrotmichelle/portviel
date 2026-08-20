@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: components/office_dashboard
+title: Office Dashboard & Campaign Manager UI
+scope:
+    - src/components/office/
+    - src/components/campaign-manager/
+source_files: []
+depends_on: []
+related_to: []

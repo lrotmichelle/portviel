@@ -1,0 +1,1 @@
+Next.js client-side dashboard pages under /manage that list and operate on adverts, campaigns, listings, and vacancies via a shared secure API endpoint.

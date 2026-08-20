@@ -1,0 +1,1 @@
+Both contexts are marked `'use client'` and must be wrapped around the app tree with `<NotificationProvider>` and `<NegotiationProvider>` before any component calls `useNotificationContext()` or `useNegotiationContext()`, otherwise the custom hooks throw a descriptive error.

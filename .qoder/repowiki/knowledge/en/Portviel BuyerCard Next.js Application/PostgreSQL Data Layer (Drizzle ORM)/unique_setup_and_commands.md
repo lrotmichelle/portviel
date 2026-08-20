@@ -1,0 +1,1 @@
+Requires a `DATABASE_URL` environment variable at runtime (or a `local.env` file in the project root parsed at import time); the module auto-bootstraps tables via raw SQL on first load through `ensureDatabaseSchema()`. Schema changes are tracked as Drizzle Kit migrations under `drizzle/`.

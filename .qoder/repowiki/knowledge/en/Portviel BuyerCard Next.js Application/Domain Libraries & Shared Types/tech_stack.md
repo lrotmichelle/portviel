@@ -1,0 +1,1 @@
+TypeScript with Drizzle ORM (`drizzle-orm` `eq`, `and`, `asc`, `desc`, `inArray`) against a PostgreSQL-backed schema at `@/db/schema`; server-side execution enforced via `server-only` imports.

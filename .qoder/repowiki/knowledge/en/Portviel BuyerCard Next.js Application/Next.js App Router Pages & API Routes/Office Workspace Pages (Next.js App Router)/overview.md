@@ -1,0 +1,1 @@
+Next.js App Router routes for the Office workspace, providing overview, discover job listings, and a marketplace with client-side data fetching and event tracking.

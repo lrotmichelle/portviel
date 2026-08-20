@@ -1,0 +1,1 @@
+Next.js App Router root layout that wraps every page with shared providers, navbar, footer, and global CSS theme variables.

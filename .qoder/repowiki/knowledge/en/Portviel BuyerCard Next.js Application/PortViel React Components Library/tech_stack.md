@@ -1,0 +1,1 @@
+React (client components), TypeScript/TSX, Tailwind CSS for styling, inline SVG for charts (DonutChart).

@@ -1,0 +1,6 @@
+- Client-side data fetching uses `fetch('/api/...')` with a hardcoded `x-user-id: demo-user` request header instead of a centralized auth context.
+- Filtering and sorting are implemented as local React state (`filters.sortBy`, `status`, `category`, `niche`) combined with `.filter().sort()` chains over the in-memory campaign array rather than server-side queries.
+- Mutations (join, leave, pause/resume, delete, participate) POST JSON payloads to `/api/campaigns/manage` or `/api/secure` and optimistically update local state on success before re-fetching or mapping over the current list.
+- Each route component owns its own search/filter UI and derived `filteredCampaigns` memoized via inline compute, keeping per-page filter sets isolated.
+- UI branches on responsive breakpoints by conditionally rendering separate mobile vs desktop filter panels (e.g., `md:hidden sticky top-4` mobile filters alongside hidden desktop equivalents).
+- Newly created campaigns are appended to local state by constructing a `CampaignCardData` object with default placeholder values and spreading into the existing list.

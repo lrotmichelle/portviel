@@ -1,0 +1,1 @@
+Next.js App Router server routes (Node.js runtime) with Drizzle ORM querying PostgreSQL-backed tables defined in `@/db/schema`; social account verification uses direct `fetch` calls to platform endpoints (Instagram GraphQL, generic HTML scraping).

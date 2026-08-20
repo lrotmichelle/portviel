@@ -1,0 +1,4 @@
+- Each table is defined as a named export of a `pgTable` call with camelCase TypeScript property names mapped to snake_case database columns via explicit string aliases.
+- Timestamp fields use `timestamp(...).notNull().defaultNow()` to auto-populate creation/update times, and integer counters use `integer(...).notNull().default(0)` for safe defaults.
+- The database client and pool are instantiated once per process and cached on `globalThis` to avoid duplicate connections during development hot reloads.
+- The module enforces server-side usage by importing `server-only` at the top of `client.ts`.

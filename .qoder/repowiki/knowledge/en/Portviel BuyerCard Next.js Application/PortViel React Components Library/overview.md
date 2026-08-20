@@ -1,0 +1,1 @@
+Aggregates PortViel's React component tree — domain cards, layout shell, office dashboard, CV builder, and shared UI primitives — consumed by the application entry points.

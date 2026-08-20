@@ -1,0 +1,1 @@
+React Server Components with `'use client'` directives, Tailwind CSS for styling, `lucide-react` icons, and a shared `NegotiationContext` for cross-card negotiation state.

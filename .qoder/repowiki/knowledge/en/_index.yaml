@@ -1,0 +1,269 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: en-US
+branch: main
+nodes_managed: true
+exported_at: "2026-08-18T15:34:54Z"
+modules:
+    "":
+        dir_name: Portviel BuyerCard Next.js Application
+        title: Portviel BuyerCard Next.js Application
+        scope:
+            - README.md
+            - AGENTS.md
+            - AI_MEMORY.md
+            - CLAUDE.md
+            - .gitignore
+            - .nixpacks.toml
+            - drizzle.config.ts
+            - next.config.ts
+            - package.json
+            - package-lock.json
+            - tsconfig.json
+            - eslint.config.mjs
+            - postcss.config.mjs
+            - local.env
+            - campaignplan.md
+            - discover.md
+            - joinedcampaign.md
+            - officeplan.md
+            - plan.md
+            - campaigngraph.md
+            - +campaignplan.md
+            - Users:.fileloc
+            - notifications.cmd
+            - plan.cmd
+            - .http.log
+        source_files: []
+        children:
+            - api_routes
+            - components
+            - context_hooks
+            - data_layer
+            - domain_libs
+            - pages_and_layout
+            - scripts_and_assets
+        depends_on: []
+        related_to: []
+    api_routes:
+        dir_name: Next.js API Routes for Campaigns, Market, Discover & Secure Operations
+        title: Next.js API Routes for Campaigns, Market, Discover & Secure Operations
+        scope:
+            - src/app/api/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    components:
+        dir_name: PortViel React Components Library
+        title: PortViel React Components Library
+        scope:
+            - src/components/
+        source_files: []
+        children:
+            - components/domain_cards
+            - components/layout_shell
+            - components/office_dashboard
+            - components/profile_cv
+            - components/transaction_cards
+            - components/ui_primitives
+        depends_on: []
+        related_to: []
+    components/domain_cards:
+        dir_name: Domain-Specific Card Components (Campaign, Job, Market)
+        title: Domain-Specific Card Components (Campaign, Job, Market)
+        scope:
+            - src/components/campaign-card/
+            - src/components/job-card/
+            - src/components/market-card/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    components/layout_shell:
+        dir_name: Site Layout Shell & Modal Forms
+        title: Site Layout Shell & Modal Forms
+        scope:
+            - src/components/layout/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: pages_and_layout/root_layout
+    components/office_dashboard:
+        dir_name: Office Dashboard & Campaign Manager UI
+        title: Office Dashboard & Campaign Manager UI
+        scope:
+            - src/components/office/
+            - src/components/campaign-manager/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    components/profile_cv:
+        dir_name: CV Builder & Template Renderer
+        title: CV Builder & Template Renderer
+        scope:
+            - src/components/profile/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    components/transaction_cards:
+        dir_name: Buyer, Offer & Order Card Components
+        title: Buyer, Offer & Order Card Components
+        scope:
+            - src/components/buyer-card/
+            - src/components/offer-card/
+            - src/components/order-card/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    components/ui_primitives:
+        dir_name: UI Primitives & Donut Chart
+        title: UI Primitives & Donut Chart
+        scope:
+            - src/components/ui/
+            - src/components/DonutChart.tsx
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    context_hooks:
+        dir_name: Negotiation & Notification State Management
+        title: Negotiation & Notification State Management
+        scope:
+            - src/context/
+            - src/hooks/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: pages_and_layout/commerce
+    data_layer:
+        dir_name: PostgreSQL Data Layer (Drizzle ORM)
+        title: PostgreSQL Data Layer (Drizzle ORM)
+        scope:
+            - src/db/
+            - drizzle/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: scripts_and_assets
+    domain_libs:
+        dir_name: Domain Libraries & Shared Types
+        title: Domain Libraries & Shared Types
+        scope:
+            - src/lib/
+            - src/types/
+            - src/types.ts
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    pages_and_layout:
+        dir_name: Next.js App Router Pages & API Routes
+        title: Next.js App Router Pages & API Routes
+        scope:
+            - src/app/
+        source_files: []
+        children:
+            - pages_and_layout/api_routes
+            - pages_and_layout/campaign_manager
+            - pages_and_layout/campaign_pages
+            - pages_and_layout/commerce
+            - pages_and_layout/manage_dashboard
+            - pages_and_layout/office
+            - pages_and_layout/root_layout
+        depends_on: []
+        related_to: []
+    pages_and_layout/api_routes:
+        dir_name: Next.js API Routes for Campaigns, Market, Discover & Secure Operations
+        title: Next.js API Routes for Campaigns, Market, Discover & Secure Operations
+        scope:
+            - src/app/api/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: pages_and_layout/campaign_pages
+            - path: pages_and_layout/manage_dashboard
+            - path: pages_and_layout/office
+    pages_and_layout/campaign_manager:
+        dir_name: Campaign Manager Dashboard Pages
+        title: Campaign Manager Dashboard Pages
+        scope:
+            - src/app/campaign-manager/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    pages_and_layout/campaign_pages:
+        dir_name: Campaign Discovery & Activity Pages
+        title: Campaign Discovery & Activity Pages
+        scope:
+            - src/app/campaign/
+            - src/app/campaign.tsx
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: pages_and_layout/api_routes
+    pages_and_layout/commerce:
+        dir_name: Commerce Pages (Offers, Orders & Cart)
+        title: Commerce Pages (Offers, Orders & Cart)
+        scope:
+            - src/app/offers/
+            - src/app/orders/
+            - src/app/cart/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: context_hooks
+    pages_and_layout/manage_dashboard:
+        dir_name: Manage Dashboard Pages
+        title: Manage Dashboard Pages
+        scope:
+            - src/app/manage/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: pages_and_layout/api_routes
+    pages_and_layout/office:
+        dir_name: Office Workspace Pages (Next.js App Router)
+        title: Office Workspace Pages (Next.js App Router)
+        scope:
+            - src/app/office/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: pages_and_layout/api_routes
+    pages_and_layout/root_layout:
+        dir_name: Root Layout & Global Styles
+        title: Root Layout & Global Styles
+        scope:
+            - src/app/layout.tsx
+            - src/app/page.tsx
+            - src/app/globals.css
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: components/layout_shell
+    scripts_and_assets:
+        dir_name: Migration Script, Static Preview & Shared Utilities
+        title: Migration Script, Static Preview & Shared Utilities
+        scope:
+            - scripts/
+            - public/
+            - utils/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: data_layer

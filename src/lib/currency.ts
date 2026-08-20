@@ -1,5 +1,12 @@
-const formatWithSuffix = (value: number, digits = 2) => {
+const formatWithSuffix = (value: number, digits = 1) => {
   const absValue = Math.abs(value);
+
+  if (absValue < 1000) {
+    return new Intl.NumberFormat('en-US', {
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
+
   const suffixes = [
     { limit: 1e12, label: 't' },
     { limit: 1e9, label: 'b' },
@@ -7,19 +14,20 @@ const formatWithSuffix = (value: number, digits = 2) => {
     { limit: 1e3, label: 'k' },
   ];
 
-  let scaledValue = absValue;
-  let suffix = '';
-
   for (const entry of suffixes) {
     if (absValue >= entry.limit) {
-      scaledValue = absValue / entry.limit;
-      suffix = entry.label;
-      break;
+      const scaledValue = absValue / entry.limit;
+      const formatted = scaledValue.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: scaledValue >= 100 ? 0 : digits,
+      });
+      return `${value < 0 ? '-' : ''}${formatted}${entry.label}`;
     }
   }
 
-  const formatted = scaledValue.toFixed(digits).replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1');
-  return `${value < 0 ? '-' : ''}${formatted}${suffix}`;
+  return new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 0,
+  }).format(value);
 };
 
 export function formatToUGX(valueInShillings: number): string {
@@ -27,11 +35,11 @@ export function formatToUGX(valueInShillings: number): string {
 }
 
 export function formatCompactValue(value: number): string {
-  return formatWithSuffix(value, 2);
+  return formatWithSuffix(value, 1);
 }
 
 export function formatMetricValue(value: number): string {
-  return formatWithSuffix(value, 2);
+  return formatWithSuffix(value, 1);
 }
 
 export function formatCompactNumber(value: number): string {

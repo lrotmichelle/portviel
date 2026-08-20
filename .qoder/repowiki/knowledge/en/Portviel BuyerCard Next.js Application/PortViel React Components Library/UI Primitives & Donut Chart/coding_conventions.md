@@ -1,0 +1,5 @@
+- Each UI primitive exports both the component and its CVA variant object (e.g. `Button` / `buttonVariants`, `Badge` / `badgeVariants`) so consumers can reuse styles independently.
+- Primitives accept an `asChild` prop and render through a local `Slot` shim when true, enabling composition into other components without extra DOM nesting.
+- Styling is centralized via `cva(...)` with named `variant` (and `size` where applicable) keys merged through `cn()` together with any user-supplied `className`.
+- Components mark themselves with a `data-slot` attribute matching their name (e.g. `data-slot="button"`, `data-slot="badge"`) for consistent runtime identification.
+- Client-only behavior is opt-in via the `'use client'` directive at the top of files that use React state or hooks (e.g. `popover.tsx`, `DonutChart.tsx`).

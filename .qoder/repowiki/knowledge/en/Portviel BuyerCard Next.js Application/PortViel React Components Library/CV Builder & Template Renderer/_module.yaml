@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: components/profile_cv
+title: CV Builder & Template Renderer
+scope:
+    - src/components/profile/
+source_files: []
+depends_on: []
+related_to: []

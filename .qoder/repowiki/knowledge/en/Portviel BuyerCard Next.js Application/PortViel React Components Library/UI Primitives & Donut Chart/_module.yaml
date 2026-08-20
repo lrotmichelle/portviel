@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: components/ui_primitives
+title: UI Primitives & Donut Chart
+scope:
+    - src/components/ui/
+    - src/components/DonutChart.tsx
+source_files: []
+depends_on: []
+related_to: []

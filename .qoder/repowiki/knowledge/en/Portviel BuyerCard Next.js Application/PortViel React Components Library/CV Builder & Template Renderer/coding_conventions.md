@@ -1,0 +1,5 @@
+- Each template component exposes the same prop interface (`profileData`, `setProfileData`, `ImageUploadTrigger`, `DynamicSectionsRender`) so they are interchangeable at runtime.
+- Field mutations go through a local `updateField(field, value)` helper that returns a new object via spread over `prev.data`, never mutating state directly.
+- Editable text inputs are rendered exclusively via the shared `EditableText` component rather than raw `<input>` elements.
+- Templates render nothing when `data` is falsy (`if (!data) return null`) to guard against undefined profile data.
+- Dynamic content slots are passed in as props (`DynamicSectionsRender`, `ImageUploadTrigger`) instead of being imported or constructed inside templates.

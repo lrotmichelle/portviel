@@ -1,0 +1,6 @@
+- Each card component declares itself as a `'use client'` module at the top of the file before any imports.
+- Card data shapes are defined in a co-located `types.ts` file and imported by the card's index entry point.
+- Cards compose their UI into separate `header`, `content`, `sentiment`, and `footer` sub-components rather than rendering everything inline.
+- Interactive actions are exposed via callback props (`onAccept`, `onCounter`, `onDecline`, `onCounterToggle`, etc.) instead of performing side effects inside the card.
+- Counter-offer input fields validate against tiered minimum-price floors derived from the current counter attempt count and display inline error messages via a `validationError` state.
+- Inactive or finalized cards are visually dimmed using conditional Tailwind classes that apply reduced opacity, grayscale, and disabled pointer events based on session or custom status.

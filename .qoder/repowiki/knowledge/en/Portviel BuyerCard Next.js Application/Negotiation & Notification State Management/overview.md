@@ -1,0 +1,1 @@
+Provides React Contexts and hooks that manage in-browser negotiation sessions, orders/offers, notifications, and events with localStorage persistence and a background timeout tick.

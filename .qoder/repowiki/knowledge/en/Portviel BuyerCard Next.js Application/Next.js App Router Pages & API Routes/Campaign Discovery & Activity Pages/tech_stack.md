@@ -1,0 +1,1 @@
+React Server Components with `'use client'` directives, Next.js App Router file-based routing, Tailwind CSS for styling, lucide-react icons, and direct `fetch` calls to internal `/api/*` endpoints (no data-fetching library).

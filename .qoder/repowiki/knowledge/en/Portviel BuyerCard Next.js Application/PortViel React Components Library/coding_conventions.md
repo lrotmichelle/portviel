@@ -1,0 +1,3 @@
+- Card-like features follow a split-file pattern: `index.tsx` composes separate `header.tsx`, `content.tsx`, `footer.tsx` (and optional `sentiment.tsx` / `types.ts`) modules.
+- Visual styling is done exclusively through Tailwind utility classes rather than CSS modules or styled-components.
+- Standalone dashboards (e.g. `office/`) ship their own `index.html` entry paired with a local `layout.tsx` so they can be embedded independently of the main app shell.

@@ -1,0 +1,4 @@
+- Each card directory follows a fixed split: `index.tsx` as the stateful composer importing `header`, `content`, `footer`, and any domain-specific module, while children remain presentational.
+- Cards derive visual states (paused, inactive, maxed, cooling) from props or context and apply conditional Tailwind class strings to toggle opacity, grayscale, pointer-events, and border colors.
+- User-triggered mutations are exposed as callback props on the card's root interface (e.g., `onJoinCampaign`, `onExitCampaign`, `onApply`, `onCounterSubmit`) rather than performing side effects inside the component.
+- Client-side interactivity is gated behind `'use client'` directives and uses local `useState`/`useEffect` for transient UI state such as offer input, vote counts, and countdown timers.

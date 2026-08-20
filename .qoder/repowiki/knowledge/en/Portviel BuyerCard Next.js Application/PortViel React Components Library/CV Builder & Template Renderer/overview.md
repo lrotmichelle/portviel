@@ -1,0 +1,1 @@
+Interactive CV builder that lets users pick a resume template and edit profile fields inline, rendering the selected template with shared editable text components.

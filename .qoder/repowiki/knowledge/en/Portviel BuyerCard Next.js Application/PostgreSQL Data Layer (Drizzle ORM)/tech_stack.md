@@ -1,0 +1,1 @@
+Drizzle ORM with `drizzle-orm/node-postgres` against PostgreSQL via `pg` Pool; Drizzle Kit migrations stored in `drizzle/` with a journal manifest.

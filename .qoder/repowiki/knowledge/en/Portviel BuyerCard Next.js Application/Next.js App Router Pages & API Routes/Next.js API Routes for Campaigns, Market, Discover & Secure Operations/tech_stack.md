@@ -1,0 +1,1 @@
+Next.js App Router Route Handlers (Node.js runtime) with Drizzle ORM querying a relational database; social-account verification uses direct `fetch` calls to platform endpoints (Instagram GraphQL, generic page scraping) with regex-based metric extraction.

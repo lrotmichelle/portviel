@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: components/transaction_cards
+title: Buyer, Offer & Order Card Components
+scope:
+    - src/components/buyer-card/
+    - src/components/offer-card/
+    - src/components/order-card/
+source_files: []
+depends_on: []
+related_to: []

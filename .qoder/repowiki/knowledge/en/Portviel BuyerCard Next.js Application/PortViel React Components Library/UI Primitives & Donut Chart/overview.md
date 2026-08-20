@@ -1,0 +1,1 @@
+A set of lightweight, Tailwind-styled React UI primitives (Badge, Button, Popover) plus a self-contained SVG DonutChart component built without heavy third-party UI libraries.

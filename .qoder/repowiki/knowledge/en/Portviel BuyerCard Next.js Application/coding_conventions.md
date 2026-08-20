@@ -1,0 +1,3 @@
+- Domain features are split into parallel folders under `src/app/<domain>/` for pages and `src/app/api/<domain>/` for server routes, sharing types and lib modules from `src/lib/` and `src/types/`.
+- Database access goes through the singleton Drizzle client exported from `src/db/client.ts`, never constructing new connections inside route handlers or libs.
+- Cross-cutting browser state (negotiations, notifications) is exposed as React Contexts in `src/context/` with typed hooks in `src/hooks/` that persist to localStorage and drive background ticks.

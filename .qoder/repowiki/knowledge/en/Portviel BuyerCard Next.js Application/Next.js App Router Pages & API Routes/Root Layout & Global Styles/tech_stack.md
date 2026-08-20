@@ -1,0 +1,1 @@
+Next.js App Router with React Server Components; Tailwind CSS v4 (`@import "tailwindcss"`) using CSS custom properties for theming; Geist font family via Tailwind theme mapping.

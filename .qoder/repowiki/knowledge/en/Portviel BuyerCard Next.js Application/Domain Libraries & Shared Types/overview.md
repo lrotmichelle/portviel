@@ -1,0 +1,1 @@
+Shared domain libraries and TypeScript type definitions for campaigns, market listings, negotiations, finance, discover, notifications, and profile features backed by Drizzle ORM.

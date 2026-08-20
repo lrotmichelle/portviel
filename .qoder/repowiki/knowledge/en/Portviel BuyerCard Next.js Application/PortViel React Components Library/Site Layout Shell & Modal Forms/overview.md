@@ -1,0 +1,1 @@
+Provides the application's top-level shell (Navbar, Footer, responsive Grid) and a set of modal forms for publishing campaigns, listings, adverts, and recruitment vacancies.

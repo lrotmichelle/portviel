@@ -1,0 +1,1 @@
+`npm run dev` / `build` / `start` all preface Next.js execution with `node scripts/run-migrations.mjs` to apply Drizzle migrations; development binds to `0.0.0.0` for containerized hosting.

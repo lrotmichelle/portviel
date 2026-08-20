@@ -1,0 +1,6 @@
+- Each lib module wraps a single domain concept and exports async fetch functions that return mapped DTOs typed by `src/types` or `src/types/*.ts`.
+- Database rows are transformed into UI-facing DTOs via small local mapping functions (e.g. `mapCampaignRow`, `mapMarketListing`) rather than exposing raw Drizzle rows.
+- Queries use a uniform pattern: build an array of `eq(...)` conditions, combine them with `and(...)`, then apply `orderBy(desc(...))` and `.limit(take)` where `take` defaults to 20.
+- Numeric arguments are normalized through a helper (`toNumber(value, fallback = 0)`) before being used in Drizzle predicates or limits.
+- Optional include/join logic is driven by an `args.include` object (as seen in `selectCampaignRows`) so callers can opt into extra relations like campaign members.
+- Server-only boundaries are declared at the top of data-access files with `import 'server-only'` to prevent client-side bundling.

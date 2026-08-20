@@ -1,0 +1,1 @@
+Provides a Node.js Drizzle migration runner, a static HTML preview of the Manage Campaigns UI, and a shared Tailwind class-merging utility used across the app.

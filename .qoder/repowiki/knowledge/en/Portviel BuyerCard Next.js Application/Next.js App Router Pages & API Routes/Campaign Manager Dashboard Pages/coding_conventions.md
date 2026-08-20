@@ -1,0 +1,6 @@
+- Route entry points are minimal `page.tsx` files that simply re-export a sibling client component file of the same name.
+- All page-level components declare `'use client'` at the top of the file to opt into client-side rendering.
+- Tables use a consistent shape: a typed row array constant (`MemberRow[]`, `ReminderRow[]`) mapped over to produce `<table>` rows with rank, name/value columns, and a 'View all' action button.
+- Monetary values are formatted through shared helpers `formatCompactNumber` / `formatCompactValue` from `@/lib/currency` rather than inline formatting.
+- Styling follows a uniform dark theme using Tailwind classes (`bg-zinc-950`, `border-zinc-800`, `text-zinc-*`) with emerald (`emerald-400/500`) as the primary accent color.
+- Navigation between Manage and Joined tabs is implemented via inline `Link` components with matching border/hover styles, duplicated across both route components.

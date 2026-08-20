@@ -1,0 +1,1 @@
+Reusable React card components that display campaign listings, job postings, and marketplace seller offers with status-aware styling and domain-specific actions.

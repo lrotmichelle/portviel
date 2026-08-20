@@ -1,0 +1,4 @@
+- Each route page is a `'use client'` component that loads data in a `useEffect` via `fetch('/api/*')` and sets state with error handling that falls back to empty arrays.
+- User interactions (apply, buy, counter offer) are recorded by calling `recordOfficeEvent` with a typed `{ type, title, description, status, meta? }` shape before updating local state.
+- Sub-routes embed a consistent sidebar `<aside>` with a branded header (`Office` label + section title) and a vertical `Link` list that highlights the active route with emerald text.
+- UI uses a shared dark theme pattern: `min-h-screen bg-[radial-gradient(...)]` backgrounds, rounded `rounded-[24px]/[28px]` containers with `border-zinc-800/80` and `bg-zinc-950/80` glass panels.

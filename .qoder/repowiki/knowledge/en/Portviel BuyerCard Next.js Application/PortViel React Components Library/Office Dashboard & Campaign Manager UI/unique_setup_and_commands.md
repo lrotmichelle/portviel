@@ -1,0 +1,1 @@
+The `src/components/office/index.html` file is a standalone HTML prototype that can be opened directly in a browser — it loads Tailwind and Lucide from CDNs and includes its own inline JS for metric formatting, bar-chart generation, and modal toggles, independent of the Next.js build.

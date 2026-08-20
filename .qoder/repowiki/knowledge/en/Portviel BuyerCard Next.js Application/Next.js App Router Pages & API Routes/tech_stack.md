@@ -1,0 +1,1 @@
+Next.js App Router file-based routing with React Server Components for API routes and client components for pages; shared global styles in `globals.css` consumed by all routes.

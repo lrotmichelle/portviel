@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Preview: Manage Campaigns</title>
+  <style>
+    body{background:#0f1720;color:#e6eef8;font-family:Inter,Arial,Helvetica,sans-serif;padding:24px}
+    .card{background:#0b1220;border:1px solid #1f2937;border-radius:12px;padding:16px;margin-bottom:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-top:1px solid #1f2937;text-align:left}
+    .muted{color:#94a3b8}
+    .btn{background:#16a34a;color:white;padding:6px 10px;border-radius:6px;border:none}
+    .btn-secondary{background:transparent;border:1px solid #374151;color:#e6eef8;padding:6px 10px;border-radius:6px}
+    .flex{display:flex}
+    .gap-4{gap:16px}
+    .w-60{width:60%}
+    .w-40{width:40%}
+    .column{display:flex;flex-direction:column}
+    .right{justify-content:flex-end}
+  </style>
+</head>
+<body>
+  <h1>My campaigns</h1>
+  <div class="card">
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn-secondary">Campaigns</button>
+      <button class="btn-secondary">Joined</button>
+      <button class="btn-secondary">+ campaign</button>
+    </div>
+  </div>
+
+  <div class="card flex gap-4">
+    <div class="w-60 column">
+      <h2>Campaign flow</h2>
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Manager</th><th>Views</th><th>Likes</th><th>Amount</th><th>Platform</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Manager 1</td><td>12,000</td><td>1,200</td><td>120</td><td>youtube</td></tr>
+            <tr><td>2</td><td>Manager 2</td><td>9,000</td><td>900</td><td>90</td><td>tiktok</td></tr>
+            <tr><td>3</td><td>Manager 3</td><td>6,000</td><td>600</td><td>60</td><td>instagram</td></tr>
+            <tr><td>4</td><td>Manager 4</td><td>3,000</td><td>300</td><td>30</td><td>facebook</td></tr>
+            <tr><td>5</td><td>Manager 5</td><td>1,200</td><td>120</td><td>12</td><td>snapchat</td></tr>
+            <tr><td>6</td><td>Manager 6</td><td>600</td><td>60</td><td>6</td><td>youtube</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;display:flex;justify-content:flex-end;align-items:center;gap:8px">
+        <label class="muted">Filter by platform</label>
+        <select><option>All Platforms</option><option>youtube</option><option>tiktok</option></select>
+      </div>
+    </div>
+
+    <div class="w-40 column">
+      <h3>Reminders (6)</h3>
+      <div style="flex:1;overflow:auto">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Manager</th><th>Amount</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Manager 1</td><td>120</td><td><button class="btn">Pay</button></td></tr>
+            <tr><td>2</td><td>Manager 2</td><td>90</td><td><button class="btn">Pay</button></td></tr>
+            <tr><td>3</td><td>Manager 3</td><td>60</td><td><button class="btn">Pay</button></td></tr>
+            <tr><td>4</td><td>Manager 4</td><td>30</td><td><button class="btn">Pay</button></td></tr>
+            <tr><td>5</td><td>Manager 5</td><td>12</td><td><button class="btn">Pay</button></td></tr>
+            <tr><td>6</td><td>Manager 6</td><td>6</td><td><button class="btn">Pay</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn">Pay all</button>
+        <button class="btn-secondary">View all</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="muted">This is a static preview of the Manage Campaigns UI.</p>
+</body>
+</html>

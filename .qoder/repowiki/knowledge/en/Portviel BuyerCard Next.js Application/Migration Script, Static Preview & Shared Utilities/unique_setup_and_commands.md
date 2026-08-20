@@ -1,0 +1,1 @@
+Run migrations with `node scripts/run-migrations.mjs`; it reads `DATABASE_URL` from the environment or a `local.env` file in the project root, and silently succeeds in development mode if the database is unreachable.

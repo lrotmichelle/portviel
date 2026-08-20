@@ -1,0 +1,1 @@
+React client components using `useContext`/`useState`/`useEffect`/`useMemo`; browser `localStorage` for all persistence; TypeScript types `Order`/`Offer` imported from `@/types`; helper factories `createNotification`/`addNotification` from `@/lib/notifications` and `createNegotiationEvent` from `@/lib/negotiation`.

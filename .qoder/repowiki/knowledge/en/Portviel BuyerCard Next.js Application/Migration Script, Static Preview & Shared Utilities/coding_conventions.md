@@ -1,0 +1,2 @@
+- Environment variables are loaded lazily from a local `.env`-style file only when not already set in `process.env`, allowing explicit overrides.
+- Development-mode failures (missing `DATABASE_URL`, network errors) are treated as non-fatal by logging a warning and exiting with code 0, while production failures exit with code 1.

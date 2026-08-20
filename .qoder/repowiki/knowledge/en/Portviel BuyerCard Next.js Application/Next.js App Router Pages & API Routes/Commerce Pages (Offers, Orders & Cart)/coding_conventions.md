@@ -1,0 +1,6 @@
+- Each page declares `'use client'` at the top and composes its UI from shared `@/components/*` card components rather than inline markup.
+- User actions call a context dispatcher (e.g. `buyerRespondToOffer`, `sellerRespondToOrder`, `finalizeNegotiation`) and then clear the active action via local `useState` keyed by item id.
+- Pages expose filter buttons (all / acquired-or-sold / counter) that toggle a local string state and derive filtered lists with simple status predicates.
+- Incoming orders/offers are normalized into a single record per `cardId` before rendering, ensuring only the latest state per item is shown.
+- Seller/buyer handles are derived deterministically from names using `.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '')` to produce slug-like usernames.
+- Empty states render a centered message with muted text instead of throwing errors when the filtered list is empty.

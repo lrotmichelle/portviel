@@ -1,0 +1,11 @@
+schema_version: 1
+module_path: scripts_and_assets
+title: Migration Script, Static Preview & Shared Utilities
+scope:
+    - scripts/
+    - public/
+    - utils/
+source_files: []
+depends_on: []
+related_to:
+    - path: data_layer

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { recordOfficeEvent } from '@/lib/office-history';
 import AdvertModal from '@/components/layout/advert-modal';
 import CampaignModal from '@/components/layout/campaign-modal';
+import { generateMockCampaigns } from '@/lib/mockCampaigns';
 
 export default function CampaignPage() {
   const [campaigns, setCampaigns] = useState<CampaignCardData[]>([]);
@@ -67,9 +68,8 @@ export default function CampaignPage() {
             <button
               key={option.value}
               onClick={() => applyFilter(key, option.value)}
-              className={`rounded-lg border px-2.5 py-2 text-left text-sm transition-colors duration-200 ${
-                isActive ? styles.active : `border-zinc-800 bg-zinc-900 text-white hover:${styles.button}`
-              }`}
+              className={`rounded-lg border px-2.5 py-2 text-left text-sm transition-colors duration-200 ${isActive ? styles.active : `border-zinc-800 bg-zinc-900 text-white hover:${styles.button}`
+                }`}
             >
               {option.label}
             </button>
@@ -100,8 +100,9 @@ export default function CampaignPage() {
         const data = (await response.json()) as CampaignCardData[];
         setCampaigns(data);
       } catch (error) {
-        console.error('Failed to load campaigns from database', error);
-        setCampaigns([]);
+        console.warn('Failed to load campaigns from database, falling back to mock data', error);
+        const mock = generateMockCampaigns(30);
+        setCampaigns(mock);
       }
     };
 
@@ -270,8 +271,8 @@ export default function CampaignPage() {
   const searchBorder = filteredCampaigns.length <= 2
     ? 'border-red-500'
     : filteredCampaigns.length >= 12
-    ? 'border-emerald-500'
-    : 'border-yellow-400';
+      ? 'border-emerald-500'
+      : 'border-yellow-400';
 
   const welcomeText = profile?.handle
     ? `Welcome back, ${profile.handle}! Explore the latest campaigns to monetize your social media account.`
@@ -291,7 +292,7 @@ export default function CampaignPage() {
             Joined
           </Link>
           <Link
-            href="/manage/campaigns"
+            href="/campaign-manager/manage"
             className="rounded-lg border border-amber-500/40 px-3 py-2 text-sm text-amber-400 transition-colors duration-200 hover:bg-amber-500 hover:text-white active:bg-amber-500 active:text-white"
           >
             Manage
