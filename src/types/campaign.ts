@@ -29,4 +29,7 @@ export interface CampaignCardData {
     approved: boolean;
   }>;
   feedback?: string;
+  incomeReceived?: number;
+  debt?: number;
+  rank?: number;
 }

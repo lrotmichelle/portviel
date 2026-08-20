@@ -59,3 +59,15 @@ body {
 .campaign-modal input[type=number]::-webkit-inner-spin-button {
   display: none;
 }
+
+.no-spinner input[type=number]::-webkit-outer-spin-button,
+.no-spinner input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  display: none;
+}
+.no-spinner input[type=number] {
+  -moz-appearance: textfield;
+  -webkit-appearance: none;
+  appearance: textfield;
+}

@@ -4,47 +4,64 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import Wallet from './joined/wallet';
 import Transactions from './joined/transactions';
+import JoinedCampaigns from './joined/joined-campaigns';
 import CampaignFlow from './joined/campaignflow';
 import Debt from './joined/debt';
 import AudienceMix from './joined/audiencemix';
+import CampaignMembers from './joined/campaign-members';
 import HitTarget from './joined/hittarget';
 import type { CampaignCardData } from '@/types/campaign';
+import { generateJoinedCampaigns } from '@/lib/joineddata';
+import { formatCompactValue } from '@/lib/currency';
 
 export default function JoinedComponent() {
   const [campaigns, setCampaigns] = useState<CampaignCardData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [withdrawals, setWithdrawals] = useState<{ date: string; time: string; amount: number }[]>([]);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawError, setWithdrawError] = useState('');
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string>('');
 
   useEffect(() => {
-    const loadJoinedCampaigns = async () => {
-      try {
-        const response = await fetch('/api/campaigns?filter=joined', {
-          headers: { 'x-user-id': 'demo-user' },
-        });
-        if (!response.ok) throw new Error('Failed to load joined campaigns');
-        const data = (await response.json()) as CampaignCardData[];
-        setCampaigns(data.filter((c) => c.hasJoined));
-      } catch (error) {
-        console.error('Failed to load joined campaigns', error);
-        setCampaigns([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadJoinedCampaigns();
+    setCampaigns(generateJoinedCampaigns(50));
   }, []);
 
-  const balance = campaigns.reduce((s, c) => s + (c.budgetUsed || 0), 0);
-  const debt = campaigns.reduce((s, c) => s + Math.max(0, (c.totalBudget || 0) - (c.budgetUsed || 0)), 0);
-  const campaignsCount = campaigns.length;
+  useEffect(() => {
+    if (campaigns.length > 0 && !selectedCampaignId) {
+      setSelectedCampaignId(campaigns[0].id);
+    }
+  }, [campaigns, selectedCampaignId]);
+
+  const incomeReceived = campaigns.reduce((s, c) => s + (c.incomeReceived || 0), 0);
+  const debt = campaigns.reduce((s, c) => s + (c.debt || 0), 0);
+  const totalWithdrawn = withdrawals.reduce((s, w) => s + w.amount, 0);
+  const balance = incomeReceived - totalWithdrawn;
+
+  const handleWithdraw = () => {
+    const amount = Number(withdrawAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setWithdrawError(`You can only withdraw ${formatCompactValue(balance)}`);
+      return;
+    }
+    if (amount > balance) {
+      setWithdrawError(`You can only withdraw ${formatCompactValue(balance)}`);
+      return;
+    }
+    setWithdrawError('');
+    const now = new Date();
+    setWithdrawals((prev) => [
+      ...prev,
+      { date: now.toISOString().split('T')[0], time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), amount },
+    ]);
+    setWithdrawAmount('');
+  };
 
   const transactionItems = campaigns
-    .slice(0, 4)
+    .filter((c) => (c.incomeReceived || 0) > 0)
     .map((c, index) => ({
       id: c.id,
       campaignName: c.projectName,
       platform: ['TikTok', 'Instagram', 'YouTube'][index % 3],
-      amount: c.budgetUsed || 0,
+      amount: c.incomeReceived || 0,
     }));
 
   const flowRows = campaigns.slice(0, 5).map((c, index) => ({
@@ -53,16 +70,16 @@ export default function JoinedComponent() {
     views: c.viewsGenerated || 0,
     likes: c.likesGenerated || 0,
     amount: c.budgetUsed || 0,
-    status: ((c.budgetUsed || 0) >= (c.totalBudget || 0) * 0.5 ? 'settled' : 'owe') as 'settled' | 'owe',
+    status: ((c.incomeReceived || 0) >= (c.budgetUsed || 0) * 0.5 ? 'settled' : 'owe') as 'settled' | 'owe',
   }));
 
   const debtRows = campaigns
+    .filter((c) => (c.debt || 0) > 0)
     .map((c, index) => ({
       rank: index + 1,
       campaignName: c.projectName,
-      amount: Math.max(0, (c.totalBudget || 0) - (c.budgetUsed || 0)),
+      amount: c.debt || 0,
     }))
-    .filter((row) => row.amount > 0)
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5)
     .map((row, index) => ({ ...row, rank: index + 1 }));
@@ -71,14 +88,6 @@ export default function JoinedComponent() {
   const viewsForTarget = primaryCampaign?.viewsGenerated ?? 0;
   const maxPayoutForTarget = primaryCampaign?.maxPayout ?? 0;
   const totalFollowers = campaigns.reduce((s, c) => s + (c.communitySize || 0), 0);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 p-8 text-white">
-        <p className="text-sm text-zinc-400">Loading joined campaigns...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-zinc-950 p-8 text-white">
@@ -97,31 +106,77 @@ export default function JoinedComponent() {
       </div>
 
       <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Balance</span>
+            <div className="mt-1 text-lg font-semibold text-white">{formatCompactValue(balance)} UGX</div>
+          </div>
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Debt</span>
+            <div className="mt-1 text-lg font-semibold text-white">{formatCompactValue(debt)} UGX</div>
+          </div>
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Withdraw</span>
+              {withdrawAmount && (
+                <span className="text-[10px] text-zinc-300">
+                  {(() => {
+                    const entered = Number(withdrawAmount);
+                    if (!Number.isFinite(entered) || entered <= 0) return '';
+                    const display = entered > balance ? balance : entered;
+                    if (display >= 1_000_000_000) return `${(display / 1_000_000_000).toFixed(1).replace(/\.0$/, '')}b`;
+                    if (display >= 1_000_000) return `${(display / 1_000_000).toFixed(1).replace(/\.0$/, '')}m`;
+                    if (display >= 1_000) return `${(display / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
+                    return `${display}`;
+                  })()}
+                </span>
+              )}
+            </div>
+            <div className="mt-2 flex items-center gap-2 no-spinner">
+              <input
+                type="number"
+                min="0"
+                value={withdrawAmount}
+                onChange={(e) => { setWithdrawAmount(e.target.value); setWithdrawError(''); }}
+                placeholder="Enter amount"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={handleWithdraw}
+                className="whitespace-nowrap rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-500 hover:text-white active:bg-emerald-600 active:text-white"
+              >
+                Withdraw
+              </button>
+            </div>
+            {withdrawError && (
+              <p className="mt-2 text-[11px] text-red-400">{withdrawError}</p>
+            )}
+          </div>
+        </div>
+
         <div className="grid gap-6 md:grid-cols-[2fr_3fr]">
           <div className="min-w-0">
-            <Wallet balance={balance} debt={debt} campaignsCount={campaignsCount} />
+            <Wallet withdrawals={withdrawals} totalWithdrawn={totalWithdrawn} />
           </div>
           <div className="min-w-0">
             <Transactions items={transactionItems} />
           </div>
         </div>
 
-        <div className="flex gap-6">
-          <div className="min-w-0 w-1/2">
-            <CampaignFlow rows={flowRows} />
-          </div>
-          <div className="min-w-0 w-1/2">
-            <Debt rows={debtRows} />
-          </div>
-        </div>
+        <JoinedCampaigns campaigns={campaigns} selectedId={selectedCampaignId} onSelectChange={setSelectedCampaignId} />
 
         <div className="grid gap-6 md:grid-cols-2">
           <div className="min-w-0">
-            <AudienceMix totalFollowers={totalFollowers} />
+            <CampaignMembers campaigns={campaigns} selectedId={selectedCampaignId} />
           </div>
           <div className="min-w-0">
-            <HitTarget currentViews={viewsForTarget} maxPayout={maxPayoutForTarget} />
+            <AudienceMix totalFollowers={totalFollowers} />
           </div>
+        </div>
+
+        <div className="mt-6">
+          <HitTarget currentViews={viewsForTarget} maxPayout={maxPayoutForTarget} />
         </div>
       </div>
     </div>

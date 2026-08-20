@@ -17,6 +17,7 @@ interface DonutChartProps {
   title: string;
   size?: number;
   strokeWidth?: number;
+  visiblePercentage?: number;
 }
 
 export default function DonutChart({
@@ -26,6 +27,7 @@ export default function DonutChart({
   title,
   size = 200,
   strokeWidth = 25,
+  visiblePercentage = 100,
 }: DonutChartProps) {
   const radius = size / 2 - strokeWidth / 2;
   const circumference = 2 * Math.PI * radius;
@@ -54,6 +56,17 @@ export default function DonutChart({
     };
   });
 
+  const clipPercentage = Math.max(0, Math.min(100, visiblePercentage));
+  const endAngleDeg = -90 + 360 * (clipPercentage / 100);
+  const endRad = (endAngleDeg * Math.PI) / 180;
+  const startRad = (-90 * Math.PI) / 180;
+  const startX = size / 2 + radius * Math.cos(startRad);
+  const startY = size / 2 + radius * Math.sin(startRad);
+  const endX = size / 2 + radius * Math.cos(endRad);
+  const endY = size / 2 + radius * Math.sin(endRad);
+  const largeArc = clipPercentage > 50 ? 1 : 0;
+  const clipPath = clipPercentage >= 100 ? '' : `M ${size/2} ${size/2} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY} Z`;
+
   // Map colors to Tailwind classes
   const colorClasses: Record<string, string> = {
     'bg-emerald-400': 'fill-emerald-400 stroke-emerald-400',
@@ -76,6 +89,14 @@ export default function DonutChart({
           viewBox={`0 0 ${size} ${size}`}
           className="transform -rotate-90"
         >
+          <defs>
+            {clipPath && (
+              <clipPath id="donut-clip">
+                <path d={clipPath} />
+              </clipPath>
+            )}
+          </defs>
+          
           {/* Background circle */}
           <circle
             cx={size / 2}
@@ -88,7 +109,8 @@ export default function DonutChart({
           />
           
           {/* Segments */}
-          {paths.map(({ segment, index }) => {
+          <g clipPath={clipPath ? 'url(#donut-clip)' : undefined}>
+            {paths.map(({ segment, index }) => {
             const percentage = total > 0 ? segment.value / total : 0;
             const angle = percentage * 360;
             const rad = (angle * Math.PI) / 180;
@@ -133,8 +155,9 @@ export default function DonutChart({
                   '--color-blue-500': '#3b82f6',
                 } as React.CSSProperties}
               />
-            );
-          })}
+             );
+           })}
+          </g>
         </svg>
         
         {/* Center content */}

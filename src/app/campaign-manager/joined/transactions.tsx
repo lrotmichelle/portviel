@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { formatCompactValue } from '@/lib/currency';
 
 interface TransactionItem {
@@ -22,12 +22,15 @@ const sample: TransactionItem[] = [
 ];
 
 export default function Transactions({ items }: TransactionsProps) {
-  const rows = (items && items.length > 0 ? items : sample).slice(0, 4);
+  const [showAll, setShowAll] = useState(false);
+  const allRows = items && items.length > 0 ? items : sample;
+  const rows = showAll ? allRows : allRows.slice(0, 4);
+  const totalAmount = allRows.reduce((sum, t) => sum + t.amount, 0);
 
   return (
     <div className="w-full rounded-2xl border border-zinc-800/60 bg-transparent p-3 text-sm text-zinc-200">
       <div className="mb-2 flex flex-col gap-2">
-        <h3 className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Recent transactions</h3>
+        <h3 className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Income received</h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full table-auto bg-transparent text-left text-sm">
@@ -43,7 +46,7 @@ export default function Transactions({ items }: TransactionsProps) {
               <tr key={t.id} className="border-t border-zinc-800/60 bg-transparent align-middle">
                 <td className="py-1.5 pr-2 text-sm font-semibold leading-tight text-white">{t.campaignName}</td>
                 <td className="py-1.5 pr-2 text-sm font-semibold leading-tight text-zinc-100">{t.platform}</td>
-                <td className="py-1.5 text-right text-sm font-semibold leading-tight text-zinc-100">
+                <td className="py-1.5 text-right text-sm font-semibold leading-tight text-emerald-400">
                   {formatCompactValue(t.amount)} UGX
                 </td>
               </tr>
@@ -51,10 +54,17 @@ export default function Transactions({ items }: TransactionsProps) {
           </tbody>
         </table>
       </div>
-      <div className="mt-3 flex justify-start">
-        <button className="rounded-md border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-300 transition hover:border-zinc-600 hover:text-white">
-          View all
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={() => setShowAll((prev) => !prev)}
+          className="rounded-md border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-300 transition hover:border-zinc-600 hover:text-white"
+        >
+          {showAll ? 'Show less' : 'View all'}
         </button>
+        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+          Total {formatCompactValue(totalAmount)} UGX
+        </div>
       </div>
     </div>
   );
