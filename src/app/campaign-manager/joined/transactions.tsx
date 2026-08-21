@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { formatCompactValue } from '@/lib/currency';
 
 interface TransactionItem {
@@ -12,27 +12,55 @@ interface TransactionItem {
 
 interface TransactionsProps {
   items?: TransactionItem[];
+  isExpired?: boolean;
 }
 
 const sample: TransactionItem[] = [
-  { id: '1', campaignName: 'Campaign 1 — Technology', platform: 'TikTok', amount: 120000 },
-  { id: '2', campaignName: 'Campaign 2 — Lifestyle', platform: 'Instagram', amount: 45000 },
-  { id: '3', campaignName: 'Campaign 3 — Gaming', platform: 'YouTube', amount: 30000 },
-  { id: '4', campaignName: 'Campaign 4 — Music', platform: 'TikTok', amount: 75000 },
+  { id: '1', campaignName: 'Campaign 1 — Technology', platform: 'TT', amount: 120000 },
+  { id: '2', campaignName: 'Campaign 2 — Lifestyle', platform: 'IG', amount: 45000 },
+  { id: '3', campaignName: 'Campaign 3 — Gaming', platform: 'YT', amount: 30000 },
+  { id: '4', campaignName: 'Campaign 4 — Music', platform: 'TT', amount: 75000 },
 ];
 
-export default function Transactions({ items }: TransactionsProps) {
+export default function Transactions({ items, isExpired = false }: TransactionsProps) {
   const [showAll, setShowAll] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const allRows = items && items.length > 0 ? items : sample;
   const rows = showAll ? allRows : allRows.slice(0, 4);
   const totalAmount = allRows.reduce((sum, t) => sum + t.amount, 0);
 
+  useEffect(() => {
+    if (!showAll) return;
+    const timer = setTimeout(() => {
+      setShowAll(false);
+    }, 10000);
+    return () => clearTimeout(timer);
+  }, [showAll]);
+
+  useEffect(() => {
+    if (!showAll) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowAll(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showAll]);
+
   return (
-    <div className="w-full rounded-2xl border border-zinc-800/60 bg-transparent p-3 text-sm text-zinc-200">
-      <div className="mb-2 flex flex-col gap-2">
+    <div ref={containerRef} className={`w-full rounded-2xl border border-zinc-800/60 bg-transparent p-3 text-sm text-zinc-200 ${isExpired ? 'opacity-60' : ''}`}>
+      <div className="mb-2 flex items-center justify-between">
         <h3 className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Income received</h3>
+        <button
+          type="button"
+          onClick={() => setShowAll((prev) => !prev)}
+          className="rounded-none border-0 bg-transparent px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-red-400 hover:text-red-300"
+        >
+          {showAll ? 'Show less' : 'View all'}
+        </button>
       </div>
-      <div className="overflow-x-auto">
+      <div className={`overflow-x-auto ${showAll ? 'max-h-[200px] overflow-y-auto' : ''}`}>
         <table className="w-full table-auto bg-transparent text-left text-sm">
           <thead>
             <tr className="text-left text-zinc-400">
@@ -44,9 +72,9 @@ export default function Transactions({ items }: TransactionsProps) {
           <tbody>
             {rows.map((t) => (
               <tr key={t.id} className="border-t border-zinc-800/60 bg-transparent align-middle">
-                <td className="py-1.5 pr-2 text-sm font-semibold leading-tight text-white">{t.campaignName}</td>
-                <td className="py-1.5 pr-2 text-sm font-semibold leading-tight text-zinc-100">{t.platform}</td>
-                <td className="py-1.5 text-right text-sm font-semibold leading-tight text-emerald-400">
+                <td className={`py-1.5 pr-2 text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-white'}`}>{t.campaignName}</td>
+                <td className={`py-1.5 pr-2 text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-zinc-100'}`}>{t.platform}</td>
+                <td className={`py-1.5 text-right text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-emerald-400'}`}>
                   {formatCompactValue(t.amount)} UGX
                 </td>
               </tr>
@@ -55,14 +83,8 @@ export default function Transactions({ items }: TransactionsProps) {
         </table>
       </div>
       <div className="mt-3 flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={() => setShowAll((prev) => !prev)}
-          className="rounded-md border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-300 transition hover:border-zinc-600 hover:text-white"
-        >
-          {showAll ? 'Show less' : 'View all'}
-        </button>
-        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+        <div />
+        <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${isExpired ? 'text-zinc-500' : 'text-emerald-300'}`}>
           Total {formatCompactValue(totalAmount)} UGX
         </div>
       </div>

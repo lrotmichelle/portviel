@@ -1,7 +1,7 @@
 const formatWithSuffix = (value: number, digits = 1) => {
   const absValue = Math.abs(value);
 
-  if (absValue < 1000) {
+  if (absValue <= 999) {
     return new Intl.NumberFormat('en-US', {
       maximumFractionDigits: 0,
     }).format(value);

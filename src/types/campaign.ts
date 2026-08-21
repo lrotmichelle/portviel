@@ -32,4 +32,10 @@ export interface CampaignCardData {
   incomeReceived?: number;
   debt?: number;
   rank?: number;
+  platformStats?: Array<{
+    platform: string;
+    views?: number;
+    likes?: number;
+    members?: number;
+  }>;
 }

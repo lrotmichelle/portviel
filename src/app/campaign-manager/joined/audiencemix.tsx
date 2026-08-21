@@ -9,10 +9,10 @@ interface AudienceMixProps {
 }
 
 const defaultSegments = [
-  { label: 'TikTok', value: 34, color: 'bg-cyan-400', textColor: 'text-cyan-300' },
-  { label: 'YouTube', value: 26, color: 'bg-red-500', textColor: 'text-red-300' },
-  { label: 'Instagram', value: 24, color: 'bg-gradient-to-r from-violet-500 via-pink-500 to-orange-400', textColor: 'text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-pink-300 to-orange-300' },
-  { label: 'Facebook', value: 16, color: 'bg-blue-500', textColor: 'text-blue-300' },
+  { label: 'TikTok', value: 34, color: '#00f2ea', textColor: 'text-[#00f2ea]' },
+  { label: 'YouTube', value: 26, color: '#FF0000', textColor: 'text-[#FF0000]' },
+  { label: 'Instagram', value: 24, color: '#C13584', textColor: 'text-[#C13584]' },
+  { label: 'Facebook', value: 16, color: '#1877F2', textColor: 'text-[#1877F2]' },
 ].filter((segment) => segment.value > 0);
 
 export default function AudienceMix({ segments = defaultSegments, totalFollowers = 0 }: AudienceMixProps) {

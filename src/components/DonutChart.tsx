@@ -8,6 +8,8 @@ interface DonutSegment {
   value: number;
   color: string;
   textColor: string;
+  rawValue?: number;
+  rawUnit?: string;
 }
 
 interface DonutChartProps {
@@ -31,155 +33,76 @@ export default function DonutChart({
 }: DonutChartProps) {
   const radius = size / 2 - strokeWidth / 2;
   const circumference = 2 * Math.PI * radius;
-  
-  // Calculate total value for percentage calculations
+  const visibleFraction = Math.max(0, Math.min(1, visiblePercentage / 100));
   const total = segments.reduce((sum, seg) => sum + seg.value, 0);
-  
-  // Generate SVG paths for each segment
+
   let currentOffset = 0;
-  const paths = segments.map((segment, index) => {
-    const percentage = total > 0 ? segment.value / total : 0;
-    const segmentLength = circumference * percentage;
-    const offset = currentOffset;
-    currentOffset += segmentLength;
-    
-    // Calculate start and end angles
-    const angle = (percentage * 360);
-    
-    return {
-      index,
-      segment,
-      offset,
-      length: segmentLength,
-      angle,
-      percentage: (percentage * 100).toFixed(0),
-    };
+  const visibleSegments: Array<{ segment: DonutSegment; visibleLength: number; offset: number }> = [];
+
+  segments.forEach((segment) => {
+    const fraction = total > 0 ? segment.value / total : 0;
+    const fullLength = circumference * fraction;
+    const startOffset = currentOffset;
+    const endOffset = startOffset + fullLength;
+    const visibleEnd = circumference * visibleFraction;
+
+    if (startOffset >= visibleEnd) return;
+
+    const visibleLength = Math.min(fullLength, Math.max(0, visibleEnd - startOffset));
+    visibleSegments.push({ segment, visibleLength, offset: startOffset });
+    currentOffset = endOffset;
   });
 
-  const clipPercentage = Math.max(0, Math.min(100, visiblePercentage));
-  const endAngleDeg = -90 + 360 * (clipPercentage / 100);
-  const endRad = (endAngleDeg * Math.PI) / 180;
-  const startRad = (-90 * Math.PI) / 180;
-  const startX = size / 2 + radius * Math.cos(startRad);
-  const startY = size / 2 + radius * Math.sin(startRad);
-  const endX = size / 2 + radius * Math.cos(endRad);
-  const endY = size / 2 + radius * Math.sin(endRad);
-  const largeArc = clipPercentage > 50 ? 1 : 0;
-  const clipPath = clipPercentage >= 100 ? '' : `M ${size/2} ${size/2} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY} Z`;
-
-  // Map colors to Tailwind classes
-  const colorClasses: Record<string, string> = {
-    'bg-emerald-400': 'fill-emerald-400 stroke-emerald-400',
-    'bg-zinc-600': 'fill-zinc-600 stroke-zinc-600',
-    'bg-yellow-400': 'fill-yellow-400 stroke-yellow-400',
-    'bg-cyan-400': 'fill-cyan-400 stroke-cyan-400',
-    'bg-red-500': 'fill-red-500 stroke-red-500',
-    'bg-blue-500': 'fill-blue-500 stroke-blue-500',
-  };
-
   return (
-    <div className="flex flex-col items-center gap-4">
-      <h3 className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">{title}</h3>
-      
-      {/* Donut Chart SVG */}
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg
-          width={size}
-          height={size}
-          viewBox={`0 0 ${size} ${size}`}
-          className="transform -rotate-90"
-        >
-          <defs>
-            {clipPath && (
-              <clipPath id="donut-clip">
-                <path d={clipPath} />
-              </clipPath>
-            )}
-          </defs>
-          
-          {/* Background circle */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="rgb(39, 39, 42)"
-            strokeWidth={strokeWidth}
-            opacity={0.3}
-          />
-          
-          {/* Segments */}
-          <g clipPath={clipPath ? 'url(#donut-clip)' : undefined}>
-            {paths.map(({ segment, index }) => {
-            const percentage = total > 0 ? segment.value / total : 0;
-            const angle = percentage * 360;
-            const rad = (angle * Math.PI) / 180;
-            
-            // Calculate path
-            const startX = size / 2 + radius * Math.cos(0);
-            const startY = size / 2 + radius * Math.sin(0);
-            
-            const endX = size / 2 + radius * Math.cos(rad);
-            const endY = size / 2 + radius * Math.sin(rad);
-            
-            const largeArc = angle > 180 ? 1 : 0;
-            
-            // Use circle segment approach with proper angle calculation
-            const prevAngle = paths.slice(0, index).reduce((sum, p) => sum + (total > 0 ? p.segment.value / total : 0) * 360, 0);
-            const prevRad = (prevAngle * Math.PI) / 180;
-            
-            const x1 = size / 2 + radius * Math.cos(prevRad);
-            const y1 = size / 2 + radius * Math.sin(prevRad);
-            
-            const x2 = size / 2 + radius * Math.cos(prevRad + rad);
-            const y2 = size / 2 + radius * Math.sin(prevRad + rad);
-            
-            return (
+    <div className="flex flex-row items-center gap-6">
+      <div className="flex flex-col items-center gap-4">
+        <h3 className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">{title}</h3>
+
+        <div className="relative" style={{ width: size, height: size }}>
+          <svg
+            width={size}
+            height={size}
+            viewBox={`0 0 ${size} ${size}`}
+            className="transform -rotate-90"
+          >
+            {visibleSegments.map(({ segment, visibleLength, offset }) => (
               <circle
-                key={`segment-${index}`}
+                key={segment.label}
                 cx={size / 2}
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke={segment.color.replace('bg-', 'var(--color-')}
+                stroke={segment.color}
                 strokeWidth={strokeWidth}
-                strokeDasharray={`${circumference * percentage} ${circumference}`}
-                strokeDashoffset={-circumference * (paths.slice(0, index).reduce((sum, p) => sum + (total > 0 ? p.segment.value / total : 0), 0))}
-                strokeLinecap="round"
-                style={{
-                  '--color-emerald-400': '#4ade80',
-                  '--color-zinc-600': '#52525b',
-                  '--color-yellow-400': '#facc15',
-                  '--color-cyan-400': '#22d3ee',
-                  '--color-red-500': '#ef4444',
-                  '--color-blue-500': '#3b82f6',
-                } as React.CSSProperties}
+                strokeDasharray={`${visibleLength} ${circumference}`}
+                strokeDashoffset={-offset}
               />
-             );
-           })}
-          </g>
-        </svg>
-        
-        {/* Center content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-white">
-              {formatCompactValue(centerValue)}
+            ))}
+          </svg>
+
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white">
+                {formatCompactValue(centerValue)}
+              </div>
+              <div className="text-xs text-zinc-400 uppercase tracking-wide">{centerLabel}</div>
             </div>
-            <div className="text-xs text-zinc-400 uppercase tracking-wide">{centerLabel}</div>
           </div>
         </div>
       </div>
-      
-      {/* Legend */}
-      <div className="mt-2 flex flex-col gap-2 text-[10px] uppercase tracking-[0.18em] text-zinc-300">
-        {paths.map(({ segment, index, percentage }) => (
-          <div key={`legend-${index}`} className="flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${segment.color}`} />
-            <span className={`${segment.textColor}`}>{segment.label}</span>
-            <span className="text-zinc-500">({percentage}%)</span>
-          </div>
-        ))}
+
+      <div className="flex flex-col gap-2 text-[10px] uppercase tracking-[0.18em] text-zinc-300">
+        {segments.map((segment, index) => {
+          const label = (segment as any).short || segment.label;
+          const raw = segment.rawValue != null ? formatCompactValue(segment.rawValue) : '';
+          return (
+            <div key={`legend-${index}`} className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: segment.color }} />
+              <span style={{ color: segment.color }}>{label}</span>
+              {raw && <span className="text-zinc-400">{raw}</span>}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

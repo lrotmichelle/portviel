@@ -26,10 +26,10 @@ const payoutSegments: BarSegment[] = [
 ].filter((segment) => segment.value > 0);
 
 const targetSegments: BarSegment[] = [
-    { label: 'TikTok', short: 'TK', value: 34, color: 'bg-cyan-400', textColor: 'text-cyan-300' },
-    { label: 'YouTube', short: 'YT', value: 26, color: 'bg-red-500', textColor: 'text-red-300' },
-    { label: 'Instagram', short: 'IG', value: 24, color: 'bg-gradient-to-r from-violet-500 via-pink-500 to-orange-400', textColor: 'text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-pink-300 to-orange-300' },
-    { label: 'Facebook', short: 'FB', value: 16, color: 'bg-blue-500', textColor: 'text-blue-300' },
+    { label: 'TikTok', short: 'TK', value: 34, color: '#00f2ea', textColor: 'text-[#00f2ea]' },
+    { label: 'YouTube', short: 'YT', value: 26, color: '#FF0000', textColor: 'text-[#FF0000]' },
+    { label: 'Instagram', short: 'IG', value: 24, color: '#C13584', textColor: 'text-[#C13584]' },
+    { label: 'Facebook', short: 'FB', value: 16, color: '#1877F2', textColor: 'text-[#1877F2]' },
 ].filter((segment) => segment.value > 0);
 
 function renderBarWithMarkers(segments: BarSegment[]) {
@@ -56,8 +56,8 @@ function renderBarWithMarkers(segments: BarSegment[]) {
                 {segments.map((segment) => (
                     <div
                         key={segment.label}
-                        className={`${segment.color} h-full`}
-                        style={{ width: `${segment.value}%` }}
+                        className="h-full"
+                        style={{ backgroundColor: segment.color, width: `${segment.value}%` }}
                     />
                 ))}
             </div>
@@ -79,9 +79,9 @@ export default function ProgressBars({ budget = 0, cpm = 0, currentViews = 0, po
 
     // Create donut segments for payment plan
     const paymentDonutSegments = [
-        { label: 'Paid', short: 'Paid', value: 58, color: 'bg-emerald-400', textColor: 'text-emerald-300' },
-        { label: 'Budget', short: 'Budget', value: 27, color: 'bg-zinc-600', textColor: 'text-zinc-300' },
-        { label: 'Owe', short: 'Owe', value: 15, color: 'bg-yellow-400', textColor: 'text-yellow-300' },
+        { label: 'Paid', short: 'Paid', value: 58, color: '#4ade80', textColor: 'text-emerald-300' },
+        { label: 'Budget', short: 'Budget', value: 27, color: '#52525b', textColor: 'text-zinc-300' },
+        { label: 'Owe', short: 'Owe', value: 15, color: '#facc15', textColor: 'text-yellow-300' },
     ].filter((segment) => segment.value > 0);
 
     return (
@@ -108,8 +108,8 @@ export default function ProgressBars({ budget = 0, cpm = 0, currentViews = 0, po
                     <div className="mt-2 grid grid-cols-4 gap-1.5 text-[10px] uppercase tracking-[0.16em] text-zinc-300">
                         {targetSegments.map((segment) => (
                             <div key={segment.label} className="flex items-center justify-center gap-1.5 text-center">
-                                <span className={`h-2.5 w-2.5 rounded-full ${segment.color}`} />
-                                <span className={`${segment.textColor}`}>
+                                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: segment.color }} />
+                                <span style={{ color: segment.color }}>
                                     {segment.short}
                                 </span>
                             </div>

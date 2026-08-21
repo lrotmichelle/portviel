@@ -1,40 +1,33 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Wallet from './joined/wallet';
 import Transactions from './joined/transactions';
 import JoinedCampaigns from './joined/joined-campaigns';
 import CampaignFlow from './joined/campaignflow';
 import Debt from './joined/debt';
-import AudienceMix from './joined/audiencemix';
-import CampaignMembers from './joined/campaign-members';
-import HitTarget from './joined/hittarget';
+import CampaignPerformance from './joined/campaign-performance';
+import TargetProgress from './joined/target-progress';
+import CampaignPressure from './joined/campaign-pressure';
+import RecentTransactions from './joined/recent-transactions';
+import CampaignStatus from './joined/campaign-status';
 import type { CampaignCardData } from '@/types/campaign';
 import { generateJoinedCampaigns } from '@/lib/joineddata';
 import { formatCompactValue } from '@/lib/currency';
 
 export default function JoinedComponent() {
-  const [campaigns, setCampaigns] = useState<CampaignCardData[]>([]);
+  const [campaigns] = useState<CampaignCardData[]>(() => generateJoinedCampaigns(30));
   const [withdrawals, setWithdrawals] = useState<{ date: string; time: string; amount: number }[]>([]);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawError, setWithdrawError] = useState('');
-  const [selectedCampaignId, setSelectedCampaignId] = useState<string>('');
-
-  useEffect(() => {
-    setCampaigns(generateJoinedCampaigns(50));
-  }, []);
-
-  useEffect(() => {
-    if (campaigns.length > 0 && !selectedCampaignId) {
-      setSelectedCampaignId(campaigns[0].id);
-    }
-  }, [campaigns, selectedCampaignId]);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string>(() => campaigns[0]?.id ?? '');
 
   const incomeReceived = campaigns.reduce((s, c) => s + (c.incomeReceived || 0), 0);
   const debt = campaigns.reduce((s, c) => s + (c.debt || 0), 0);
   const totalWithdrawn = withdrawals.reduce((s, w) => s + w.amount, 0);
   const balance = incomeReceived - totalWithdrawn;
+  const activeCampaignsCount = campaigns.filter((c) => c.status === 'Active').length;
 
   const handleWithdraw = () => {
     const amount = Number(withdrawAmount);
@@ -59,8 +52,8 @@ export default function JoinedComponent() {
     .filter((c) => (c.incomeReceived || 0) > 0)
     .map((c, index) => ({
       id: c.id,
-      campaignName: c.projectName,
-      platform: ['TikTok', 'Instagram', 'YouTube'][index % 3],
+      campaignName: c.projectName.length > 12 ? `${c.projectName.slice(0, 12)}...` : c.projectName,
+      platform: ['TT', 'IG', 'YT'][index % 3],
       amount: c.incomeReceived || 0,
     }));
 
@@ -84,13 +77,11 @@ export default function JoinedComponent() {
     .slice(0, 5)
     .map((row, index) => ({ ...row, rank: index + 1 }));
 
-  const primaryCampaign = campaigns[0] ?? null;
-  const viewsForTarget = primaryCampaign?.viewsGenerated ?? 0;
-  const maxPayoutForTarget = primaryCampaign?.maxPayout ?? 0;
-  const totalFollowers = campaigns.reduce((s, c) => s + (c.communitySize || 0), 0);
+  const primaryCampaign = campaigns.find((c) => c.id === selectedCampaignId) ?? campaigns[0] ?? null;
+  const isExpired = primaryCampaign?.status === 'Expired' || (primaryCampaign?.timeRemainingDays ?? 0) <= 0;
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-8 text-white">
+    <div className="min-h-screen bg-zinc-950 p-4 text-white md:p-8">
       <div className="mb-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
@@ -106,28 +97,30 @@ export default function JoinedComponent() {
       </div>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+        {/* Section 1: Stats */}
+        <div className="grid grid-cols-3 gap-3 md:grid-cols-5 md:gap-4">
+          <div className={`rounded-2xl border border-zinc-800/60 bg-transparent p-4 ${isExpired ? 'opacity-60' : ''}`}>
             <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Balance</span>
-            <div className="mt-1 text-lg font-semibold text-white">{formatCompactValue(balance)} UGX</div>
+            <div className={`mt-1 text-lg font-semibold ${isExpired ? 'text-zinc-500' : 'text-white'}`}>{formatCompactValue(balance)} UGX</div>
           </div>
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+          <div className={`rounded-2xl border border-zinc-800/60 bg-transparent p-4 ${isExpired ? 'opacity-60' : ''}`}>
             <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Debt</span>
-            <div className="mt-1 text-lg font-semibold text-white">{formatCompactValue(debt)} UGX</div>
+            <div className={`mt-1 text-lg font-semibold ${isExpired ? 'text-zinc-500' : 'text-white'}`}>{formatCompactValue(debt)} UGX</div>
           </div>
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+          <div className={`rounded-2xl border border-zinc-800/60 bg-transparent p-4 ${isExpired ? 'opacity-60' : ''}`}>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Active</span>
+            <div className={`mt-1 text-lg font-semibold ${isExpired ? 'text-zinc-500' : 'text-white'}`}>{activeCampaignsCount}</div>
+          </div>
+          <div className={`col-span-3 md:col-span-2 rounded-2xl border border-zinc-800/60 bg-transparent p-4 ${isExpired ? 'opacity-60' : ''}`}>
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Withdraw</span>
-              {withdrawAmount && (
+              {withdrawAmount && !isExpired && (
                 <span className="text-[10px] text-zinc-300">
                   {(() => {
                     const entered = Number(withdrawAmount);
                     if (!Number.isFinite(entered) || entered <= 0) return '';
                     const display = entered > balance ? balance : entered;
-                    if (display >= 1_000_000_000) return `${(display / 1_000_000_000).toFixed(1).replace(/\.0$/, '')}b`;
-                    if (display >= 1_000_000) return `${(display / 1_000_000).toFixed(1).replace(/\.0$/, '')}m`;
-                    if (display >= 1_000) return `${(display / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
-                    return `${display}`;
+                    return formatCompactValue(display);
                   })()}
                 </span>
               )}
@@ -139,44 +132,50 @@ export default function JoinedComponent() {
                 value={withdrawAmount}
                 onChange={(e) => { setWithdrawAmount(e.target.value); setWithdrawError(''); }}
                 placeholder="Enter amount"
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                disabled={isExpired}
+                className={`w-full rounded-lg border bg-zinc-950 px-3 py-2 text-sm outline-none focus:border-emerald-500 ${isExpired ? 'border-zinc-700 text-zinc-500' : 'border-zinc-700 text-white'}`}
               />
               <button
                 type="button"
                 onClick={handleWithdraw}
-                className="whitespace-nowrap rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-500 hover:text-white active:bg-emerald-600 active:text-white"
+                disabled={isExpired}
+                className={`whitespace-nowrap rounded-lg border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition ${isExpired ? 'border-zinc-700 bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500 hover:text-white active:bg-emerald-600 active:text-white'}`}
               >
                 Withdraw
               </button>
             </div>
-            {withdrawError && (
+            {withdrawError && !isExpired && (
               <p className="mt-2 text-[11px] text-red-400">{withdrawError}</p>
             )}
           </div>
         </div>
 
+        {/* Section 2: Wallet & Transactions */}
         <div className="grid gap-6 md:grid-cols-[2fr_3fr]">
           <div className="min-w-0">
-            <Wallet withdrawals={withdrawals} totalWithdrawn={totalWithdrawn} />
+            <Wallet withdrawals={withdrawals} totalWithdrawn={totalWithdrawn} isExpired={isExpired} />
           </div>
           <div className="min-w-0">
-            <Transactions items={transactionItems} />
+            <Transactions items={transactionItems} isExpired={isExpired} />
           </div>
         </div>
 
+        {/* Section 3: Joined Campaigns */}
         <JoinedCampaigns campaigns={campaigns} selectedId={selectedCampaignId} onSelectChange={setSelectedCampaignId} />
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="min-w-0">
-            <CampaignMembers campaigns={campaigns} selectedId={selectedCampaignId} />
-          </div>
-          <div className="min-w-0">
-            <AudienceMix totalFollowers={totalFollowers} />
-          </div>
-        </div>
+        {/* Section 4: Campaign Status */}
+        <CampaignStatus campaign={primaryCampaign} />
 
-        <div className="mt-6">
-          <HitTarget currentViews={viewsForTarget} maxPayout={maxPayoutForTarget} />
+        {/* Section 5: Performance */}
+        <CampaignPerformance campaign={primaryCampaign} />
+
+        {/* Section 6: Target Progress */}
+        <TargetProgress campaign={primaryCampaign} isExpired={isExpired} />
+
+        {/* Section 7: Pressure & Recent Transactions */}
+        <div className="flex flex-col gap-6">
+          <CampaignPressure campaign={primaryCampaign} isExpired={isExpired} />
+          <RecentTransactions userDebt={primaryCampaign?.debt ?? 0} isExpired={isExpired} />
         </div>
       </div>
     </div>
