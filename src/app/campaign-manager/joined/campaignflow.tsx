@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { formatCompactNumber, formatCompactValue } from '@/lib/currency';
 
 interface FlowRow {
@@ -25,30 +25,32 @@ const sampleRows: FlowRow[] = [
 ];
 
 export default function CampaignFlow({ rows = sampleRows }: CampaignFlowProps) {
+  const [showAll, setShowAll] = useState(false);
+  const visibleRows = showAll ? rows : rows.slice(0, 4);
   return (
     <div className="w-full rounded-2xl border border-zinc-800/60 bg-transparent p-3 text-sm text-zinc-200">
       <div className="mb-2 flex flex-col gap-2">
         <h3 className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Campaign flow</h3>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto bg-transparent text-left text-sm">
+      <div className={`w-full ${showAll ? 'overflow-x-auto max-h-[200px] overflow-y-auto' : 'overflow-hidden'}`}>
+        <table className={`campaign-manager-spaced-table w-full ${showAll ? 'min-w-[700px]' : 'min-w-full'} table-auto bg-transparent text-left text-sm`}>
           <thead>
             <tr className="text-zinc-400">
               <th className="pb-2 text-[11px] font-medium uppercase tracking-wide">Rank</th>
               <th className="pb-2 text-[11px] font-medium uppercase tracking-wide">Campaign</th>
               <th className="pb-2 text-right text-[11px] font-medium uppercase tracking-wide">Views</th>
-              <th className="pb-2 text-right text-[11px] font-medium uppercase tracking-wide">Likes</th>
+              <th className={`${showAll ? '' : 'hidden md:table-cell'} pb-2 text-right text-[11px] font-medium uppercase tracking-wide`}>Likes</th>
               <th className="pb-2 text-right text-[11px] font-medium uppercase tracking-wide">Amount</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {visibleRows.map((row) => (
               <tr key={row.rank} className="border-t border-zinc-800/60 bg-transparent align-top">
                 <td className="py-1.5 pr-2 text-zinc-300">#{row.rank}</td>
                 <td className="py-1.5 pr-2 text-white">{row.campaignName}</td>
                 <td className="py-1.5 pr-2 text-right text-zinc-100">{formatCompactNumber(row.views)}</td>
-                <td className="py-1.5 pr-2 text-right text-zinc-100">{formatCompactNumber(row.likes)}</td>
+                <td className={`${showAll ? '' : 'hidden md:table-cell'} py-1.5 pr-2 text-right text-zinc-100`}>{formatCompactNumber(row.likes)}</td>
                 <td className={`py-1.5 text-right font-semibold ${row.status === 'settled' ? 'text-emerald-400' : 'text-yellow-400'}`}>
                   {formatCompactValue(row.amount)} UGX
                 </td>
@@ -58,8 +60,8 @@ export default function CampaignFlow({ rows = sampleRows }: CampaignFlowProps) {
         </table>
       </div>
       <div className="mt-3 flex justify-start">
-        <button className="rounded-md border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-300 transition hover:border-zinc-600 hover:text-white">
-          View all
+        <button type="button" onClick={() => setShowAll((prev) => !prev)} className="rounded-md border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-300 transition hover:border-zinc-600 hover:text-white">
+          {showAll ? 'Show less' : 'View all'}
         </button>
       </div>
     </div>

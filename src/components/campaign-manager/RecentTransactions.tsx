@@ -40,8 +40,8 @@ export default function RecentTransactions({ items }: RecentTransactionsProps) {
       <div className="mb-2 flex flex-col gap-2">
         <h3 className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Recent transactions</h3>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto bg-transparent text-sm">
+      <div className="w-full overflow-x-auto">
+        <table className="w-full min-w-full table-auto bg-transparent text-sm">
           <thead>
             <tr className="text-left text-zinc-400">
               <th className="pb-2 text-[11px] font-medium uppercase tracking-wide">Campaign / Member</th>

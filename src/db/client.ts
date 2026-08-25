@@ -75,6 +75,9 @@ async function ensureDatabaseSchema() {
       likes_generated INTEGER NOT NULL DEFAULT 0,
       total_budget INTEGER NOT NULL DEFAULT 1000,
       budget_used INTEGER NOT NULL DEFAULT 0,
+      debit INTEGER NOT NULL DEFAULT 0,
+      paid INTEGER NOT NULL DEFAULT 0,
+      owe INTEGER NOT NULL DEFAULT 0,
       highest_mcp INTEGER NOT NULL DEFAULT 100,
       time_remaining_days INTEGER NOT NULL DEFAULT 14,
       required_platforms TEXT NOT NULL DEFAULT '',
@@ -85,6 +88,9 @@ async function ensureDatabaseSchema() {
       created_at TIMESTAMP NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMP NOT NULL DEFAULT NOW()
     )`,
+    `ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS debit INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS paid INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS owe INTEGER NOT NULL DEFAULT 0`,
     `CREATE TABLE IF NOT EXISTS campaign_members (
       id SERIAL PRIMARY KEY,
       campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,

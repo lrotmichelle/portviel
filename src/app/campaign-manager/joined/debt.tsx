@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { formatCompactValue } from '@/lib/currency';
 
 interface DebtRow {
@@ -22,6 +22,8 @@ const sampleRows: DebtRow[] = [
 ];
 
 export default function Debt({ rows = sampleRows }: DebtProps) {
+  const [showAll, setShowAll] = useState(false);
+  const visibleRows = showAll ? rows : rows.slice(0, 4);
   const totalAmount = rows.reduce((sum, row) => sum + row.amount, 0);
 
   return (
@@ -30,23 +32,23 @@ export default function Debt({ rows = sampleRows }: DebtProps) {
         <h3 className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Debt</h3>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto bg-transparent text-left text-sm">
+      <div className={`w-full ${showAll ? 'overflow-x-auto max-h-[200px] overflow-y-auto' : 'overflow-hidden'}`}>
+        <table className={`w-full ${showAll ? 'min-w-[520px]' : 'min-w-full'} table-auto bg-transparent text-left text-sm`}>
           <thead>
             <tr className="text-zinc-400">
               <th className="pb-2 text-[11px] font-medium uppercase tracking-wide">Rank</th>
               <th className="pb-2 text-[11px] font-medium uppercase tracking-wide">Campaign</th>
               <th className="pb-2 text-right text-[11px] font-medium uppercase tracking-wide">Amount</th>
-              <th className="pb-2 pl-3 text-right text-[11px] font-medium uppercase tracking-wide">Demand</th>
+              <th className={`${showAll ? '' : 'hidden md:table-cell'} pb-2 pl-3 text-right text-[11px] font-medium uppercase tracking-wide`}>Demand</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {visibleRows.map((row) => (
               <tr key={row.rank} className="border-t border-zinc-800/60 bg-transparent align-middle">
                 <td className="py-1 pr-2 text-zinc-300">#{row.rank}</td>
                 <td className="py-1 pr-2 text-white">{row.campaignName}</td>
                 <td className="py-1 text-right text-zinc-100">{formatCompactValue(row.amount)} UGX</td>
-                <td className="py-1 pl-3 text-right">
+                <td className={`${showAll ? '' : 'hidden md:table-cell'} py-1 pl-3 text-right`}>
                   <button className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-amber-300 transition hover:bg-amber-500 hover:text-white">
                     Demand
                   </button>
@@ -57,8 +59,8 @@ export default function Debt({ rows = sampleRows }: DebtProps) {
         </table>
       </div>
       <div className="mt-3 flex items-center justify-between gap-2">
-        <button className="rounded-md border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-300 transition hover:border-zinc-600 hover:text-white">
-          View all
+        <button type="button" onClick={() => setShowAll((prev) => !prev)} className="rounded-md border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-300 transition hover:border-zinc-600 hover:text-white">
+          {showAll ? 'Show less' : 'View all'}
         </button>
         <button className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-amber-300 transition hover:bg-amber-500 hover:text-white">
           Demand all {formatCompactValue(totalAmount)} UGX

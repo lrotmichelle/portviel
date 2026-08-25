@@ -55,11 +55,11 @@ export function calculatePlatformPercentages(campaign: CampaignCardData): Campai
     };
   });
 
-  const totalPercentage = metrics.reduce((sum, m) => sum + m.percentage, 0);
+  const totalPercentage = metrics.reduce((sum, m) => sum + (m.views || 0) + (m.likes || 0) + (m.members || 0), 0);
 
   if (totalPercentage > 0) {
     metrics.forEach((m) => {
-      m.percentage = (m.percentage / totalPercentage) * 100;
+      m.percentage = ((m.views || 0) + (m.likes || 0) + (m.members || 0)) / totalPercentage * 100;
     });
   } else {
     const equalShare = 100 / platforms.length;

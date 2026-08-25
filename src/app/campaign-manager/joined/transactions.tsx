@@ -33,7 +33,7 @@ export default function Transactions({ items, isExpired = false }: TransactionsP
     if (!showAll) return;
     const timer = setTimeout(() => {
       setShowAll(false);
-    }, 10000);
+    }, 60000);
     return () => clearTimeout(timer);
   }, [showAll]);
 
@@ -57,15 +57,15 @@ export default function Transactions({ items, isExpired = false }: TransactionsP
           onClick={() => setShowAll((prev) => !prev)}
           className="rounded-none border-0 bg-transparent px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-red-400 hover:text-red-300"
         >
-          {showAll ? 'Show less' : 'View all'}
+          {showAll ? 'View less' : 'View all'}
         </button>
       </div>
-      <div className={`overflow-x-auto ${showAll ? 'max-h-[200px] overflow-y-auto' : ''}`}>
-        <table className="w-full table-auto bg-transparent text-left text-sm">
+      <div className={`w-full ${showAll ? 'overflow-x-auto max-h-[200px] overflow-y-auto' : 'overflow-hidden'}`}>
+        <table className={`w-full ${showAll ? 'min-w-[620px]' : 'min-w-full'} table-auto bg-transparent text-left text-sm`}>
           <thead>
             <tr className="text-left text-zinc-400">
               <th className="pb-2 text-[11px] font-medium uppercase tracking-wide">Campaign name</th>
-              <th className="pb-2 text-[11px] font-medium uppercase tracking-wide">Platform</th>
+              <th className={`${showAll ? '' : 'hidden md:table-cell'} pb-2 text-[11px] font-medium uppercase tracking-wide`}>Platform</th>
               <th className="pb-2 text-right text-[11px] font-medium uppercase tracking-wide">Amount</th>
             </tr>
           </thead>
@@ -73,7 +73,7 @@ export default function Transactions({ items, isExpired = false }: TransactionsP
             {rows.map((t) => (
               <tr key={t.id} className="border-t border-zinc-800/60 bg-transparent align-middle">
                 <td className={`py-1.5 pr-2 text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-white'}`}>{t.campaignName}</td>
-                <td className={`py-1.5 pr-2 text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-zinc-100'}`}>{t.platform}</td>
+                <td className={`${showAll ? '' : 'hidden md:table-cell'} py-1.5 pr-2 text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-zinc-100'}`}>{t.platform}</td>
                 <td className={`py-1.5 text-right text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-emerald-400'}`}>
                   {formatCompactValue(t.amount)} UGX
                 </td>

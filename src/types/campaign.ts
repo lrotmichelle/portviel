@@ -14,6 +14,12 @@ export interface CampaignCardData {
   likesGenerated: number;
   totalBudget: number;
   budgetUsed: number;
+  /** Amount debited/committed from the campaign budget. */
+  debit?: number;
+  /** Amount already paid to campaign members. */
+  paid?: number;
+  /** Amount still owed to campaign members. */
+  owe?: number;
   highestMcp: number;
   hasJoined: boolean;
   requiredPlatforms?: string[];
@@ -38,4 +44,6 @@ export interface CampaignCardData {
     likes?: number;
     members?: number;
   }>;
+  rules?: string[];
+  resourceLink?: string;
 }

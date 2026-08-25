@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import { Users } from 'lucide-react';
 import type { CampaignCardData } from '@/types/campaign';
 import { calculatePlatformPercentages } from '@/lib/campaignData';
+import { formatCompactNumber } from '@/lib/currency';
 
 interface CampaignStatusProps {
   campaign: CampaignCardData | null;
@@ -33,11 +35,12 @@ const platformColors: Record<string, string> = {
 
 export default function CampaignStatus({ campaign }: CampaignStatusProps) {
   const selected = campaign;
-  const platforms = selected?.requiredPlatforms ?? [];
+  const platforms = useMemo(() => selected?.requiredPlatforms ?? [], [selected]);
+  const isSinglePlatform = platforms.length === 1;
 
-  const { conicSegments, totalMembers } = useMemo(() => {
+  const { conicSegments, totalMembers, metrics } = useMemo(() => {
     if (platforms.length === 0 || !selected) {
-      return { conicSegments: '', totalMembers: 0 };
+      return { conicSegments: '', totalMembers: 0, metrics: [] };
     }
 
     const metrics = calculatePlatformPercentages(selected);
@@ -78,6 +81,7 @@ export default function CampaignStatus({ campaign }: CampaignStatusProps) {
     return {
       conicSegments: gradientStops.join(', '),
       totalMembers: selected.communitySize || 0,
+      metrics,
     };
   }, [platforms, selected]);
 
@@ -93,27 +97,61 @@ export default function CampaignStatus({ campaign }: CampaignStatusProps) {
   return (
     <div className="w-full rounded-2xl border border-zinc-800/60 bg-transparent p-4 text-sm text-zinc-200">
       <h3 className="mb-3 text-[11px] uppercase tracking-[0.25em] text-zinc-500">Campaign members</h3>
-      <div className="flex flex-col items-center gap-3">
-        <div className="relative flex h-36 w-36 items-center justify-center">
+      <div className="flex items-center gap-4">
+        <div className={`${isSinglePlatform ? 'w-full' : 'w-1/2 shrink-0'}`}>
+          {isSinglePlatform && (
+            <div className="mb-3 flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.16em] text-zinc-400">
+              <span className="campaign-platform-abbreviation text-white">{abbreviatePlatform(platforms[0])}</span>
+              <span className="campaign-platform-name text-white">{platforms[0]}</span>
+              <span className="flex items-center gap-1.5">
+                <Users className="h-3.5 w-3.5 text-emerald-500/70" />
+                <span>{formatCompactNumber(totalMembers)}</span>
+              </span>
+            </div>
+          )}
+          {isSinglePlatform ? (
+            <div className="h-4 w-full overflow-hidden rounded-full bg-zinc-900/80">
+              <div className="h-full w-full rounded-full" style={{ backgroundColor: platformColors[platforms[0].toLowerCase()] || '#52525b' }} />
+            </div>
+          ) : (
+          <div className="relative mx-auto aspect-square w-full max-w-[240px]">
           {/* Donut Ring built starting from 0deg (12 o'clock) */}
-          <div
-            className="h-full w-full rounded-full"
-            style={{
-              background: `conic-gradient(from 0deg, ${conicSegments})`,
-              WebkitMask: 'radial-gradient(transparent 56%, black 57%)',
-              mask: 'radial-gradient(transparent 56%, black 57%)',
-            }}
-          />
+            <div
+              className="h-full w-full rounded-full"
+              style={{
+                background: `conic-gradient(from 0deg, ${conicSegments})`,
+                WebkitMask: 'radial-gradient(transparent 56%, black 57%)',
+                mask: 'radial-gradient(transparent 56%, black 57%)',
+              }}
+            />
 
-          {/* Center Text Overlay */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-base font-bold text-white">
-              {totalMembers.toLocaleString()}
-            </span>
-            <span className="text-[10px] uppercase tracking-wider text-zinc-400">
-              Members
-            </span>
+            {/* Center Text Overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+              <span className="text-base font-bold text-white">
+                {totalMembers.toLocaleString()}
+              </span>
+              <span className="text-[10px] uppercase tracking-wider text-zinc-400">
+                Members
+              </span>
+            </div>
           </div>
+          )}
+        </div>
+
+        <div className={`${isSinglePlatform ? 'hidden' : 'grid w-1/2'} gap-y-2 border-l border-zinc-800/60 pl-4 text-[10px] uppercase tracking-[0.16em] text-zinc-300`}>
+          {metrics.map((metric) => (
+            <div key={metric.platform} className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: platformColors[metric.platform.toLowerCase()] || '#52525b' }}
+                />
+                <span className="campaign-platform-abbreviation">{abbreviatePlatform(metric.platform)}</span>
+                <span className="campaign-platform-name">{metric.platform}</span>
+              </span>
+              <span className="text-zinc-400">{(metric.members || 0).toLocaleString()}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

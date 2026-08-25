@@ -7,6 +7,7 @@ interface TargetProgressProps {
   campaign?: {
     totalBudget?: number;
     budgetUsed?: number;
+    paid?: number;
     viewsGenerated?: number;
     maxPayout?: number;
   } | null;
@@ -15,11 +16,11 @@ interface TargetProgressProps {
 
 export default function TargetProgress({ campaign, isExpired = false }: TargetProgressProps) {
   const budget = campaign?.totalBudget ?? 0;
-  const budgetUsed = campaign?.budgetUsed ?? 0;
+  const budgetPaidAmount = campaign?.paid ?? campaign?.budgetUsed ?? 0;
   const viewsGotten = campaign?.viewsGenerated ?? 0;
   const maxPayout = campaign?.maxPayout ?? 0;
 
-  const budgetPaid = budget > 0 ? Math.min(100, (budgetUsed / budget) * 100) : 0;
+  const budgetPaid = budget > 0 ? Math.min(100, (budgetPaidAmount / budget) * 100) : 0;
   const budgetRemaining = Math.max(0, 100 - budgetPaid);
 
   const myProgress = maxPayout > 0 ? Math.min(100, (viewsGotten / maxPayout) * 100) : 0;
@@ -33,7 +34,7 @@ export default function TargetProgress({ campaign, isExpired = false }: TargetPr
           <div className="flex items-center justify-between">
             <span className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${isExpired ? 'text-zinc-500' : 'text-zinc-400'}`}>Budget</span>
             <span className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${isExpired ? 'text-zinc-500' : 'text-zinc-300'}`}>
-              Paid {formatCompactValue(budgetUsed)} | remaining {formatCompactValue(Math.max(0, budget - budgetUsed))}
+              Paid {formatCompactValue(budgetPaidAmount)} | remaining {formatCompactValue(Math.max(0, budget - budgetPaidAmount))}
             </span>
           </div>
           <div className="relative flex h-[16px] w-full overflow-hidden rounded-full bg-zinc-900/80">

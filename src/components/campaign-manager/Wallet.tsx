@@ -23,7 +23,7 @@ export default function Wallet({ pool = 0, settled = 0, debt = 0, campaignsCount
   return (
     <div className="w-full rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 text-sm text-zinc-200">
       <h3 className="mb-3 text-sm uppercase tracking-[0.3em] text-zinc-500">Wallet</h3>
-      <table className="w-full table-auto text-sm">
+      <table className="w-full min-w-full table-auto text-sm">
         <thead>
           <tr className="text-left text-zinc-400">
             <th className="pb-2">Item</th>

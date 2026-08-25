@@ -1,15 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import CampaignCard from '@/components/campaign-card';
 import type { CampaignCardData } from '@/types/campaign';
 import Link from 'next/link';
 import { recordOfficeEvent } from '@/lib/office-history';
 import AdvertModal from '@/components/layout/advert-modal';
 import CampaignModal from '@/components/layout/campaign-modal';
+import CampaignRules from '@/components/campaign-manager/CampaignRules';
 import { generateMockCampaigns } from '@/lib/mockCampaigns';
 
 export default function CampaignPage() {
+  const router = useRouter();
   const [campaigns, setCampaigns] = useState<CampaignCardData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
@@ -22,6 +25,9 @@ export default function CampaignPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState<'status' | 'category' | 'niche' | 'competition' | null>(null);
   const [isAdvertOpen, setIsAdvertOpen] = useState(false);
   const [isCampaignOpen, setIsCampaignOpen] = useState(false);
+  const [publishedCampaign, setPublishedCampaign] = useState<CampaignCardData | null>(null);
+  const [publishedRules, setPublishedRules] = useState(['', '', '', '', '']);
+  const [publishedResource, setPublishedResource] = useState('');
   const [profile, setProfile] = useState<{ ownerName?: string; handle?: string } | null>(null);
   const isSocialConnected = Boolean(profile?.handle && profile.handle !== '@martha' && profile.handle !== 'demo-user');
 
@@ -562,6 +568,7 @@ export default function CampaignPage() {
             hasJoined: false,
           } as CampaignCardData;
           setCampaigns((prev) => [newCampaign, ...prev]);
+          setPublishedCampaign(newCampaign);
         }}
       />
 
@@ -591,6 +598,31 @@ export default function CampaignPage() {
           setCampaigns((prev) => [newCampaign, ...prev]);
         }}
       />
+
+      {publishedCampaign && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-emerald-500/40 bg-zinc-950 p-4 shadow-2xl">
+            <button type="button" onClick={() => setPublishedCampaign(null)} aria-label="Close campaign rules" className="absolute right-3 top-3 rounded-md px-2 py-1 text-xl text-zinc-400 hover:bg-zinc-800 hover:text-white">×</button>
+            <div className="mb-3 pr-8">
+              <h2 className="text-lg font-semibold text-white">Set campaign rules to start the campaign</h2>
+              <p className="mt-1 text-xs text-zinc-400">Add the first rule to start this campaign. The remaining rules are optional.</p>
+            </div>
+            <CampaignRules
+              rules={publishedRules}
+              resourceLink={publishedResource}
+              editable
+              onRuleChange={(index, value) => setPublishedRules((current) => current.map((rule, ruleIndex) => ruleIndex === index ? value : rule))}
+              onResourceChange={setPublishedResource}
+              saveLabel="Start campaign"
+              saveDisabled={!publishedRules[0].trim()}
+              onSave={() => {
+                window.sessionStorage.setItem('portville:published-campaign-rules', JSON.stringify({ id: publishedCampaign.id, rules: publishedRules, resourceLink: publishedResource }));
+                router.push('/campaign-manager/manage#campaign-rules');
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredCampaigns.length > 0 ? (

@@ -5,19 +5,19 @@ import React, { useState } from 'react';
 import Wallet from './joined/wallet';
 import Transactions from './joined/transactions';
 import JoinedCampaigns from './joined/joined-campaigns';
-import CampaignFlow from './joined/campaignflow';
-import Debt from './joined/debt';
 import CampaignPerformance from './joined/campaign-performance';
 import TargetProgress from './joined/target-progress';
 import CampaignPressure from './joined/campaign-pressure';
-import RecentTransactions from './joined/recent-transactions';
 import CampaignStatus from './joined/campaign-status';
+import CampaignTransactions from '@/components/campaign-manager/CampaignTransactions';
+import CampaignRules from '@/components/campaign-manager/CampaignRules';
 import type { CampaignCardData } from '@/types/campaign';
-import { generateJoinedCampaigns } from '@/lib/joineddata';
+import { getMockCampaigns } from '@/lib/mockCampaigns';
 import { formatCompactValue } from '@/lib/currency';
+import { Eye, Heart, Users } from 'lucide-react';
 
 export default function JoinedComponent() {
-  const [campaigns] = useState<CampaignCardData[]>(() => generateJoinedCampaigns(30));
+  const [campaigns] = useState<CampaignCardData[]>(() => getMockCampaigns());
   const [withdrawals, setWithdrawals] = useState<{ date: string; time: string; amount: number }[]>([]);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawError, setWithdrawError] = useState('');
@@ -43,7 +43,7 @@ export default function JoinedComponent() {
     const now = new Date();
     setWithdrawals((prev) => [
       ...prev,
-      { date: now.toISOString().split('T')[0], time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), amount },
+      { date: now.toISOString().split('T')[0], time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }), amount },
     ]);
     setWithdrawAmount('');
   };
@@ -57,28 +57,16 @@ export default function JoinedComponent() {
       amount: c.incomeReceived || 0,
     }));
 
-  const flowRows = campaigns.slice(0, 5).map((c, index) => ({
-    rank: index + 1,
-    campaignName: c.projectName,
-    views: c.viewsGenerated || 0,
-    likes: c.likesGenerated || 0,
-    amount: c.budgetUsed || 0,
-    status: ((c.incomeReceived || 0) >= (c.budgetUsed || 0) * 0.5 ? 'settled' : 'owe') as 'settled' | 'owe',
-  }));
-
-  const debtRows = campaigns
-    .filter((c) => (c.debt || 0) > 0)
-    .map((c, index) => ({
-      rank: index + 1,
-      campaignName: c.projectName,
-      amount: c.debt || 0,
-    }))
-    .sort((a, b) => b.amount - a.amount)
-    .slice(0, 5)
-    .map((row, index) => ({ ...row, rank: index + 1 }));
-
   const primaryCampaign = campaigns.find((c) => c.id === selectedCampaignId) ?? campaigns[0] ?? null;
   const isExpired = primaryCampaign?.status === 'Expired' || (primaryCampaign?.timeRemainingDays ?? 0) <= 0;
+  const campaignTransactions = primaryCampaign ? (primaryCampaign.participants ?? []).slice(0, 5).map((participant, index) => ({
+    date: primaryCampaign.lastEditedAt ? new Date(primaryCampaign.lastEditedAt).toISOString().split('T')[0] : '-',
+    time: primaryCampaign.lastEditedAt ? new Date(primaryCampaign.lastEditedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '-',
+    rank: index + 1,
+    member: participant.name,
+    views: Math.round((primaryCampaign.viewsGenerated || 0) * participant.progress / 100),
+    amount: Math.round((primaryCampaign.budgetUsed || 0) * participant.progress / 100),
+  })) : [];
 
   return (
     <div className="min-h-screen bg-zinc-950 p-4 text-white md:p-8">
@@ -160,22 +148,76 @@ export default function JoinedComponent() {
           </div>
         </div>
 
-        {/* Section 3: Joined Campaigns */}
-        <JoinedCampaigns campaigns={campaigns} selectedId={selectedCampaignId} onSelectChange={setSelectedCampaignId} />
+        {/* Section 3: Campaign selector and selected campaign metrics */}
+        <div className="grid gap-6 md:grid-cols-[3fr_2fr] md:items-stretch">
+          <JoinedCampaigns campaigns={campaigns} selectedId={selectedCampaignId} onSelectChange={setSelectedCampaignId} showMetrics={false} />
+          {primaryCampaign && (
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: 'Members', value: primaryCampaign.communitySize, icon: <Users className="h-4 w-4 text-emerald-500/70" /> },
+                { label: 'Views', value: primaryCampaign.viewsGenerated, icon: <Eye className="h-4 w-4 text-sky-500/70" /> },
+                { label: 'Likes', value: primaryCampaign.likesGenerated, icon: <Heart className="h-4 w-4 fill-red-500/10 text-red-500" /> },
+              ].map((metric) => (
+                <div key={metric.label} className="flex flex-col justify-center rounded-2xl border border-zinc-800/60 bg-transparent p-3 text-center">
+                  <span className="text-[10px] uppercase tracking-[0.18em] text-zinc-500">{metric.label}</span>
+                  <span className="mt-1 flex items-center justify-center gap-1.5 text-sm font-semibold text-white">
+                    {metric.icon}
+                    {metric.value.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* Section 4: Campaign Status */}
-        <CampaignStatus campaign={primaryCampaign} />
+        {/* Section 4: Selected campaign details */}
+        {primaryCampaign && (
+          <div className="grid w-full grid-cols-9 gap-3 max-[560px]:grid-cols-3">
+            {[
+              { label: 'Time', value: `${primaryCampaign.timeRemainingDays} days` },
+              { label: 'Budget', value: `${formatCompactValue(primaryCampaign.totalBudget)} UGX` },
+              { label: 'Debit', value: `${formatCompactValue(primaryCampaign.debit ?? primaryCampaign.budgetUsed)} UGX` },
+              { label: 'Paid', value: `${formatCompactValue(primaryCampaign.paid ?? primaryCampaign.incomeReceived ?? 0)} UGX` },
+              { label: 'Owe', value: `${formatCompactValue(primaryCampaign.owe ?? primaryCampaign.debt ?? 0)} UGX` },
+              { label: 'CPM', value: `${formatCompactValue(primaryCampaign.highestMcp)} UGX` },
+              { label: 'Rank', value: `#${primaryCampaign.rank ?? '-'}` },
+              { label: 'Min payout', shortLabel: 'Min', value: `${formatCompactValue(primaryCampaign.minPayout ?? 0)} UGX` },
+              { label: 'Max payout', shortLabel: 'Max', value: `${formatCompactValue(primaryCampaign.maxPayout ?? 0)} UGX` },
+            ].map((item) => (
+              <div key={item.label} className="rounded-2xl border border-zinc-800/60 bg-transparent p-3">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+                  <span className="max-[560px]:hidden">{item.label}</span>
+                  <span className="hidden max-[560px]:inline">{item.shortLabel ?? item.label}</span>
+                </span>
+                <div className="mt-1 text-sm font-semibold text-white">{item.value}</div>
+              </div>
+            ))}
+          </div>
+        )}
 
-        {/* Section 5: Performance */}
-        <CampaignPerformance campaign={primaryCampaign} />
+        {/* Section 5: Campaign members and performance */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <CampaignStatus campaign={primaryCampaign} />
+          <CampaignPerformance campaign={primaryCampaign} />
+        </div>
 
         {/* Section 6: Target Progress */}
         <TargetProgress campaign={primaryCampaign} isExpired={isExpired} />
 
-        {/* Section 7: Pressure & Recent Transactions */}
+        {/* Section 7: Pressure */}
         <div className="flex flex-col gap-6">
           <CampaignPressure campaign={primaryCampaign} isExpired={isExpired} />
-          <RecentTransactions userDebt={primaryCampaign?.debt ?? 0} isExpired={isExpired} />
+        </div>
+        <div className="grid gap-6 md:grid-cols-[3fr_2fr]">
+          <CampaignTransactions transactions={campaignTransactions} />
+          <CampaignRules
+            rules={primaryCampaign?.rules}
+            resourceLink={primaryCampaign?.resourceLink}
+            showJoinedActions
+            onRemind={() => window.alert('Reminder sent to the campaign owner.')}
+            onLeave={() => window.alert('Leave campaign request submitted.')}
+            onCopyResource={() => primaryCampaign?.resourceLink && navigator.clipboard.writeText(primaryCampaign.resourceLink)}
+          />
         </div>
       </div>
     </div>

@@ -71,3 +71,363 @@ body {
   -webkit-appearance: none;
   appearance: textfield;
 }
+
+/* Keep the collapsed campaign transaction table readable on narrow screens. */
+.campaign-transactions-table {
+  border-spacing: 3% 0;
+}
+
+.transaction-optional-column {
+  display: none;
+}
+
+.transaction-inline-time {
+  display: none;
+}
+
+.transaction-time-column,
+.transaction-date,
+.transaction-date-label {
+  display: none;
+}
+
+.transaction-relative-age,
+.transaction-relative-age-label {
+  display: inline;
+}
+
+.pressure-optional-column {
+  display: none;
+}
+
+.pressure-media-column {
+  display: table-cell;
+}
+
+.campaign-pressure-amount {
+  padding-left: 5%;
+  padding-right: 0;
+  text-align: right;
+}
+
+.campaign-pressure-views {
+  padding-left: 5%;
+  text-align: right;
+}
+
+.campaign-pressure-table th + th,
+.campaign-pressure-table td + td {
+  padding-left: 5%;
+}
+
+.campaign-pressure-table th:last-child,
+.campaign-pressure-table td:last-child {
+  padding-right: 0;
+}
+
+.campaign-manager-spaced-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.campaign-manager-spaced-table th + th,
+.campaign-manager-spaced-table td + td {
+  padding-left: 1%;
+}
+
+.campaign-manager-spaced-table th:not(:last-child),
+.campaign-manager-spaced-table td:not(:last-child) {
+  padding-right: 0;
+}
+
+.campaign-manager-spaced-table th:last-child,
+.campaign-manager-spaced-table td:last-child {
+  padding-right: 0;
+}
+
+.campaign-flow-table th:first-child + th,
+.campaign-flow-table td:first-child + td,
+.manage-reminders-table th:first-child + th,
+.manage-reminders-table td:first-child + td {
+  padding-left: 2%;
+}
+
+.manage-relative-age,
+.manage-relative-age-label {
+  display: none;
+}
+
+.manage-date,
+.manage-date-label {
+  display: inline;
+}
+
+.manage-mobile-member-name {
+  display: inline;
+}
+
+.manage-desktop-member-name {
+  display: none;
+}
+
+.manage-metric-mobile-label {
+  display: none;
+}
+
+.manage-metric-currency {
+  vertical-align: baseline;
+}
+
+.manage-media-column {
+  display: none;
+}
+
+@media (min-width: 500px) {
+  .campaign-flow-media {
+    padding-left: 5%;
+  }
+
+  .campaign-flow-views {
+    padding-left: 2%;
+  }
+
+  .manage-media-column {
+    display: table-cell;
+  }
+}
+
+.campaign-platform-name {
+  display: none;
+}
+
+.campaign-platform-abbreviation {
+  display: inline;
+}
+
+@media (min-width: 500px) {
+  .campaign-platform-name {
+    display: inline;
+  }
+
+  .campaign-platform-abbreviation {
+    display: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .manage-withdrawal-time {
+    display: none;
+  }
+
+  .manage-recent-transactions.is-collapsed .manage-recent-rank,
+  .manage-recent-transactions.is-collapsed .manage-recent-time,
+  .manage-recent-transactions.is-collapsed .manage-date,
+  .manage-recent-transactions.is-collapsed .manage-date-label {
+    display: none;
+  }
+
+  .manage-recent-transactions.is-collapsed .manage-relative-age,
+  .manage-recent-transactions.is-collapsed .manage-relative-age-label {
+    display: inline;
+  }
+
+  .manage-recent-transactions.is-collapsed .manage-recent-name {
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .manage-recent-transactions.is-expanded {
+    overflow: hidden;
+  }
+
+  .manage-recent-transactions.is-expanded .manage-recent-rank,
+  .manage-recent-transactions.is-expanded .manage-recent-time {
+    display: table-cell;
+  }
+
+  .manage-recent-transactions.is-expanded .manage-date,
+  .manage-recent-transactions.is-expanded .manage-date-label {
+    display: inline;
+  }
+
+  .manage-recent-transactions.is-expanded .manage-relative-age,
+  .manage-recent-transactions.is-expanded .manage-relative-age-label {
+    display: none;
+  }
+
+  .manage-campaign-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .manage-metric-label {
+    display: none;
+  }
+
+  .manage-metric-mobile-label {
+    display: inline;
+  }
+
+  .manage-flow-reminders {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .manage-campaign-flow,
+  .manage-reminders {
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .manage-campaign-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .manage-flow-reminders {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .manage-campaign-flow,
+  .manage-reminders {
+    width: 100%;
+  }
+}
+
+@media (min-width: 500px) {
+  .manage-recent-table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .manage-recent-table th + th,
+  .manage-recent-table td + td {
+    padding-left: 1%;
+  }
+
+  .manage-recent-table th:nth-child(4),
+  .manage-recent-table td:nth-child(4) {
+    width: 40%;
+  }
+
+  .manage-recent-table th:last-child,
+  .manage-recent-table td:last-child {
+    padding-right: 0;
+    text-align: right;
+  }
+
+  .manage-mobile-member-name {
+    display: none;
+  }
+
+  .manage-desktop-member-name {
+    display: inline;
+  }
+
+  .manage-recent-transactions.is-collapsed .manage-recent-name {
+    max-width: none;
+    overflow: visible;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 561px) {
+  .transaction-optional-column {
+    display: table-cell;
+  }
+
+  .pressure-optional-column {
+    display: table-cell;
+  }
+}
+
+@media (min-width: 501px) {
+  .transaction-time-column {
+    display: table-cell;
+  }
+
+  .transaction-date,
+  .transaction-date-label {
+    display: inline;
+  }
+
+  .transaction-relative-age,
+  .transaction-relative-age-label,
+  .transaction-inline-time {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .campaign-transactions-table.is-collapsed {
+    border-spacing: 5% 0;
+  }
+
+  .campaign-transactions-table.is-collapsed col:nth-child(1) {
+    width: 20%;
+  }
+
+  .campaign-transactions-table.is-collapsed col:nth-child(2),
+  .campaign-transactions-table.is-collapsed col:nth-child(3),
+  .campaign-transactions-table.is-collapsed col:nth-child(5) {
+    display: none;
+  }
+
+  .campaign-transactions-table.is-collapsed col:nth-child(4) {
+    width: 60%;
+  }
+
+  .campaign-transactions-table.is-collapsed col:nth-child(6) {
+    width: 20%;
+  }
+
+  .campaign-transactions-table.is-collapsed th:first-child,
+  .campaign-transactions-table.is-collapsed td:first-child {
+    text-align: left;
+  }
+
+  .campaign-transactions-table.is-collapsed th:last-child,
+  .campaign-transactions-table.is-collapsed td:last-child {
+    text-align: right;
+  }
+
+  .campaign-transactions-table.is-collapsed td:first-child {
+    min-width: 4.5rem;
+  }
+
+  .campaign-transactions-table.is-collapsed td:nth-child(4) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .campaign-transactions-table.is-collapsed td:last-child {
+    min-width: 4.75rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 560px) {
+  .campaign-pressure-table col:nth-child(1) {
+    width: 10%;
+  }
+
+  .campaign-pressure-table col:nth-child(2) {
+    width: 38%;
+  }
+
+  .campaign-pressure-table col:nth-child(3) {
+    width: 16%;
+  }
+
+  .campaign-pressure-table col:nth-child(5) {
+    width: 16%;
+  }
+
+  .campaign-pressure-table col:nth-child(6) {
+    width: 20%;
+  }
+}

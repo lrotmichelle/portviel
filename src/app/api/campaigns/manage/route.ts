@@ -43,6 +43,9 @@ function mapCampaignRow(row: any) {
     likesGenerated: row.likesGenerated,
     totalBudget: row.totalBudget,
     budgetUsed: row.budgetUsed,
+    debit: row.debit,
+    paid: row.paid,
+    owe: row.owe,
     highestMcp: row.highestMcp,
     requiredPlatforms: row.requiredPlatforms ? row.requiredPlatforms.split(',').map((item: string) => item.trim()).filter(Boolean) : [],
     startDate: row.startDate?.toISOString() ?? '',
@@ -90,6 +93,9 @@ export async function POST(request: NextRequest) {
         status: 'active',
         totalBudget,
         budgetUsed: 0,
+        debit: 0,
+        paid: 0,
+        owe: 0,
         timeRemainingDays,
         publisherRating: 4.8,
         publisherProfileIcon: '/images/publisher-placeholder.png',
@@ -128,6 +134,9 @@ export async function POST(request: NextRequest) {
       if (body.status) updateData.status = toString(body.status);
       if (body.totalBudget !== undefined) updateData.totalBudget = toNumber(body.totalBudget);
       if (body.budgetUsed !== undefined) updateData.budgetUsed = toNumber(body.budgetUsed);
+      if (body.debit !== undefined) updateData.debit = toNumber(body.debit);
+      if (body.paid !== undefined) updateData.paid = toNumber(body.paid);
+      if (body.owe !== undefined) updateData.owe = toNumber(body.owe);
       if (body.viewsGenerated !== undefined) updateData.viewsGenerated = toNumber(body.viewsGenerated);
       if (body.likesGenerated !== undefined) updateData.likesGenerated = toNumber(body.likesGenerated);
       if (body.timeRemainingDays !== undefined) updateData.timeRemainingDays = toNumber(body.timeRemainingDays);
@@ -177,6 +186,9 @@ export async function POST(request: NextRequest) {
       }
 
       await db.insert(campaignMembers).values({ campaignId, userId, status: 'active' });
+      await db.update(campaigns)
+        .set({ communitySize: campaign.communitySize + 1, updatedAt: new Date() })
+        .where(eq(campaigns.id, campaignId));
       return NextResponse.json({ ok: true, message: 'Joined campaign' });
     }
 

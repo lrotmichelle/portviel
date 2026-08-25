@@ -8,6 +8,8 @@ interface JoinedCampaignsProps {
   campaigns: CampaignCardData[];
   selectedId?: string;
   onSelectChange?: (id: string) => void;
+  showMetrics?: boolean;
+  showRankFilter?: boolean;
 }
 
 function formatMetric(val: number): string {
@@ -22,34 +24,11 @@ function formatMetric(val: number): string {
   return `${val}`;
 }
 
-function abbreviatePlatform(platform: string): string {
-  const map: Record<string, string> = {
-    tiktok: 'TT',
-    instagram: 'IG',
-    youtube: 'YT',
-    facebook: 'FB',
-    twitter: 'X',
-    linkedin: 'LI',
-    snapchat: 'SC',
-  };
-  return map[platform.toLowerCase()] || platform.slice(0, 2).toUpperCase();
-}
-
-const platformColors: Record<string, string> = {
-  tiktok: '#00f2ea',
-  instagram: '#C13584',
-  youtube: '#FF0000',
-  facebook: '#1877F2',
-  twitter: '#a1a1aa',
-  linkedin: '#0a66c2',
-  snapchat: '#FFFC00',
-};
-
-export default function JoinedCampaigns({ campaigns, selectedId: externalSelectedId, onSelectChange }: JoinedCampaignsProps) {
+export default function JoinedCampaigns({ campaigns, selectedId: externalSelectedId, onSelectChange, showMetrics = true, showRankFilter = true }: JoinedCampaignsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'rank' | 'cpm' | 'debt' | 'views' | 'budget'>('rank');
+  const [sortBy, setSortBy] = useState<'rank' | 'cpm' | 'members' | 'top' | 'debt'>('rank');
   const [internalSelectedId, setInternalSelectedId] = useState<string>(campaigns[0]?.id ?? '');
   const selectedId = externalSelectedId ?? internalSelectedId;
   const setSelectedId = onSelectChange ?? setInternalSelectedId;
@@ -102,10 +81,14 @@ export default function JoinedCampaigns({ campaigns, selectedId: externalSelecte
       result = result.filter((c) => c.projectName.toLowerCase().includes(q));
     }
     result = [...result];
-    if (sortBy === 'views') {
-      result.sort((a, b) => (b.viewsGenerated || 0) - (a.viewsGenerated || 0));
-    } else if (sortBy === 'budget') {
-      result.sort((a, b) => (b.totalBudget || 0) - (a.totalBudget || 0));
+    if (sortBy === 'members') {
+      result.sort((a, b) => (b.communitySize || 0) - (a.communitySize || 0));
+    } else if (sortBy === 'top') {
+      result.sort((a, b) => {
+        const aScore = (a.viewsGenerated || 0) + (a.likesGenerated || 0) * 10;
+        const bScore = (b.viewsGenerated || 0) + (b.likesGenerated || 0) * 10;
+        return bScore - aScore;
+      });
     } else if (sortBy === 'debt') {
       result.sort((a, b) => (b.debt || 0) - (a.debt || 0));
     } else if (sortBy === 'cpm') {
@@ -117,8 +100,6 @@ export default function JoinedCampaigns({ campaigns, selectedId: externalSelecte
   }, [campaigns, debouncedQuery, sortBy]);
 
   const selected = filtered.find((c) => c.id === selectedId) ?? filtered[0] ?? null;
-  const requiredPlatforms = selected?.requiredPlatforms ?? [];
-
   return (
     <div className="w-full text-sm text-zinc-200">
       <h3 className="mb-3 text-[11px] uppercase tracking-[0.25em] text-zinc-500">Joined campaigns</h3>
@@ -147,13 +128,13 @@ export default function JoinedCampaigns({ campaigns, selectedId: externalSelecte
                 <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
               </div>
               <div className="mb-2 flex items-center gap-1 rounded-md border border-zinc-800 bg-zinc-950 p-0.5">
-                <button
+                {showRankFilter && <button
                   type="button"
                   onClick={() => setSortBy('rank')}
                   className={`flex-1 rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-widest transition ${sortBy === 'rank' ? 'bg-emerald-500/20 text-emerald-300' : 'text-zinc-400 hover:text-white'}`}
                 >
                   My rank
-                </button>
+                </button>}
                 <button
                   type="button"
                   onClick={() => setSortBy('cpm')}
@@ -170,17 +151,17 @@ export default function JoinedCampaigns({ campaigns, selectedId: externalSelecte
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSortBy('views')}
-                  className={`flex-1 rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-widest transition ${sortBy === 'views' ? 'bg-emerald-500/20 text-emerald-300' : 'text-zinc-400 hover:text-white'}`}
+                  onClick={() => setSortBy('members')}
+                  className={`flex-1 rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-widest transition ${sortBy === 'members' ? 'bg-emerald-500/20 text-emerald-300' : 'text-zinc-400 hover:text-white'}`}
                 >
-                  Views
+                  Members
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSortBy('budget')}
-                  className={`flex-1 rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-widest transition ${sortBy === 'budget' ? 'bg-emerald-500/20 text-emerald-300' : 'text-zinc-400 hover:text-white'}`}
+                  onClick={() => setSortBy('top')}
+                  className={`flex-1 rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-widest transition ${sortBy === 'top' ? 'bg-emerald-500/20 text-emerald-300' : 'text-zinc-400 hover:text-white'}`}
                 >
-                  Budget
+                  Top performing
                 </button>
               </div>
               {searchQuery !== debouncedQuery && (
@@ -204,7 +185,7 @@ export default function JoinedCampaigns({ campaigns, selectedId: externalSelecte
         )}
       </div>
 
-      {selected && (
+      {selected && showMetrics && (
         <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
           <div className="flex items-center gap-1">
             <Users className="h-4 w-4 text-emerald-500/70" />

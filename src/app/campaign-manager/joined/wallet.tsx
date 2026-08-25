@@ -32,7 +32,7 @@ export default function Wallet({ withdrawals = sampleWithdrawals, totalWithdrawn
     if (!showAll) return;
     const timer = setTimeout(() => {
       setShowAll(false);
-    }, 10000);
+    }, 60000);
     return () => clearTimeout(timer);
   }, [showAll]);
 
@@ -56,15 +56,15 @@ export default function Wallet({ withdrawals = sampleWithdrawals, totalWithdrawn
           onClick={() => setShowAll((prev) => !prev)}
           className="rounded-none border-0 bg-transparent px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-red-400 hover:text-red-300"
         >
-          {showAll ? 'Show less' : 'View all'}
+          {showAll ? 'View less' : 'View all'}
         </button>
       </div>
-      <div className={`overflow-x-auto ${showAll ? 'max-h-[200px] overflow-y-auto' : ''}`}>
-        <table className="w-full table-auto text-sm">
+      <div className={`w-full ${showAll ? 'overflow-x-auto max-h-[200px] overflow-y-auto' : 'overflow-hidden'}`}>
+        <table className={`w-full ${showAll ? 'min-w-[500px]' : 'min-w-full'} table-auto text-sm`}>
           <thead>
             <tr className="text-left text-zinc-400">
               <th className="pb-2">Date</th>
-              <th className="pb-2">Time</th>
+              <th className={`${showAll ? '' : 'hidden md:table-cell'} pb-2`}>Time</th>
               <th className="pb-2 text-right">Amount (UGX)</th>
             </tr>
           </thead>
@@ -72,7 +72,7 @@ export default function Wallet({ withdrawals = sampleWithdrawals, totalWithdrawn
             {rows.map((w, i) => (
               <tr key={i} className="border-t border-zinc-800/60">
                 <td className={`py-2 text-lg font-semibold ${isExpired ? 'text-zinc-500' : 'text-zinc-200'}`}>{w.date}</td>
-                <td className={`py-2 text-[10px] uppercase tracking-[0.18em] ${isExpired ? 'text-zinc-500' : 'text-zinc-400'}`}>{w.time}</td>
+                <td className={`${showAll ? '' : 'hidden md:table-cell'} py-2 text-[10px] uppercase tracking-[0.18em] ${isExpired ? 'text-zinc-500' : 'text-zinc-400'}`}>{w.time}</td>
                 <td className={`py-2 text-right text-emerald-400 ${isExpired ? 'text-zinc-500' : ''}`}>{formatCompactValue(w.amount)} UGX</td>
               </tr>
             ))}
