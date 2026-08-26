@@ -34,12 +34,15 @@ export default function DonutChart({
   const total = segments.reduce((sum, seg) => sum + seg.value, 0);
 
   // Generate SVG paths for each segment
-  let currentOffset = 0;
   const paths = segments.map((segment, index) => {
     const percentage = total > 0 ? segment.value / total : 0;
     const segmentLength = circumference * percentage;
-    const offset = currentOffset;
-    currentOffset += segmentLength;
+    const offset = segments
+      .slice(0, index)
+      .reduce((sum, previousSegment) => {
+        const previousPercentage = total > 0 ? previousSegment.value / total : 0;
+        return sum + circumference * previousPercentage;
+      }, 0);
 
     // Calculate start and end angles
     const angle = (percentage * 360);

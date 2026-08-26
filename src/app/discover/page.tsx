@@ -61,7 +61,7 @@ export default function DiscoverPage() {
         status: 'pending',
         meta: { jobId: job.id, title: job.title },
       });
-      router.push('/office/cv');
+      router.push('/profile');
       return;
     }
 
@@ -109,7 +109,7 @@ export default function DiscoverPage() {
       {/* Intro: Heading + short description + CV link */}
       <div className="w-full max-w-2xl mx-auto mb-4 text-center sm:text-left">
         <h1 className="text-2xl sm:text-3xl font-bold text-white">work & hiring</h1>
-        <p className="mt-2 text-sm text-zinc-400">professionals , talented & dynamic people who are ready to work. <Link href="/office/cv" className="text-emerald-400 underline ml-2">Update CV</Link></p>
+        <p className="mt-2 text-sm text-zinc-400">professionals , talented & dynamic people who are ready to work. <Link href="/profile" className="text-emerald-400 underline ml-2">Update CV</Link></p>
       </div>
 
       {/* Mobile (<=400px) action row: show buttons side-by-side before search on very small screens */}

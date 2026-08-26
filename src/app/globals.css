@@ -77,6 +77,14 @@ body {
   border-spacing: 3% 0;
 }
 
+.campaign-transactions-scroll {
+  overflow-x: hidden;
+}
+
+.campaign-transactions-scroll.is-expanded {
+  overflow: auto;
+}
+
 .transaction-optional-column {
   display: none;
 }
@@ -429,5 +437,104 @@ body {
 
   .campaign-pressure-table col:nth-child(6) {
     width: 20%;
+  }
+}
+
+/* Campaign Pressure - responsive name and media formatting */
+.pressure-name-single,
+.pressure-media-abbreviated {
+  display: inline;
+}
+
+.pressure-name-full,
+.pressure-media-full {
+  display: none;
+}
+
+@media (max-width: 500px) {
+  .pressure-media-column {
+    display: none;
+  }
+
+  .campaign-pressure-views,
+  .campaign-pressure-amount {
+    padding-left: 0;
+  }
+}
+
+@media (min-width: 501px) {
+  .pressure-media-abbreviated {
+    display: none;
+  }
+
+  .pressure-media-full {
+    display: inline;
+  }
+
+  .pressure-media-column {
+    display: table-cell;
+  }
+
+  .campaign-pressure-amount {
+    padding-left: 5%;
+  }
+
+  .campaign-pressure-views {
+    padding-left: 0;
+  }
+}
+
+@media (min-width: 701px) {
+  .pressure-name-single {
+    display: none;
+  }
+
+  .pressure-name-full {
+    display: inline;
+  }
+}
+
+/* Campaign Transactions - responsive member names and mobile alignment */
+.transaction-member-single {
+  display: inline;
+}
+
+.transaction-member-full {
+  display: none;
+}
+
+@media (max-width: 500px) {
+  .transaction-member-column {
+    margin-left: -5%;
+    padding-left: 0;
+  }
+}
+
+@media (min-width: 501px) {
+  .transaction-member-single {
+    display: none;
+  }
+
+  .transaction-member-full {
+    display: inline;
+  }
+}
+
+/* Income Received - Campaign name responsive display */
+.income-campaign-single {
+  display: inline;
+}
+
+.income-campaign-full {
+  display: none;
+}
+
+@media (min-width: 501px) {
+  .income-campaign-single {
+    display: none;
+  }
+
+  .income-campaign-full {
+    display: inline;
   }
 }

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { Menu, X, User, Bell, ShoppingCart, Building2 } from "lucide-react"
+import { Menu, X, Bell, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useNotification } from "@/hooks/useNotification"
 
@@ -101,19 +101,6 @@ export default function Navbar() {
                         </Button>
                     </Link>
 
-                    <div className="hidden md:block">
-                        <Link href="/profile" passHref>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-10 w-10 rounded-full focus-visible:ring-2 hover:bg-black/5 dark:hover:bg-white/5"
-                                aria-label="User Account"
-                            >
-                                <User className="h-5 w-5 text-neutral-700 dark:text-neutral-200" />
-                            </Button>
-                        </Link>
-                    </div>
-
                     <div className="md:hidden" ref={menuRef}>
                         <button
                             type="button"
@@ -143,22 +130,6 @@ export default function Navbar() {
                                             {label}
                                         </Link>
                                     ))}
-                                    <div className="mt-2 border-t border-zinc-200 dark:border-zinc-800" />
-                                    <Link
-                                        href="/office"
-                                        className="mt-2 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-zinc-100 active:bg-zinc-200 dark:text-neutral-200 dark:hover:bg-zinc-800 dark:active:bg-zinc-700"
-                                        onClick={closeMenu}
-                                    >
-                                        <Building2 className="h-4 w-4" />
-                                        Office
-                                    </Link>
-                                    <Link
-                                        href="/profile"
-                                        className="mt-1 block rounded-xl px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-zinc-100 active:bg-zinc-200 dark:text-neutral-200 dark:hover:bg-zinc-800 dark:active:bg-zinc-700"
-                                        onClick={closeMenu}
-                                    >
-                                        Profile
-                                    </Link>
                                 </div>
                             </>
                         )}

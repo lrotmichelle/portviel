@@ -15,6 +15,14 @@ interface TransactionsProps {
   isExpired?: boolean;
 }
 
+function formatSingleCampaignName(name: string): string {
+  const words = name.trim().split(/\s+/);
+  if (words.length >= 2) {
+    return `${words[0]}. ${words[1].charAt(0).toUpperCase()}`;
+  }
+  return name;
+}
+
 const sample: TransactionItem[] = [
   { id: '1', campaignName: 'Campaign 1 — Technology', platform: 'TT', amount: 120000 },
   { id: '2', campaignName: 'Campaign 2 — Lifestyle', platform: 'IG', amount: 45000 },
@@ -72,7 +80,10 @@ export default function Transactions({ items, isExpired = false }: TransactionsP
           <tbody>
             {rows.map((t) => (
               <tr key={t.id} className="border-t border-zinc-800/60 bg-transparent align-middle">
-                <td className={`py-1.5 pr-2 text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-white'}`}>{t.campaignName}</td>
+                <td className={`income-campaign-name py-1.5 pr-2 text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-white'}`}>
+                  <span className="income-campaign-single">{formatSingleCampaignName(t.campaignName)}</span>
+                  <span className="income-campaign-full">{t.campaignName}</span>
+                </td>
                 <td className={`${showAll ? '' : 'hidden md:table-cell'} py-1.5 pr-2 text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-zinc-100'}`}>{t.platform}</td>
                 <td className={`py-1.5 text-right text-sm font-semibold leading-tight ${isExpired ? 'text-zinc-500' : 'text-emerald-400'}`}>
                   {formatCompactValue(t.amount)} UGX

@@ -16,6 +16,15 @@ interface CampaignTransactionsProps {
   transactions: CampaignTransaction[];
 }
 
+function formatSingleName(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return parts[0] || name;
+}
+
+function formatFullName(name: string): string {
+  return name;
+}
+
 function formatElapsedTime(date: string, time: string, now: number): string {
   const timestamp = new Date(`${date}T${time}`).getTime();
   if (!Number.isFinite(timestamp)) return '-';
@@ -60,14 +69,14 @@ export default function CampaignTransactions({ transactions }: CampaignTransacti
   }, [showAll]);
 
   return (
-    <div ref={containerRef} className="flex h-full w-full flex-col rounded-2xl border border-zinc-800/60 bg-transparent p-4 text-sm text-zinc-200">
+    <div ref={containerRef} className="flex h-full min-w-0 w-full flex-col overflow-hidden rounded-2xl border border-zinc-800/60 bg-transparent p-4 text-sm text-zinc-200">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Campaign transactions</h3>
         <button type="button" onClick={() => setShowAll((prev) => !prev)} className="rounded-none border-0 bg-transparent px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-red-400 hover:text-red-300">
           {showAll ? 'View less' : 'View all'}
         </button>
       </div>
-      <div className={`min-w-0 max-w-full w-full flex-grow ${showAll ? 'overflow-x-auto max-h-[200px] overflow-y-auto' : 'overflow-hidden'}`}>
+      <div className={`campaign-transactions-scroll min-h-0 min-w-0 max-w-full w-full flex-grow ${showAll ? 'is-expanded max-h-[200px]' : 'is-collapsed'}`}>
         <table className={`campaign-transactions-table w-full ${showAll ? 'is-expanded min-w-[650px] table-auto' : 'is-collapsed min-w-full table-auto'} border-separate text-left text-sm`}>
           <colgroup>
             <col className="w-[12%]" />
@@ -100,7 +109,10 @@ export default function CampaignTransactions({ transactions }: CampaignTransacti
                 </td>
                 <td className={`${showAll ? '' : 'transaction-time-column'} py-2 text-zinc-400`}>{transaction.time}</td>
                 <td className={`${showAll ? '' : 'transaction-optional-column'} py-2 text-zinc-300`}>#{transaction.rank}</td>
-                <td className="max-w-[14rem] truncate whitespace-nowrap py-2 pr-2 text-white" title={transaction.member}>{transaction.member}</td>
+                <td className="transaction-member-column max-w-[14rem] truncate whitespace-nowrap py-2 pr-2 text-white" title={transaction.member}>
+                  <span className="transaction-member-single">{formatSingleName(transaction.member)}</span>
+                  <span className="transaction-member-full">{formatFullName(transaction.member)}</span>
+                </td>
                 <td className={`${showAll ? '' : 'transaction-optional-column'} py-2 text-right text-zinc-300`}>{formatCompactNumber(transaction.views)}</td>
                 <td className="whitespace-nowrap py-2 pl-2 text-right text-emerald-400">{formatCompactValue(transaction.amount)} UGX</td>
               </tr>

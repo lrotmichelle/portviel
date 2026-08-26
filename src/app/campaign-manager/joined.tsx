@@ -52,7 +52,7 @@ export default function JoinedComponent() {
     .filter((c) => (c.incomeReceived || 0) > 0)
     .map((c, index) => ({
       id: c.id,
-      campaignName: c.projectName.length > 12 ? `${c.projectName.slice(0, 12)}...` : c.projectName,
+      campaignName: c.projectName,
       platform: ['TT', 'IG', 'YT'][index % 3],
       amount: c.incomeReceived || 0,
     }));
@@ -172,7 +172,7 @@ export default function JoinedComponent() {
 
         {/* Section 4: Selected campaign details */}
         {primaryCampaign && (
-          <div className="grid w-full grid-cols-9 gap-3 max-[560px]:grid-cols-3">
+          <div className="grid w-full grid-cols-9 gap-3 max-[699px]:grid-cols-3">
             {[
               { label: 'Time', value: `${primaryCampaign.timeRemainingDays} days` },
               { label: 'Budget', value: `${formatCompactValue(primaryCampaign.totalBudget)} UGX` },
@@ -186,8 +186,8 @@ export default function JoinedComponent() {
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border border-zinc-800/60 bg-transparent p-3">
                 <span className="text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-                  <span className="max-[560px]:hidden">{item.label}</span>
-                  <span className="hidden max-[560px]:inline">{item.shortLabel ?? item.label}</span>
+                  <span className="max-[699px]:hidden">{item.label}</span>
+                  <span className="hidden max-[699px]:inline">{item.shortLabel ?? item.label}</span>
                 </span>
                 <div className="mt-1 text-sm font-semibold text-white">{item.value}</div>
               </div>

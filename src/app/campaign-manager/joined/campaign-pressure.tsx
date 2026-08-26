@@ -45,6 +45,15 @@ function abbreviatePlatform(platform: string): string {
   return abbreviations[platform.toLowerCase()] ?? platform.slice(0, 2).toUpperCase();
 }
 
+function formatSingleName(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return parts[0] || name;
+}
+
+function formatFullPlatformName(platform: string): string {
+  return platform.toLowerCase();
+}
+
 export default function CampaignPressure({ campaign, currentUserName = 'You', isExpired = false }: CampaignPressureProps) {
   const [showAll, setShowAll] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,7 +70,7 @@ export default function CampaignPressure({ campaign, currentUserName = 'You', is
     const sorted = [...participants]
       .map((p, idx) => ({
         id: p.id,
-        name: p.name.length > 9 ? `${p.name.slice(0, 9)}...` : p.name,
+        name: p.name,
         platform: platforms[idx % Math.max(1, platforms.length)] ?? '-',
         likes: Math.round(totalLikes * (p.progress / 100)),
         views: Math.round(totalViews * (p.progress / 100)),
@@ -163,8 +172,14 @@ export default function CampaignPressure({ campaign, currentUserName = 'You', is
             {displayRows.map((row, idx) => (
               <tr key={idx} className="border-t border-zinc-800/60">
                 <td className={`py-2 pr-2 ${isExpired ? 'text-zinc-500' : 'text-zinc-300'}`}>#{row.rank}</td>
-                <td className={`min-w-0 truncate whitespace-nowrap py-2 pr-2 ${isExpired ? 'text-zinc-500' : row.name === currentUserName ? 'text-emerald-400 font-semibold' : 'text-white'}`} title={row.name}>{row.name}</td>
-                <td className="pressure-media-column py-2 pr-2 text-zinc-300" title={row.platform}>{abbreviatePlatform(row.platform)}</td>
+                <td className={`min-w-0 truncate whitespace-nowrap py-2 pr-2 pressure-name ${isExpired ? 'text-zinc-500' : row.name === currentUserName ? 'text-emerald-400 font-semibold' : 'text-white'}`} title={row.name}>
+                  <span className="pressure-name-single">{formatSingleName(row.name)}</span>
+                  <span className="pressure-name-full">{row.name}</span>
+                </td>
+                <td className="pressure-media-column py-2 pr-2 text-zinc-300" title={row.platform}>
+                  <span className="pressure-media-abbreviated">{abbreviatePlatform(row.platform)}</span>
+                  <span className="pressure-media-full">{formatFullPlatformName(row.platform)}</span>
+                </td>
                 <td className={`${showAll ? '' : 'pressure-optional-column'} py-2 text-right ${isExpired ? 'text-zinc-500' : 'text-zinc-100'}`}>{formatCompactNumber(row.likes)}</td>
                 <td className={`campaign-pressure-views py-2 text-right ${isExpired ? 'text-zinc-500' : 'text-zinc-100'}`}>{formatCompactNumber(row.views)}</td>
                 <td className={`campaign-pressure-amount whitespace-nowrap py-2 pr-0 text-right ${isExpired ? 'text-zinc-500' : 'text-emerald-400'}`}>{formatCompactValue(row.amount)} UGX</td>
