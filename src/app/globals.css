@@ -24,10 +24,12 @@ body {
     transform: perspective(800px) rotateX(-90deg);
     opacity: 0;
   }
+
   60% {
     transform: perspective(800px) rotateX(20deg);
     opacity: 1;
   }
+
   100% {
     transform: perspective(800px) rotateX(0deg);
     opacity: 1;
@@ -48,6 +50,7 @@ body {
   -webkit-appearance: none;
   margin: 0;
 }
+
 .campaign-modal input[type=number] {
   -moz-appearance: textfield;
   -webkit-appearance: none;
@@ -66,6 +69,7 @@ body {
   margin: 0;
   display: none;
 }
+
 .no-spinner input[type=number] {
   -moz-appearance: textfield;
   -webkit-appearance: none;
@@ -123,8 +127,8 @@ body {
   text-align: right;
 }
 
-.campaign-pressure-table th + th,
-.campaign-pressure-table td + td {
+.campaign-pressure-table th+th,
+.campaign-pressure-table td+td {
   padding-left: 5%;
 }
 
@@ -138,8 +142,8 @@ body {
   border-spacing: 0;
 }
 
-.campaign-manager-spaced-table th + th,
-.campaign-manager-spaced-table td + td {
+.campaign-manager-spaced-table th+th,
+.campaign-manager-spaced-table td+td {
   padding-left: 1%;
 }
 
@@ -153,10 +157,10 @@ body {
   padding-right: 0;
 }
 
-.campaign-flow-table th:first-child + th,
-.campaign-flow-table td:first-child + td,
-.manage-reminders-table th:first-child + th,
-.manage-reminders-table td:first-child + td {
+.campaign-flow-table th:first-child+th,
+.campaign-flow-table td:first-child+td,
+.manage-reminders-table th:first-child+th,
+.manage-reminders-table td:first-child+td {
   padding-left: 2%;
 }
 
@@ -310,8 +314,8 @@ body {
     border-spacing: 0;
   }
 
-  .manage-recent-table th + th,
-  .manage-recent-table td + td {
+  .manage-recent-table th+th,
+  .manage-recent-table td+td {
     padding-left: 1%;
   }
 
