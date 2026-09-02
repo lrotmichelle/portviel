@@ -157,7 +157,7 @@ export default function PaymentMethods() {
 
   if (showForm) {
     return (
-      <section className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5">
+      <section className="rounded-2xl border border-zinc-800/60 bg-black p-5 no-scrollbar">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-zinc-300">Payment method</h2>
 
         <div className="space-y-4">
@@ -272,7 +272,7 @@ export default function PaymentMethods() {
 
   if (!method) {
     return (
-      <section className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5">
+      <section className="rounded-2xl border border-zinc-800/60 bg-black p-5 no-scrollbar">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-zinc-300">Payment method</h2>
 
         <div className="space-y-3">
@@ -291,7 +291,7 @@ export default function PaymentMethods() {
   }
 
   return (
-    <section className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5">
+    <section className="rounded-2xl border border-zinc-800/60 bg-black p-5 no-scrollbar">
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-zinc-300">Payment method</h2>
 
       <div className="rounded-xl border border-zinc-700/80 bg-zinc-950/50 p-3">

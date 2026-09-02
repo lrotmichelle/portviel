@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { getFinanceState, setFinanceState } from '@/lib/finance';
 import { formatCompactValue } from '@/lib/currency';
+import { addTransaction } from '@/components/office/finance/transactions-data';
 
 interface CampaignModalProps {
   isOpen: boolean;
@@ -307,6 +308,15 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
         ...finance,
         accountBalance: Math.max(0, finance.accountBalance - allocatedBudget - publishFee),
         managerBalance: (finance.managerBalance ?? 0) + allocatedBudget,
+      });
+
+      addTransaction({
+        date: new Date().toISOString().split('T')[0].replace(/\d{4}/, (y) => y.slice(-2)),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+        details: 'Campaign payout',
+        amount: allocatedBudget + publishFee,
+        method: 'office',
+        type: 'campaign_payout',
       });
 
       const categoryValue = selectedCategories.length ? selectedCategories.join(', ') : category;

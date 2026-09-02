@@ -15,6 +15,7 @@ import CampaignRules from '@/components/campaign-manager/CampaignRules';
 import type { CampaignCardData } from '@/types/campaign';
 import { formatCompactValue } from '@/lib/currency';
 import { getMockCampaigns } from '@/lib/mockCampaigns';
+import { addTransaction } from '@/components/office/finance/transactions-data';
 
 function formatWithdrawalDate(value: string): string {
   const [year, month, day] = value.split('-');
@@ -76,6 +77,14 @@ export default function ManageComponent() {
         amount,
       },
     ]);
+    addTransaction({
+      date: now.toISOString().split('T')[0].replace(/\d{4}/, (y) => y.slice(-2)),
+      time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+      details: 'Campaign income',
+      amount,
+      method: 'office',
+      type: 'campaign_income',
+    });
     setWithdrawAmount('');
     setWithdrawError('');
   };
