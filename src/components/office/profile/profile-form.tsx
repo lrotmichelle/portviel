@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { ProfileData, emptyExperience, emptyProfile, emptyReference } from './profile-data';
-import { jsPDF } from 'jspdf';
 
 const STORAGE_KEY = 'user-profile';
 
@@ -78,112 +77,10 @@ export default function ProfileForm() {
     }
   };
 
-  const generatePDF = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 20;
-
-    const checkPage = (needed: number) => {
-      if (y + needed > 280) {
-        doc.addPage();
-        y = 20;
-      }
-    };
-
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text(profile.name || 'Profile', pageWidth / 2, y, { align: 'center' });
-    y += 10;
-
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    const contactParts = [profile.email, profile.phone, profile.address].filter(Boolean);
-    if (contactParts.length) {
-      doc.text(contactParts.join(' | '), pageWidth / 2, y, { align: 'center' });
-      y += 8;
-    }
-
-    if (profile.about) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('About', 15, y);
-      y += 6;
-      doc.setFont('helvetica', 'normal');
-      const aboutLines = doc.splitTextToSize(profile.about, pageWidth - 30);
-      doc.text(aboutLines, 15, y);
-      y += aboutLines.length * 6 + 6;
-    }
-
-    if (profile.experiences.length) {
-      checkPage(20);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Experience', 15, y);
-      y += 6;
-      doc.setFont('helvetica', 'normal');
-      for (const exp of profile.experiences) {
-        checkPage(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text(exp.period || 'Experience', 15, y);
-        y += 5;
-        doc.setFont('helvetica', 'normal');
-        const descLines = doc.splitTextToSize(exp.description, pageWidth - 30);
-        doc.text(descLines, 15, y);
-        y += descLines.length * 5 + 6;
-      }
-    }
-
-    if (profile.softSkills.length) {
-      checkPage(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Soft Skills', 15, y);
-      y += 6;
-      doc.setFont('helvetica', 'normal');
-      doc.text(profile.softSkills.join(', '), 15, y);
-      y += 8;
-    }
-
-    if (profile.achievements) {
-      checkPage(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Achievements', 15, y);
-      y += 6;
-      doc.setFont('helvetica', 'normal');
-      const achLines = doc.splitTextToSize(profile.achievements, pageWidth - 30);
-      doc.text(achLines, 15, y);
-      y += achLines.length * 6 + 6;
-    }
-
-    if (profile.education) {
-      checkPage(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Education', 15, y);
-      y += 6;
-      doc.setFont('helvetica', 'normal');
-      const eduLines = doc.splitTextToSize(profile.education, pageWidth - 30);
-      doc.text(eduLines, 15, y);
-      y += eduLines.length * 6 + 6;
-    }
-
-    if (profile.references.length) {
-      checkPage(20);
-      doc.setFont('helvetica', 'bold');
-      doc.text('References', 15, y);
-      y += 6;
-      doc.setFont('helvetica', 'normal');
-      for (const ref of profile.references) {
-        checkPage(14);
-        const refParts = [ref.name, ref.email, ref.phone].filter(Boolean);
-        doc.text(refParts.join(' | '), 15, y);
-        y += 6;
-      }
-    }
-
-    doc.save(`${profile.name || 'profile'}_resume.pdf`);
-  };
-
   const saveProfile = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-    generatePDF();
-    setMessage('Profile saved. Resume PDF generated.');
+    window.dispatchEvent(new Event('profile-updated'));
+    setMessage('Profile saved.');
     setExpanded(false);
   };
 
@@ -202,7 +99,7 @@ export default function ProfileForm() {
     return (
       <section className="rounded-2xl border border-zinc-800/60 bg-black p-5 lg:col-span-2 no-scrollbar">
         <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-300">Profile</h2>
-        <p className="mt-3 text-xs text-zinc-500">Create or update your profile to generate an auto resume.</p>
+        <p className="mt-3 text-xs text-zinc-500">Manage your profile information.</p>
         <div className="mt-4 flex gap-2">
           <button type="button" onClick={startCreate} className="rounded-lg border border-emerald-500/40 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-300 hover:bg-emerald-500/10">Create profile</button>
           <button type="button" onClick={startUpdate} className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-300 hover:border-zinc-500">Update profile</button>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { ProfileData, emptyProfile } from './profile-data';
 
 type ResumeType = 'generated' | 'uploaded';
 
@@ -9,32 +10,37 @@ const UPLOADED_RESUME_KEY = 'uploaded-resume';
 const SELECTED_RESUME_KEY = 'selected-resume';
 
 export default function Resumes() {
-  const [profile, setProfile] = useState<{ name?: string }>({});
+  const [profile, setProfile] = useState<ProfileData>(emptyProfile());
   const [uploadedResume, setUploadedResume] = useState<string | null>(null);
   const [selectedResume, setSelectedResume] = useState<ResumeType>('generated');
   const [uploadError, setUploadError] = useState('');
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setProfile(JSON.parse(stored));
-      } catch {}
-    }
-    const uploaded = localStorage.getItem(UPLOADED_RESUME_KEY);
-    if (uploaded) {
-      setUploadedResume(uploaded);
-    }
+    const loadStoredResumes = () => {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          setProfile(JSON.parse(stored));
+        } catch {}
+      } else {
+        setProfile(emptyProfile());
+      }
+      setUploadedResume(localStorage.getItem(UPLOADED_RESUME_KEY));
+    };
+
+    loadStoredResumes();
+    window.addEventListener('profile-updated', loadStoredResumes);
     const selected = localStorage.getItem(SELECTED_RESUME_KEY);
     if (selected === 'uploaded' || selected === 'generated') {
       setSelectedResume(selected);
     }
+    return () => window.removeEventListener('profile-updated', loadStoredResumes);
   }, []);
 
   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (file.type !== 'application/pdf') {
+    if (file.type !== 'application/pdf' || !file.name.toLowerCase().endsWith('.pdf')) {
       setUploadError('Only PDF files are allowed.');
       return;
     }
@@ -48,8 +54,19 @@ export default function Resumes() {
       const dataUrl = reader.result as string;
       setUploadedResume(dataUrl);
       localStorage.setItem(UPLOADED_RESUME_KEY, dataUrl);
+      event.target.value = '';
     };
     reader.readAsDataURL(file);
+  };
+
+  const deleteUploadedResume = () => {
+    localStorage.removeItem(UPLOADED_RESUME_KEY);
+    if (selectedResume === 'uploaded') {
+      setSelectedResume('generated');
+      localStorage.setItem(SELECTED_RESUME_KEY, 'generated');
+    }
+    setUploadedResume(null);
+    setUploadError('');
   };
 
   const selectResume = (type: ResumeType) => {
@@ -80,14 +97,14 @@ export default function Resumes() {
             <p className="text-xs text-zinc-400">
               {hasGenerated ? (
                 <span>
-                  Generated resume for <span className="text-white">{profile.name}</span>. Create or update your profile to regenerate.
+                  Saved resume for <span className="text-white">{profile.name}</span>.
                 </span>
               ) : (
-                <span>No profile data yet. Create your profile to generate a resume.</span>
+                <span>No saved profile data yet.</span>
               )}
             </p>
             {hasGenerated && (
-              <a href="#" onClick={(e) => { e.preventDefault(); window.alert('Download generated resume from your profile form.'); }} className="mt-2 inline-block text-[11px] text-emerald-300 underline">Download generated resume</a>
+              <a href="/office/resume?type=generated" className="mt-2 inline-block text-[11px] text-emerald-300 underline">Preview resume</a>
             )}
           </div>
         )}
@@ -97,18 +114,21 @@ export default function Resumes() {
             {hasUploaded ? (
               <div className="space-y-2">
                 <p className="text-xs text-zinc-400">Custom resume uploaded.</p>
-                <a href={uploadedResume ?? undefined} target="_blank" rel="noreferrer" className="text-[11px] text-emerald-300 underline">View uploaded resume</a>
-                <label className="mt-2 inline-block cursor-pointer rounded-lg border border-emerald-500/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-300 hover:bg-emerald-500/10">
-                  Replace resume
-                  <input type="file" accept=".pdf" className="sr-only" onChange={handleUpload} />
-                </label>
+                <div className="flex flex-wrap gap-3">
+                  <a href="/office/resume?type=uploaded" className="text-[11px] text-emerald-300 underline">View uploaded resume</a>
+                  <label className="cursor-pointer text-[11px] text-emerald-300 underline">
+                    Replace resume
+                    <input type="file" accept="application/pdf,.pdf" className="sr-only" onChange={handleUpload} />
+                  </label>
+                  <button type="button" onClick={deleteUploadedResume} className="text-[11px] text-red-300 underline">Delete resume</button>
+                </div>
               </div>
             ) : (
               <div className="space-y-2">
                 <p className="text-xs text-zinc-500">No custom resume uploaded.</p>
                 <label className="inline-block cursor-pointer rounded-lg border border-emerald-500/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-300 hover:bg-emerald-500/10">
                   Upload PDF resume
-                  <input type="file" accept=".pdf" className="sr-only" onChange={handleUpload} />
+                  <input type="file" accept="application/pdf,.pdf" className="sr-only" onChange={handleUpload} />
                 </label>
               </div>
             )}
