@@ -11,7 +11,7 @@ export default function RecentTransactions() {
   return (
     <section className="rounded-2xl border border-zinc-800/60 bg-black p-5 lg:col-span-2 no-scrollbar">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-300">Recent transactions</h2>
+        <h2 className="max-[500px]:hidden text-sm font-semibold uppercase tracking-[0.2em] text-zinc-300">Recent transactions</h2>
         <h2 className="hidden max-[500px]:block text-sm font-semibold uppercase tracking-[0.2em] text-zinc-300">Transactions</h2>
         <button type="button" onClick={() => setShowAll((current) => !current)} className="text-[10px] font-semibold uppercase tracking-[0.15em] text-red-300 hover:text-red-200">{showAll ? 'View less' : 'View all'}</button>
       </div>

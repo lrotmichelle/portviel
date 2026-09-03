@@ -5,6 +5,7 @@ import RecentTransactions from '@/components/office/finance/recent-transactions'
 import ProfileForm from '@/components/office/profile/profile-form';
 import Resumes from '@/components/office/profile/resumes';
 import Applications from '@/components/office/profile/applications';
+import Balance from '@/components/office/finance/balance';
 
 export default function OfficePage() {
   return (
@@ -17,7 +18,10 @@ export default function OfficePage() {
         </header>
 
         <section className="flex flex-col gap-6 lg:grid-cols-2 lg:grid" aria-label="Finance">
-          <PaymentMethods />
+          <div className="flex flex-col gap-6">
+            <Balance />
+            <PaymentMethods />
+          </div>
           <div className="flex flex-col gap-6">
             <Withdrawals />
             <Deposit />

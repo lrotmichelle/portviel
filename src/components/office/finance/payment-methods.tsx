@@ -60,6 +60,17 @@ const emptyMethod = (): SavedMethod => ({
 
 const STORAGE_KEY = 'payment-method';
 
+export const loadPaymentMethod = (): SavedMethod | null => {
+  if (typeof window === 'undefined') return null;
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored) as SavedMethod;
+  } catch {
+    return null;
+  }
+};
+
 function PhoneIcon() {
   return (
     <Smartphone className="h-5 w-5 text-amber-400" />
