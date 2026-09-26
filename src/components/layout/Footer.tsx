@@ -3,9 +3,8 @@ import Link from 'next/link';
 const data = {
     facebookLink: 'https://facebook.com/portville',
     instaLink: 'https://instagram.com/portville',
-    twitterLink: 'https://twitter.com/portville',
-    githubLink: 'https://github.com/portville',
-    dribbbleLink: 'https://dribbble.com/portville',
+    tiktokLink: 'https://tiktok.com/@portville',
+    snapchatLink: 'https://snapchat.com/add/portville',
     services: {
         discover: '/discover',
         campaign: '/campaign',
@@ -14,26 +13,26 @@ const data = {
     about: {
         terms: '/terms',
         privacy: '/privacy',
-        careers: '/careers',
+        careers: '/discover',
     },
     contact: {
         email: 'support@portville.com',
-        phone: '+1 (555) 123-4567',
-        address: 'San Francisco, CA',
+        phone: '+256740795413',
+        address: 'Kampala, UG',
     },
     company: {
         name: 'PortVille',
         description:
             'Your modern market platform to discover, run campaigns, and trade seamlessly on any device.',
-        logo: '/logo.webp', // Make sure you have this or it will fallback to your placeholder icon!
+        logo: '/logo.webp',
     },
 };
 
 const socialLinks = [
     { label: 'Facebook', href: data.facebookLink },
     { label: 'Instagram', href: data.instaLink },
-    { label: 'Twitter', href: data.twitterLink },
-    { label: 'GitHub', href: data.githubLink },
+    { label: 'TikTok', href: data.tiktokLink },
+    { label: 'Snapchat', href: data.snapchatLink },
 ];
 
 const aboutLinks = [
