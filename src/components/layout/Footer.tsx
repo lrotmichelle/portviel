@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Mail, Phone, MessageSquare, Send, PhoneIcon } from 'lucide-react';
 
 const data = {
@@ -54,11 +54,32 @@ const serviceLinks = [
 export default function Footer() {
     const currentYear = new Date().getFullYear();
     const [showPhoneOptions, setShowPhoneOptions] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowPhoneOptions(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const phone = data.contact.phone.replace(/\s+/g, '');
     const whatsappUrl = `https://wa.me/${phone}`;
     const telegramUrl = `https://t.me/+256740795413`;
     const telUrl = `tel:${phone}`;
+
+    const handlePhoneClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setShowPhoneOptions((prev) => !prev);
+    };
+
+    const handleOptionClick = () => {
+        setShowPhoneOptions(false);
+    };
 
     return (
         <footer className="bg-zinc-950 border-t border-zinc-900 text-gray-400 text-sm mt-auto w-full">
@@ -145,17 +166,20 @@ export default function Footer() {
                                     <div className="flex items-center gap-2 justify-center lg:justify-end">
                                         <Phone className="h-4 w-4 text-zinc-500" />
                                         <button
-                                            onClick={() => setShowPhoneOptions(!showPhoneOptions)}
+                                            onClick={handlePhoneClick}
                                             className="hover:text-emerald-300 transition-colors flex items-center gap-1"
                                         >
                                             {data.contact.phone}
-                                            <span className="text-[10px]">▼</span>
                                         </button>
                                     </div>
                                     {showPhoneOptions && (
-                                        <div className="absolute bottom-full right-0 mb-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-lg py-2 w-40 z-10 animate-in fade-in-0 zoom-in-95">
+                                        <div
+                                            ref={dropdownRef}
+                                            className="absolute bottom-full right-0 mb-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-lg py-2 w-40 z-10 animate-in fade-in-0 zoom-in-95"
+                                        >
                                             <a
                                                 href={telUrl}
+                                                onClick={handleOptionClick}
                                                 className="block px-4 py-2 text-xs hover:bg-zinc-800 flex items-center gap-2 text-white"
                                             >
                                                 <PhoneIcon className="h-4 w-4" />
@@ -165,6 +189,7 @@ export default function Footer() {
                                                 href={whatsappUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
+                                                onClick={handleOptionClick}
                                                 className="block px-4 py-2 text-xs hover:bg-zinc-800 flex items-center gap-2 text-green-400"
                                             >
                                                 <MessageSquare className="h-4 w-4" />
@@ -174,6 +199,7 @@ export default function Footer() {
                                                 href={telegramUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
+                                                onClick={handleOptionClick}
                                                 className="block px-4 py-2 text-xs hover:bg-zinc-800 flex items-center gap-2 text-blue-400"
                                             >
                                                 <Send className="h-4 w-4" />
@@ -198,7 +224,7 @@ export default function Footer() {
                 {/* Separator Section line */}
                 <div className="mt-6 pt-4 border-t border-zinc-900">
                     <div className="flex flex-col sm:flex-row items-center sm:justify-center text-center text-[11px] text-gray-500 w-full gap-x-6 gap-y-1">
-                        <p>&copy; {currentYear} {data.company.name}. All rights reserved.</p>
+                        <p className="hidden sm:block">&copy; {currentYear} {data.company.name}. All rights reserved.</p>
                     </div>
                 </div>
 
