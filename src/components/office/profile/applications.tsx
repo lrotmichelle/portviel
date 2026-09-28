@@ -17,8 +17,8 @@ export default function Applications() {
   };
 
   const myStatusColor = (status: string) => {
-    if (status === 'Accepted') return 'text-emerald-300';
-    if (status === 'Rejected') return 'text-red-300';
+    if (status === 'accepted') return 'text-emerald-300';
+    if (status === 'rejected') return 'text-red-300';
     return 'text-amber-300';
   };
 
@@ -144,9 +144,9 @@ function MyApplications({ statusColor, showAll }: { statusColor: (status: string
               </div>
               <div className="flex-shrink-0">
                 <span className={`text-xs font-medium ${statusColor(item.status)}`}>
-                  {item.status === 'Accepted' && '✓'}
-                  {item.status === 'Rejected' && '×'}
-                  {item.status === 'Pending' && 'Pending'}
+                  {item.status === 'accepted' && '✓'}
+                  {item.status === 'rejected' && '×'}
+                  {item.status === 'pending' && 'Pending'}
                 </span>
               </div>
             </div>
