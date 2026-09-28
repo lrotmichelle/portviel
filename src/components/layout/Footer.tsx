@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { useState } from 'react';
+import { Mail, Phone, MessageSquare, Send, PhoneIcon } from 'lucide-react';
 
 const data = {
     facebookLink: 'https://facebook.com/portville',
@@ -47,14 +49,14 @@ const serviceLinks = [
     { text: 'Market', href: data.services.market },
 ];
 
-const contactInfo = [
-    { text: data.contact.email },
-    { text: data.contact.phone },
-    { text: data.contact.address, isAddress: true },
-];
-
 export default function Footer() {
     const currentYear = new Date().getFullYear();
+    const [showPhoneOptions, setShowPhoneOptions] = useState(false);
+
+    const phone = data.contact.phone.replace(/\s+/g, '');
+    const whatsappUrl = `https://wa.me/${phone}`;
+    const telegramUrl = `https://t.me/+256740795413`;
+    const telUrl = `tel:${phone}`;
 
     return (
         <footer className="bg-zinc-950 border-t border-zinc-900 text-gray-400 text-sm mt-auto w-full">
@@ -126,17 +128,64 @@ export default function Footer() {
                                 Contact Us
                             </h3>
                             <ul className="space-y-2 text-[11px] flex flex-col items-center lg:items-end w-full">
-                                {contactInfo.map(({ text, isAddress }) => (
-                                    <li key={text} className="text-gray-400">
-                                        {isAddress ? (
-                                            <address className="not-italic text-center lg:text-right max-w-[130px] sm:max-w-none">
-                                                {text}
-                                            </address>
-                                        ) : (
-                                            <span>{text}</span>
-                                        )}
-                                    </li>
-                                ))}
+                                {/* Email - direct mailto */}
+                                <li className="text-gray-400 flex items-center gap-2">
+                                    <Mail className="h-4 w-4 text-zinc-500" />
+                                    <a
+                                        href={`mailto:${data.contact.email}`}
+                                        className="hover:text-emerald-300 transition-colors"
+                                    >
+                                        {data.contact.email}
+                                    </a>
+                                </li>
+                                {/* Phone - with dropdown options */}
+                                <li className="text-gray-400 relative">
+                                    <div className="flex items-center gap-2 justify-center lg:justify-end">
+                                        <Phone className="h-4 w-4 text-zinc-500" />
+                                        <button
+                                            onClick={() => setShowPhoneOptions(!showPhoneOptions)}
+                                            className="hover:text-emerald-300 transition-colors flex items-center gap-1"
+                                        >
+                                            {data.contact.phone}
+                                            <span className="text-[10px]">▼</span>
+                                        </button>
+                                    </div>
+                                    {showPhoneOptions && (
+                                        <div className="absolute bottom-full right-0 mb-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-lg py-2 w-40 z-10 animate-in fade-in-0 zoom-in-95">
+                                            <a
+                                                href={telUrl}
+                                                className="block px-4 py-2 text-xs hover:bg-zinc-800 flex items-center gap-2 text-white"
+                                            >
+                                                <PhoneIcon className="h-4 w-4" />
+                                                Call
+                                            </a>
+                                            <a
+                                                href={whatsappUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block px-4 py-2 text-xs hover:bg-zinc-800 flex items-center gap-2 text-green-400"
+                                            >
+                                                <MessageSquare className="h-4 w-4" />
+                                                WhatsApp
+                                            </a>
+                                            <a
+                                                href={telegramUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block px-4 py-2 text-xs hover:bg-zinc-800 flex items-center gap-2 text-blue-400"
+                                            >
+                                                <Send className="h-4 w-4" />
+                                                Telegram
+                                            </a>
+                                        </div>
+                                    )}
+                                </li>
+                                {/* Address */}
+                                <li className="text-gray-400 flex items-center gap-2 justify-center lg:justify-end">
+                                    <address className="not-italic text-center lg:text-right max-w-[130px] sm:max-w-none">
+                                        {data.contact.address}
+                                    </address>
+                                </li>
                             </ul>
                         </div>
 
@@ -148,8 +197,6 @@ export default function Footer() {
                 <div className="mt-6 pt-4 border-t border-zinc-900">
                     <div className="flex flex-col sm:flex-row items-center sm:justify-center text-center text-[11px] text-gray-500 w-full gap-x-6 gap-y-1">
                         <p>&copy; {currentYear} {data.company.name}. All rights reserved.</p>
-                        <span className="hidden sm:inline text-zinc-800">|</span>
-                        <p>Built with Next.js & Tailwind</p>
                     </div>
                 </div>
 
