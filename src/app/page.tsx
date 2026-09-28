@@ -97,7 +97,7 @@ export default function LandingPage() {
         <Section
           title="Discover"
           subtitle="Get hired or hire"
-          buttons={[{ label: 'Discover', href: '/campaign', variant: 'emerald' }]}
+          buttons={[{ label: 'Discover', href: '/discover', variant: 'emerald' }]}
         >
           <p className="text-white">
             <span className="font-semibold">Hire</span> You need workers. Post a vacancy on the Discover page, describe the worker you need, then wait for the applications to come in.
@@ -111,8 +111,9 @@ export default function LandingPage() {
           title="Campaign"
           subtitle="Need engagement or money"
           buttons={[
-            { label: '+ Campaign', href: '/campaign-manager/manage', variant: 'amber' },
-            { label: '+ Campaign', href: '/campaign-manager/joined', variant: 'amber' },
+            { label: 'Browse campaigns', href: '/campaign', variant: 'amber' },
+            { label: 'Manage campaigns', href: '/campaign-manager/manage', variant: 'amber' },
+            { label: 'Joined campaigns', href: '/campaign-manager/joined', variant: 'amber' },
           ]}
         >
           <p className="text-white">

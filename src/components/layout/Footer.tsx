@@ -42,9 +42,9 @@ const aboutLinks = [
 ];
 
 const serviceLinks = [
-    { text: 'Market', href: data.services.discover },
-    { text: 'Campaign Pools', href: data.services.campaign },
-    { text: 'Storefronts', href: data.services.market },
+    { text: 'Discover', href: data.services.discover },
+    { text: 'Campaign', href: data.services.campaign },
+    { text: 'Market', href: data.services.market },
 ];
 
 const contactInfo = [
