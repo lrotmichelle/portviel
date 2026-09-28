@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { useState } from 'react';
 import { Mail, Phone, MessageSquare, Send, PhoneIcon } from 'lucide-react';
