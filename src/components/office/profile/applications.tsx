@@ -81,9 +81,9 @@ function HireApplications({ reviews, setReviews, statusColor, showAll }: { revie
                 <p className="truncate text-[11px] text-zinc-400">{item.role}</p>
               </div>
               <div className="flex-shrink-0">
-                {item.status === 'Accepted' && <span className={`text-base ${statusColor(item.status)}`}>✓</span>}
-                {item.status === 'Rejected' && <span className={`text-base ${statusColor(item.status)}`}>×</span>}
-                {item.status === 'Pending' && <span className={`text-xs font-medium ${statusColor(item.status)}`}>Pending</span>}
+                <span className={`text-xs font-medium ${statusColor(item.status)}`}>
+                  {item.status}
+                </span>
               </div>
             </div>
           ))}
@@ -144,9 +144,7 @@ function MyApplications({ statusColor, showAll }: { statusColor: (status: string
               </div>
               <div className="flex-shrink-0">
                 <span className={`text-xs font-medium ${statusColor(item.status)}`}>
-                  {item.status === 'accepted' && '✓'}
-                  {item.status === 'rejected' && '×'}
-                  {item.status === 'pending' && 'Pending'}
+                  {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                 </span>
               </div>
             </div>
