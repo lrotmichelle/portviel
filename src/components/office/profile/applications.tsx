@@ -75,8 +75,8 @@ function HireApplications({ reviews, setReviews, statusColor, showAll }: { revie
       <div className="hidden max-[500px]:block">
         <div className="divide-y divide-zinc-800/60">
           {visibleReviews.map((item) => (
-            <div key={`${item.date}-${item.applicant}`} className="flex items-center gap-3 px-3 py-2">
-              <div className="w-20 flex-shrink-0 text-right pr-2">
+            <div key={`${item.date}-${item.applicant}`} className="flex items-center gap-3 py-2 px-3">
+              <div className="w-20 flex-shrink-0 text-right pr-2 -ml-3">
                 <p className="text-[10px] text-zinc-500">{item.date}</p>
               </div>
               <div className="min-w-0 flex-1">
@@ -140,8 +140,8 @@ function MyApplications({ statusColor, showAll }: { statusColor: (status: string
       <div className="hidden max-[500px]:block">
         <div className="divide-y divide-zinc-800/60">
           {visibleApplications.map((item, index) => (
-            <div key={`${item.date}-${index}`} className="flex items-center gap-3 px-3 py-2">
-              <div className="w-20 flex-shrink-0 text-right pr-2">
+            <div key={`${item.date}-${index}`} className="flex items-center gap-3 py-2 px-3">
+              <div className="w-20 flex-shrink-0 text-right pr-2 -ml-3">
                 <p className="text-[10px] text-zinc-500">{item.date}</p>
               </div>
               <div className="min-w-0 flex-1">
