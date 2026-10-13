@@ -75,11 +75,13 @@ function HireApplications({ reviews, setReviews, statusColor, showAll }: { revie
       <div className="hidden max-[500px]:block">
         <div className="divide-y divide-zinc-800/60">
           {visibleReviews.map((item) => (
-            <div key={`${item.date}-${item.applicant}`} className="flex items-center justify-between gap-3 px-3 py-2">
+            <div key={`${item.date}-${item.applicant}`} className="flex items-center gap-3 px-3 py-2">
+              <div className="w-20 flex-shrink-0 text-right pr-2">
+                <p className="text-[10px] text-zinc-500">{item.date}</p>
+              </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-medium text-white">{item.applicant}</p>
                 <p className="truncate text-[11px] text-zinc-400">{item.role}</p>
-                <p className="truncate text-[10px] text-zinc-500">{item.date}</p>
               </div>
               <div className="flex-shrink-0">
                 <span className={`text-xs font-medium ${statusColor(item.status)}`}>
@@ -138,11 +140,13 @@ function MyApplications({ statusColor, showAll }: { statusColor: (status: string
       <div className="hidden max-[500px]:block">
         <div className="divide-y divide-zinc-800/60">
           {visibleApplications.map((item, index) => (
-            <div key={`${item.date}-${index}`} className="flex items-center justify-between gap-3 px-3 py-2">
+            <div key={`${item.date}-${index}`} className="flex items-center gap-3 px-3 py-2">
+              <div className="w-20 flex-shrink-0 text-right pr-2">
+                <p className="text-[10px] text-zinc-500">{item.date}</p>
+              </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-medium text-white">{item.role}</p>
                 <p className="truncate text-[11px] text-zinc-400">{item.employer}</p>
-                <p className="truncate text-[10px] text-zinc-500">{item.date}</p>
               </div>
               <div className="flex-shrink-0">
                 <span className={`text-xs font-medium ${statusColor(item.status)}`}>
@@ -155,9 +159,10 @@ function MyApplications({ statusColor, showAll }: { statusColor: (status: string
       </div>
       <div className="max-[500px]:hidden">
         <div className={`${showAll ? 'overflow-x-auto scrollbar-hide' : 'overflow-hidden'} ${showAll ? 'max-h-[200px] overflow-y-auto scrollbar-hide' : ''}`}>
-          <table className="min-w-[400px] w-full text-left text-xs">
+          <table className="min-w-[500px] w-full text-left text-xs">
             <thead>
               <tr className="text-zinc-500">
+                <th className="whitespace-nowrap px-3 py-2 font-medium uppercase tracking-wide">Date</th>
                 <th className="whitespace-nowrap px-3 py-2 font-medium uppercase tracking-wide">Role</th>
                 <th className="whitespace-nowrap px-3 py-2 font-medium uppercase tracking-wide">Employer</th>
                 <th className="whitespace-nowrap px-3 py-2 font-medium uppercase tracking-wide">Status</th>
@@ -166,6 +171,7 @@ function MyApplications({ statusColor, showAll }: { statusColor: (status: string
             <tbody>
               {visibleApplications.map((item, index) => (
                 <tr key={`${item.date}-${index}`} className="border-t border-zinc-800/60">
+                  <td className="whitespace-nowrap px-3 py-2 text-zinc-400">{item.date}</td>
                   <td className="whitespace-nowrap px-3 py-2 text-zinc-200">{item.role}</td>
                   <td className="whitespace-nowrap px-3 py-2 text-zinc-200">{item.employer}</td>
                   <td className={`whitespace-nowrap px-3 py-2 ${statusColor(item.status)}`}>{item.status}</td>
