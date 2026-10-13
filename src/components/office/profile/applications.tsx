@@ -79,6 +79,7 @@ function HireApplications({ reviews, setReviews, statusColor, showAll }: { revie
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-medium text-white">{item.applicant}</p>
                 <p className="truncate text-[11px] text-zinc-400">{item.role}</p>
+                <p className="truncate text-[10px] text-zinc-500">{item.date}</p>
               </div>
               <div className="flex-shrink-0">
                 <span className={`text-xs font-medium ${statusColor(item.status)}`}>
@@ -141,6 +142,7 @@ function MyApplications({ statusColor, showAll }: { statusColor: (status: string
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-medium text-white">{item.role}</p>
                 <p className="truncate text-[11px] text-zinc-400">{item.employer}</p>
+                <p className="truncate text-[10px] text-zinc-500">{item.date}</p>
               </div>
               <div className="flex-shrink-0">
                 <span className={`text-xs font-medium ${statusColor(item.status)}`}>
