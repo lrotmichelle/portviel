@@ -3,9 +3,10 @@ import React from 'react';
 interface FooterProps {
   status: 'apply' | 'paused' | 'filled' | 'acquired';
   onApply?: () => void;
+  isOwnJob?: boolean;
 }
 
-export const Footer: React.FC<FooterProps> = ({ status, onApply }) => {
+export const Footer: React.FC<FooterProps> = ({ status, onApply, isOwnJob = false }) => {
   
   const getButtonConfig = () => {
     switch (status) {
@@ -30,9 +31,9 @@ export const Footer: React.FC<FooterProps> = ({ status, onApply }) => {
       case 'apply':
       default:
         return {
-          text: 'Apply Now',
-          isDisabled: false,
-          styles: 'border-emerald-500/80 text-emerald-400 hover:bg-emerald-500 active:bg-emerald-500 hover:text-white active:text-white hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]'
+          text: isOwnJob ? "Can't apply to your own job" : 'Apply Now',
+          isDisabled: true,
+          styles: 'border-zinc-800 text-zinc-500 cursor-not-allowed'
         };
     }
   };

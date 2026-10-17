@@ -25,6 +25,7 @@ function mapVacancyToJob(vacancy: any, hasApplied: boolean): JobOffer {
   return {
     id: String(vacancy.id),
     employerName: vacancy.employerName ?? 'Employer',
+    employerAccountId: vacancy.employerAccountId ?? 'acc-employer-1',
     handle: vacancy.handle ?? 'employer',
     rating: toNumber(vacancy.rating, 4.5),
     title: vacancy.title,

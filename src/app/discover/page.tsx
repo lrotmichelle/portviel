@@ -12,10 +12,23 @@ import { hasSavedCvData, recordOfficeEvent } from '@/lib/office-history';
 
 type SortFilter = 'newest' | 'applicants' | 'payment' | 'vacants';
 
+type AccountType = 'employer' | 'employee';
+
 export default function DiscoverPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSort, setActiveSort] = useState<SortFilter>('newest');
+  const [currentAccount, setCurrentAccount] = useState<{ type: AccountType; id: string } | null>(null);
+
+  const accountButtonClassName = (type: AccountType) => {
+    const isSelected = currentAccount?.type === type;
+    const base = 'rounded-lg border px-3 py-1 text-[10px] font-medium uppercase tracking-[0.1em] transition-colors';
+    if (isSelected) return `${base} border-emerald-500 bg-emerald-500/20 text-emerald-300`;
+    return `${base} border-zinc-700 text-zinc-400 hover:border-zinc-500`;
+  };
+
+  const accountIdDisplay = currentAccount === null ? '—' : currentAccount.id;
+
   const [isRecruitOpen, setIsRecruitOpen] = useState(false); // Controls pop-out form engine visibility
   const [jobsList, setJobsList] = useState<JobOffer[]>([]);
 
@@ -53,6 +66,12 @@ export default function DiscoverPage() {
   }, []);
 
   const handleApplyJob = (job: JobOffer) => {
+    // Prevent employer from applying to their own job
+    if (currentAccount?.type === 'employer' && currentAccount.id === job.employerAccountId) {
+      // Employer cannot apply to their own job
+      return;
+    }
+
     if (!hasSavedCvData()) {
       recordOfficeEvent({
         type: 'application',
@@ -111,6 +130,28 @@ export default function DiscoverPage() {
         <h1 className="text-2xl sm:text-3xl font-bold text-white">work & hiring</h1>
         <p className="mt-2 text-sm text-zinc-400">professionals , talented & dynamic people who are ready to work. <Link href="/profile" className="text-emerald-400 underline ml-2">Update CV</Link></p>
       </div>
+
+      {/* Account selector */}
+      {!currentAccount && (
+        <div className="w-full max-w-2xl mx-auto mb-6 flex items-center gap-2">
+          <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">View as</h3>
+          <button
+            type="button"
+            onClick={() => setCurrentAccount({ type: 'employer', id: 'acc-employer-1' })}
+            className={accountButtonClassName('employer')}
+          >
+            Employer
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentAccount({ type: 'employee', id: 'acc-employee-1' })}
+            className={accountButtonClassName('employee')}
+          >
+            Employee
+          </button>
+          <p className="text-[10px] text-zinc-500 ml-2">Account: {accountIdDisplay}</p>
+        </div>
+      )}
 
       {/* Mobile (<=400px) action row: show buttons side-by-side before search on very small screens */}
       <div className="hidden max-[400px]:flex w-full max-w-2xl mx-auto mb-3 flex-col gap-3">
@@ -272,7 +313,7 @@ export default function DiscoverPage() {
       {sortedJobs.length > 0 ? (
         <Grid>
           {sortedJobs.map((job) => (
-            <JobCard key={job.id} job={job} onApply={handleApplyJob} />
+            <JobCard key={job.id} job={job} onApply={handleApplyJob} currentAccount={currentAccount} />
           ))}
         </Grid>
       ) : (
@@ -305,6 +346,7 @@ export default function DiscoverPage() {
           const newListing: JobOffer = {
             id: `local-${Date.now()}`,
             employerName: newJobData.employerName,
+            employerAccountId: currentAccount?.id || 'acc-employer-1',
             handle: newJobData.employerName?.toLowerCase().replace(/\s+/g, '') || '@company',
             rating: 4.8,
             title: newJobData.title,

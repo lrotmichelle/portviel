@@ -1,6 +1,7 @@
 export interface JobOffer {
   id: string;
   employerName: string;
+  employerAccountId: string;
   handle: string;
   rating: number;
   title: string;
@@ -56,6 +57,7 @@ export const mockJobs: JobOffer[] = Array.from({ length: 20 }, (_, i) => {
   return {
     id: `${i + 1}`,
     employerName: emp,
+    employerAccountId: `acc-employer-${i % employers.length + 1}`,
     handle: emp.toLowerCase().replace(/\s+/g, ''),
     rating: parseFloat((Math.random() * (5.0 - 4.0) + 4.0).toFixed(1)),
     title: title,
