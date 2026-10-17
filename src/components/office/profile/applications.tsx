@@ -27,42 +27,45 @@ export default function Applications() {
   return (
     <section className="rounded-2xl bg-black p-5 lg:col-span-3">
       <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-300">Applications</h2>
-      <div className="mt-4 grid w-full gap-6">
-        <div className="w-full min-w-0">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">Hire applications</h3>
-            <button
-              type="button"
-              onClick={() => setShowAllHr((prev) => !prev)}
-              className="text-[10px] font-semibold uppercase tracking-[0.15em] text-red-300 hover:text-red-200"
-            >
-              {showAllHr ? 'View less' : 'View all'}
-            </button>
-          </div>
-          <div className={`${showAllHr ? 'overflow-x-auto' : 'overflow-hidden'} max-[500px]:overflow-hidden`}>
-            <div className="rounded-xl border border-zinc-700/80">
-              <HireApplications reviews={reviews} setReviews={setReviews} statusColor={hrStatusColor} showAll={showAllHr} />
+      <div className="mt-4 grid w-full gap-6 grid-cols-1 lg:grid-cols-2">
+        {hrApplications.length > 0 && (
+          <div className="w-full min-w-0">
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">Hire applications</h3>
+              <button
+                type="button"
+                onClick={() => setShowAllHr((prev) => !prev)}
+                className="text-[10px] font-semibold uppercase tracking-[0.15em] text-red-300 hover:text-red-200"
+              >
+                {showAllHr ? 'View less' : 'View all'}
+              </button>
+            </div>
+            <div className={`${showAllHr ? 'overflow-x-auto' : 'overflow-hidden'} max-[500px]:overflow-hidden`}>
+              <div className="rounded-xl border border-zinc-700/80">
+                <HireApplications reviews={reviews} setReviews={setReviews} statusColor={hrStatusColor} showAll={showAllHr} />
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="w-full min-w-0">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">My applications</h3>
-            <button
-              type="button"
-              onClick={() => setShowAllMy((prev) => !prev)}
-              className="text-[10px] font-semibold uppercase tracking-[0.15em] text-red-300 hover:text-red-200"
-            >
-              {showAllMy ? 'View less' : 'View all'}
-            </button>
-          </div>
-          <div className={`${showAllMy ? 'overflow-x-auto' : 'overflow-hidden'} max-[500px]:overflow-hidden`}>
-            <div className="rounded-xl border border-zinc-700/80">
-              <MyApplications statusColor={myStatusColor} showAll={showAllMy} />
+        )}
+        {myApplications.length > 0 && (
+          <div className="w-full min-w-0">
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">My applications</h3>
+              <button
+                type="button"
+                onClick={() => setShowAllMy((prev) => !prev)}
+                className="text-[10px] font-semibold uppercase tracking-[0.15em] text-red-300 hover:text-red-200"
+              >
+                {showAllMy ? 'View less' : 'View all'}
+              </button>
+            </div>
+            <div className={`${showAllMy ? 'overflow-x-auto' : 'overflow-hidden'} max-[500px]:overflow-hidden`}>
+              <div className="rounded-xl border border-zinc-700/80">
+                <MyApplications statusColor={myStatusColor} showAll={showAllMy} />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );
