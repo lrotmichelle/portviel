@@ -13,6 +13,7 @@ export default function JobCard({ job, onApply, currentAccount }: { job: any; on
         <Header 
           name={job.employerName} 
           handle={job.handle || '@company'} 
+          accountId={job.employerAccountId || 'acc-unknown'}
           rating={job.rating || 5.0} 
           daysRemaining={job.daysRemaining} 
           niche={job.title} 

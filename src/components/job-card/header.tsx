@@ -1,16 +1,18 @@
+import Link from 'next/link';
 import React from 'react';
 import { Star } from 'lucide-react';
 
 interface HeaderProps {
   name: string;
   handle: string;
+  accountId: string;
   rating: number;
   daysRemaining: number;
   niche: string;
   maxSalary: number;
 }
 
-export const Header: React.FC<HeaderProps> = ({ name, handle, rating, daysRemaining, maxSalary }) => {
+export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, rating, daysRemaining, maxSalary }) => {
   const getInitials = (n: string) => {
     if (!n) return "?";
     return n.split(' ').map(p => p ? p[0] : '').join('').toUpperCase();
@@ -67,9 +69,11 @@ export const Header: React.FC<HeaderProps> = ({ name, handle, rating, daysRemain
         </div>
         
         <div className="flex flex-col min-w-0">
-          <h3 className="text-[10px] sm:text-xs font-bold text-zinc-100 truncate leading-tight uppercase tracking-wide">
-            {name || "Anonymous"}
-          </h3>
+          <Link href={`/profile/${accountId}`} className="block">
+            <h3 className="text-[10px] sm:text-xs font-bold text-zinc-100 truncate leading-tight uppercase tracking-wide hover:text-emerald-400 transition-colors">
+              {name || "Anonymous"}
+            </h3>
+          </Link>
           
           <div className="flex items-center gap-1.5 mt-0.5 sm:mt-1 min-w-0">
             <p className="text-[9px] sm:text-[11px] text-zinc-500 truncate">
