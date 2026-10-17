@@ -8,7 +8,7 @@ import { hrApplications } from './hire-data';
 import { myApplications } from './applications-data';
 
 export default function Applications() {
-  const [reviews, setReviews] = useState(hrApplications);
+  const [reviews] = useState(hrApplications);
   const [showAllHr, setShowAllHr] = useState(false);
   const [showAllMy, setShowAllMy] = useState(false);
 
@@ -42,7 +42,7 @@ export default function Applications() {
             </div>
             <div className={`${showAllHr ? 'overflow-x-auto' : 'overflow-hidden'} max-[500px]:overflow-hidden`}>
               <div className="rounded-xl border border-zinc-700/80">
-                <HireApplications reviews={reviews} setReviews={setReviews} statusColor={hrStatusColor} showAll={showAllHr} />
+                <HireApplications reviews={reviews} statusColor={hrStatusColor} showAll={showAllHr} />
               </div>
             </div>
           </div>
@@ -71,7 +71,7 @@ export default function Applications() {
   );
 }
 
-function HireApplications({ reviews, setReviews, statusColor, showAll }: { reviews: typeof hrApplications; setReviews: React.Dispatch<React.SetStateAction<typeof hrApplications>>; statusColor: (status: string) => string; showAll: boolean }) {
+function HireApplications({ reviews, statusColor, showAll }: { reviews: typeof hrApplications; statusColor: (status: string) => string; showAll: boolean }) {
   const maxRows = 5;
   const visibleReviews = showAll ? reviews : reviews.slice(0, maxRows);
 
@@ -108,7 +108,6 @@ function HireApplications({ reviews, setReviews, statusColor, showAll }: { revie
                 <th className="whitespace-nowrap px-3 py-2 font-medium uppercase tracking-wide">Date</th>
                 <th className="whitespace-nowrap px-3 py-2 font-medium uppercase tracking-wide">Applicant</th>
                 <th className="whitespace-nowrap px-3 py-2 font-medium uppercase tracking-wide">Role</th>
-                <th className="whitespace-nowrap px-3 py-2 font-medium uppercase tracking-wide">Resume to review</th>
                 <th className="whitespace-nowrap px-3 py-2 font-medium uppercase tracking-wide">Status</th>
               </tr>
             </thead>
@@ -119,46 +118,10 @@ function HireApplications({ reviews, setReviews, statusColor, showAll }: { revie
                   <td className="px-3 py-2 text-white">{item.applicant}</td>
                   <td className="px-3 py-2 text-zinc-200">{item.role}</td>
                   <td className="px-3 py-2">
-                    <Link href="/office/resume" className="text-emerald-300 underline">
-                      Review
-                    </Link>
-                  </td>
-                  <td className="px-3 py-2">
                     {item.status === 'Pending' ? (
-                      <span className="flex gap-2">
-                        <button
-                          type="button"
-                          aria-label={`Accept ${item.applicant}`}
-                          onClick={() =>
-                            setReviews((current) =>
-                              current.map((row) =>
-                                row.applicant === item.applicant
-                                  ? { ...row, status: 'Accepted' }
-                                  : row
-                              )
-                            )
-                          }
-                          className="text-emerald-400"
-                        >
-                          Accepted
-                        </button>
-                        <button
-                          type="button"
-                          aria-label={`Reject ${item.applicant}`}
-                          onClick={() =>
-                            setReviews((current) =>
-                              current.map((row) =>
-                                row.applicant === item.applicant
-                                  ? { ...row, status: 'Rejected' }
-                                  : row
-                              )
-                            )
-                          }
-                          className="text-red-400"
-                        >
-                          Rejected
-                        </button>
-                      </span>
+                      <Link href="/office/resume" className="text-emerald-300 underline">
+                        Review
+                      </Link>
                     ) : (
                       <span className={statusColor(item.status)}>{item.status}</span>
                     )}
