@@ -64,9 +64,11 @@ export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, rating,
       
       {/* LEFT COLUMN: Org Ring Logo, Names, Handles, Borderless Ratings */}
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-10 h-10 rounded-full border border-zinc-700 text-zinc-200 flex items-center justify-center text-xs font-black tracking-widest shrink-0 bg-transparent">
-          {getInitials(name)}
-        </div>
+        <Link href={`/profile/${accountId}`} className="block">
+          <div className="w-10 h-10 rounded-full border border-zinc-700 text-zinc-200 flex items-center justify-center text-xs font-black tracking-widest shrink-0 bg-transparent hover:border-emerald-500 transition-colors">
+            {getInitials(name)}
+          </div>
+        </Link>
         
         <div className="flex flex-col min-w-0">
           <Link href={`/profile/${accountId}`} className="block">
