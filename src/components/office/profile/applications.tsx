@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import React, { useState } from 'react';
 
 import { hrApplications } from './hire-data';
@@ -84,9 +86,12 @@ function HireApplications({ reviews, setReviews, statusColor, showAll }: { revie
                 <p className="truncate text-[11px] text-zinc-400">{item.role}</p>
               </div>
               <div className="flex-shrink-0">
-                <span className={`text-xs font-medium ${statusColor(item.status)}`}>
-                  {item.status}
-                </span>
+                <Link
+                  href="/office/resume"
+                  className={`text-xs font-medium ${statusColor(item.status)} underline`}
+                >
+                  Review
+                </Link>
               </div>
             </div>
           ))}
@@ -110,12 +115,46 @@ function HireApplications({ reviews, setReviews, statusColor, showAll }: { revie
                   <td className="px-3 py-2 text-zinc-400">{item.date}</td>
                   <td className="px-3 py-2 text-white">{item.applicant}</td>
                   <td className="px-3 py-2 text-zinc-200">{item.role}</td>
-                  <td className="px-3 py-2 text-emerald-300 underline">{item.resume}</td>
+                  <td className="px-3 py-2">
+                    <Link href="/office/resume" className="text-emerald-300 underline">
+                      Review
+                    </Link>
+                  </td>
                   <td className="px-3 py-2">
                     {item.status === 'Pending' ? (
                       <span className="flex gap-2">
-                        <button type="button" aria-label={`Accept ${item.applicant}`} onClick={() => setReviews((current) => current.map((row) => row.applicant === item.applicant ? { ...row, status: 'Accepted' } : row))} className="text-base text-emerald-400">✓</button>
-                        <button type="button" aria-label={`Reject ${item.applicant}`} onClick={() => setReviews((current) => current.map((row) => row.applicant === item.applicant ? { ...row, status: 'Rejected' } : row))} className="text-base text-red-400">×</button>
+                        <button
+                          type="button"
+                          aria-label={`Accept ${item.applicant}`}
+                          onClick={() =>
+                            setReviews((current) =>
+                              current.map((row) =>
+                                row.applicant === item.applicant
+                                  ? { ...row, status: 'Accepted' }
+                                  : row
+                              )
+                            )
+                          }
+                          className="text-emerald-400"
+                        >
+                          Accepted
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Reject ${item.applicant}`}
+                          onClick={() =>
+                            setReviews((current) =>
+                              current.map((row) =>
+                                row.applicant === item.applicant
+                                  ? { ...row, status: 'Rejected' }
+                                  : row
+                              )
+                            )
+                          }
+                          className="text-red-400"
+                        >
+                          Rejected
+                        </button>
                       </span>
                     ) : (
                       <span className={statusColor(item.status)}>{item.status}</span>
