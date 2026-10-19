@@ -1,7 +1,13 @@
 'use client';
 
+'use client';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import JobCard from '@/components/job-card';
+import Grid from '@/components/layout/grid';
+import type { JobOffer } from '@/components/job-card/data';
+import { mockJobs } from '@/components/job-card/data';
 
 interface VacancyItem {
   id: string;
@@ -14,6 +20,7 @@ interface VacancyItem {
 
 export default function ManageVacanciesPage() {
   const [items, setItems] = useState<VacancyItem[]>([]);
+  const [ownJobs, setOwnJobs] = useState<JobOffer[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -27,7 +34,16 @@ export default function ManageVacanciesPage() {
     };
 
     load();
+
+    // Load employer's own jobs (created by this account)
+    const currentEmployerId = 'acc-employer-1';
+    const employerJobs = mockJobs.filter((job) => job.employerAccountId === currentEmployerId);
+    setOwnJobs(employerJobs);
   }, []);
+
+  const handleApplyJob = () => {
+    // Employer viewing their own jobs - no apply action needed
+  };
 
   return (
     <div className="min-h-screen bg-zinc-950 p-8 text-white">
@@ -38,6 +54,18 @@ export default function ManageVacanciesPage() {
         </div>
         <Link href="/discover" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm hover:bg-zinc-900">Back</Link>
       </div>
+
+      {/* Own jobs as cards */}
+      {ownJobs.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold mb-4">Your Posted Jobs</h2>
+          <Grid>
+            {ownJobs.map((job) => (
+              <JobCard key={job.id} job={job} onApply={handleApplyJob} />
+            ))}
+          </Grid>
+        </div>
+      )}
 
       <div className="space-y-4">
         {items.length === 0 ? (

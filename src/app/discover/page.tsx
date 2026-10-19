@@ -18,22 +18,18 @@ export default function DiscoverPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSort, setActiveSort] = useState<SortFilter>('newest');
-  const [currentAccount, setCurrentAccount] = useState<{ type: AccountType; id: string } | null>(null);
-
-  const accountButtonClassName = (type: AccountType) => {
-    const isSelected = currentAccount?.type === type;
-    const base = 'rounded-lg border px-3 py-1 text-[10px] font-medium uppercase tracking-[0.1em] transition-colors';
-    if (isSelected) return `${base} border-emerald-500 bg-emerald-500/20 text-emerald-300`;
-    return `${base} border-zinc-700 text-zinc-400 hover:border-zinc-500`;
-  };
-
-  const accountIdDisplay = currentAccount === null ? '—' : currentAccount.id;
+  const [currentAccount] = useState<{ type: AccountType; id: string } | null>({ type: 'employee', id: 'acc-employee-1' });
 
   const [isRecruitOpen, setIsRecruitOpen] = useState(false); // Controls pop-out form engine visibility
   const [jobsList, setJobsList] = useState<JobOffer[]>([]);
 
   // 1. Filter Engine (Executes First)
   const filteredJobs = jobsList.filter((job) => {
+    // Exclude jobs created by the current account (employer's own jobs)
+    if (currentAccount?.type === 'employer' && job.employerAccountId === currentAccount.id) {
+      return false;
+    }
+
     const query = searchQuery.toLowerCase().trim();
     if (!query) return true;
 
@@ -130,28 +126,6 @@ export default function DiscoverPage() {
         <h1 className="text-2xl sm:text-3xl font-bold text-white">work & hiring</h1>
         <p className="mt-2 text-sm text-zinc-400">professionals , talented & dynamic people who are ready to work. <Link href="/profile" className="text-emerald-400 underline ml-2">Update CV</Link></p>
       </div>
-
-      {/* Account selector */}
-      {!currentAccount && (
-        <div className="w-full max-w-2xl mx-auto mb-6 flex items-center gap-2">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">View as</h3>
-          <button
-            type="button"
-            onClick={() => setCurrentAccount({ type: 'employer', id: 'acc-employer-1' })}
-            className={accountButtonClassName('employer')}
-          >
-            Employer
-          </button>
-          <button
-            type="button"
-            onClick={() => setCurrentAccount({ type: 'employee', id: 'acc-employee-1' })}
-            className={accountButtonClassName('employee')}
-          >
-            Employee
-          </button>
-          <p className="text-[10px] text-zinc-500 ml-2">Account: {accountIdDisplay}</p>
-        </div>
-      )}
 
       {/* Mobile (<=400px) action row: show buttons side-by-side before search on very small screens */}
       <div className="hidden max-[400px]:flex w-full max-w-2xl mx-auto mb-3 flex-col gap-3">
