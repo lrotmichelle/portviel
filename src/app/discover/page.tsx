@@ -338,7 +338,9 @@ export default function DiscoverPage() {
             increaseCount: 0,
           };
 
-          setJobsList((prev) => [newListing, ...prev]);
+          const stored = localStorage.getItem('employer-jobs');
+          const existing: JobOffer[] = stored ? JSON.parse(stored) : [];
+          localStorage.setItem('employer-jobs', JSON.stringify([newListing, ...existing]));
         }}
       />
 

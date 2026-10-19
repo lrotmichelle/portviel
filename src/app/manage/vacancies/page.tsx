@@ -35,10 +35,19 @@ export default function ManageVacanciesPage() {
 
     load();
 
-    // Load employer's own jobs (created by this account)
-    const currentEmployerId = 'acc-employer-1';
-    const employerJobs = mockJobs.filter((job) => job.employerAccountId === currentEmployerId);
-    setOwnJobs(employerJobs);
+    const loadOwnJobs = () => {
+      const stored = localStorage.getItem('employer-jobs');
+      const storedJobs: JobOffer[] = stored ? JSON.parse(stored) : [];
+      const currentEmployerId = 'acc-employer-1';
+      const mockEmployerJobs = mockJobs.filter((job) => job.employerAccountId === currentEmployerId);
+      setOwnJobs([...storedJobs, ...mockEmployerJobs]);
+    };
+
+    loadOwnJobs();
+
+    // Poll for new jobs created from discover page
+    const interval = setInterval(loadOwnJobs, 2000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleApplyJob = () => {
