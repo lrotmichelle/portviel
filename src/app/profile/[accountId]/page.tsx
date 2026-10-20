@@ -89,10 +89,6 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Invested (Campaigns)</p>
               <p className="text-white font-medium">{formatUGX(profile.invested)}</p>
             </div>
-            <div className="bg-zinc-900/50 rounded-xl p-4 md:col-span-2">
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Bio</p>
-              <p className="text-white font-medium">{profile.bio}</p>
-            </div>
           </div>
         </section>
 
@@ -202,6 +198,12 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
               {userRating === 0 ? 'Tap a star to rate this account' : `You rated this account ${userRating} star${userRating > 1 ? 's' : ''}`}
             </p>
           </div>
+        </section>
+
+        {/* Account Bio */}
+        <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
+          <h2 className="text-lg font-semibold text-white mb-2">Account Bio</h2>
+          <p className="text-zinc-300 text-sm">{profile.bio}</p>
         </section>
       </div>
     </main>
