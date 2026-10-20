@@ -1,18 +1,17 @@
 import Link from 'next/link';
 import React from 'react';
-import { Star } from 'lucide-react';
 
 interface HeaderProps {
   name: string;
   handle: string;
   accountId: string;
-  rating: number;
+  rating?: number;
   daysRemaining: number;
   niche: string;
   maxSalary: number;
 }
 
-export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, rating, daysRemaining, maxSalary }) => {
+export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, daysRemaining, maxSalary }) => {
   const getInitials = (n: string) => {
     if (!n) return "?";
     return n.split(' ').map(p => p ? p[0] : '').join('').toUpperCase();
@@ -81,13 +80,6 @@ export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, rating,
             <p className="text-[9px] sm:text-[11px] text-zinc-500 truncate">
               @{cleanHandle}
             </p>
-            <span className="text-zinc-600 font-light text-[9px] sm:text-[10px] select-none">•</span>
-            <div className="flex items-center gap-0.5 shrink-0 bg-transparent">
-              <Star className="w-2 h-2 sm:w-2.5 sm:h-2.5 fill-amber-500 text-amber-500 stroke-amber-500" />
-              <span className="text-[9px] sm:text-[10px] font-bold text-amber-500/90">
-                {(rating || 0).toFixed(1)}
-              </span>
-            </div>
           </div>
         </div>
       </div>
