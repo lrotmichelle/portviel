@@ -83,6 +83,11 @@ export default function Footer() {
 
                     {/* Column 1: Brand Info */}
                     <div className="w-full min-[520px]:w-1/4 text-center min-[520px]:text-left flex flex-col items-center min-[520px]:items-start justify-start space-y-2 min-[520px]:pr-6 pb-2 min-[520px]:pb-0">
+                        <div className="flex items-center justify-center min-[520px]:justify-start gap-2">
+                            <span className="text-base font-bold text-white tracking-tight">
+                                {data.company.name}
+                            </span>
+                        </div>
                         <p className="text-[11px] text-gray-400 leading-normal max-w-xs text-center min-[520px]:text-left">
                             {data.company.description}
                         </p>
