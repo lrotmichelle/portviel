@@ -4,7 +4,7 @@ import { Footer } from './footer';
 
 type AccountType = 'employer' | 'employee';
 
-export default function JobCard({ job, onApply, currentAccount }: { job: any; onApply?: (job: any) => void; currentAccount?: { type: AccountType; id: string } | null }) {
+export default function JobCard({ job, onApply, currentAccount, applicationStatus }: { job: any; onApply?: (job: any) => void; currentAccount?: { type: AccountType; id: string } | null; applicationStatus?: 'pending' | 'accepted' | 'rejected' | null }) {
   const isOwnJob = currentAccount?.type === 'employer' && currentAccount.id === job.employerAccountId;
 
   return (
@@ -30,7 +30,7 @@ export default function JobCard({ job, onApply, currentAccount }: { job: any; on
           />
         </div>
       </div>
-      <Footer status={job.status} onApply={() => onApply?.(job)} isOwnJob={isOwnJob} />
+      <Footer status={job.status} onApply={() => onApply?.(job)} isOwnJob={isOwnJob} applicationStatus={applicationStatus} />
     </div>
   );
 }

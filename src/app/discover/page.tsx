@@ -1,6 +1,6 @@
 'use client'; // Required since we are handling live search state inputs and sorting
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, X, Briefcase, Flame, ArrowUpWideNarrow, UserCheck, Timer, ClipboardList } from 'lucide-react';
 import JobCard from '@/components/job-card';
@@ -22,6 +22,17 @@ export default function DiscoverPage() {
 
   const [isRecruitOpen, setIsRecruitOpen] = useState(false); // Controls pop-out form engine visibility
   const [jobsList, setJobsList] = useState<JobOffer[]>([]);
+  const [appliedJobs, setAppliedJobs] = useState<Record<string, 'pending' | 'accepted' | 'rejected'>>({});
+
+  // Load applied jobs from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('applied-jobs');
+    if (stored) {
+      try {
+        setAppliedJobs(JSON.parse(stored));
+      } catch {}
+    }
+  }, []);
 
   // 1. Filter Engine (Executes First)
   const filteredJobs = jobsList.filter((job) => {
@@ -68,6 +79,12 @@ export default function DiscoverPage() {
       return;
     }
 
+    // Check if already applied (and not rejected)
+    const existingStatus = appliedJobs[job.id];
+    if (existingStatus && existingStatus !== 'rejected') {
+      return;
+    }
+
     if (!hasSavedCvData()) {
       recordOfficeEvent({
         type: 'application',
@@ -88,6 +105,11 @@ export default function DiscoverPage() {
       status: 'submitted',
       meta: { jobId: job.id, title: job.title },
     });
+
+    // Save application status to localStorage
+    const newAppliedJobs = { ...appliedJobs, [job.id]: 'pending' as const };
+    setAppliedJobs(newAppliedJobs);
+    localStorage.setItem('applied-jobs', JSON.stringify(newAppliedJobs));
   };
 
   // Check if a search query was typed but no records were found
@@ -287,7 +309,7 @@ export default function DiscoverPage() {
       {sortedJobs.length > 0 ? (
         <Grid>
           {sortedJobs.map((job) => (
-            <JobCard key={job.id} job={job} onApply={handleApplyJob} currentAccount={currentAccount} />
+            <JobCard key={job.id} job={job} onApply={handleApplyJob} currentAccount={currentAccount} applicationStatus={appliedJobs[job.id] || null} />
           ))}
         </Grid>
       ) : (
