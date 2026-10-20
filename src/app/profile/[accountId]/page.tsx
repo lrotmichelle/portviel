@@ -7,6 +7,18 @@ import { useState } from 'react';
 export default function ProfilePage({ params }: { params: { accountId: string } }) {
   const { accountId } = params;
   const [userRating, setUserRating] = useState(0);
+  const [rating, setRating] = useState(profile.rating);
+  const [totalRatings, setTotalRatings] = useState(profile.totalRatings);
+  const isOwnProfile = accountId === 'acc-employee-1';
+
+  const handleRate = (star: number) => {
+    if (isOwnProfile) return;
+    const newTotal = totalRatings + 1;
+    const newRating = Math.min(4.9, (rating * totalRatings + star) / newTotal);
+    setRating(newRating);
+    setTotalRatings(newTotal);
+    setUserRating(star);
+  };
 
   const profile = {
     name: 'John Doe',
@@ -71,7 +83,7 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Rating</p>
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
-                <span className="text-white font-medium">{profile.rating.toFixed(1)} / {profile.totalRatings}</span>
+                <span className="text-white font-medium">{rating.toFixed(1)} / {totalRatings}</span>
               </div>
             </div>
             <div className="bg-zinc-900/50 rounded-xl p-3">
@@ -175,10 +187,10 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
 
           <section className="rounded-2xl border border-zinc-800/60 bg-black p-6 flex-1">
             <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold text-white">Rate this account</h2>
+<div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-white">{isOwnProfile ? 'Account Ratings' : 'Rate this account'}</h2>
                 <span className={`ml-2 text-[12px] font-bold ${userRating > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>
-                  {userRating} / 5
+                  {rating.toFixed(1)} / {totalRatings}
                 </span>
               </div>
               <div className="flex gap-1">
@@ -187,18 +199,23 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
                     key={star}
                     type="button"
                     onClick={() => handleRate(star)}
+                    disabled={isOwnProfile}
                     className={`w-8 h-8 rounded transition-colors duration-200 ${
-                      star <= userRating
+                      star <= Math.round(rating)
                         ? 'text-amber-400 fill-amber-400 stroke-amber-400'
-                        : 'text-zinc-700 hover:text-amber-400'
-                    }`}
+                        : 'text-zinc-700'
+                    } ${isOwnProfile ? 'cursor-default' : 'hover:text-amber-400'}`}
                   >
                     <Star className="w-full h-full fill-current stroke-current" />
                   </button>
                 ))}
               </div>
               <p className="text-[11px] text-zinc-500 mt-2">
-                {userRating === 0 ? 'Tap a star to rate this account' : `You rated this account ${userRating} star${userRating > 1 ? 's' : ''}`}
+                {isOwnProfile
+                  ? `This account has a rating of ${rating.toFixed(1)} from ${totalRatings} rating${totalRatings > 1 ? 's' : ''}`
+                  : userRating === 0
+                  ? 'Tap a star to rate this account'
+                  : `You rated this account ${userRating} star${userRating > 1 ? 's' : ''}`}
               </p>
             </div>
           </section>
