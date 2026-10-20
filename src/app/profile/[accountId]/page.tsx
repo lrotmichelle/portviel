@@ -177,8 +177,8 @@ const [verified, setVerified] = useState(false);
         </section>
 
         {/* Discover Activity */}
+        <h2 className="text-lg font-semibold text-white mb-2">Discover Activity (Total: {discoverJobs.length})</h2>
         <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Discover Activity (Total: {discoverJobs.length})</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
@@ -202,8 +202,8 @@ const [verified, setVerified] = useState(false);
         </section>
 
         {/* Campaign Activity */}
+        <h2 className="text-lg font-semibold text-white mb-2">Campaign Activity (Total: {formatUGX(campaigns.reduce((s, c) => s + c.amount, 0))})</h2>
         <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Campaign Activity (Total: {formatUGX(campaigns.reduce((s, c) => s + c.amount, 0))})</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
@@ -229,8 +229,8 @@ const [verified, setVerified] = useState(false);
         </section>
 
         {/* Market Activity */}
+        <h2 className="text-lg font-semibold text-white mb-2">Market Activity (Sold: {formatUGX(marketTransactions.filter(t => t.type === 'sold').reduce((s, t) => s + t.amount, 0))} / Bought: {formatUGX(marketTransactions.filter(t => t.type === 'purchased').reduce((s, t) => s + t.amount, 0))})</h2>
         <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Market Activity (Sold: {formatUGX(marketTransactions.filter(t => t.type === 'sold').reduce((s, t) => s + t.amount, 0))} / Bought: {formatUGX(marketTransactions.filter(t => t.type === 'purchased').reduce((s, t) => s + t.amount, 0))})</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
