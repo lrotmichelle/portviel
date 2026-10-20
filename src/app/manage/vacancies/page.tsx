@@ -34,13 +34,13 @@ export default function ManageVacanciesPage() {
 
     load();
 
-    const loadOwnJobs = () => {
-      const stored = localStorage.getItem('employer-jobs');
-      const storedJobs: JobOffer[] = stored ? JSON.parse(stored) : [];
-      const currentEmployerId = 'acc-employer-1';
-      const mockEmployerJobs = mockJobs.filter((job) => job.employerAccountId === currentEmployerId);
-      setOwnJobs([...storedJobs, ...mockEmployerJobs]);
-    };
+      const loadOwnJobs = () => {
+        const stored = localStorage.getItem('employer-jobs');
+        const storedJobs: JobOffer[] = stored ? JSON.parse(stored) : [];
+        const currentAccountId = 'acc-employee-1';
+        const mockEmployerJobs = mockJobs.filter((job) => job.employerAccountId === currentAccountId);
+        setOwnJobs([...storedJobs, ...mockEmployerJobs]);
+      };
 
     const loadAppliedJobs = () => {
       const stored = localStorage.getItem('applied-jobs');

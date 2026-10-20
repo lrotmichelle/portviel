@@ -5,7 +5,7 @@ import { Footer } from './footer';
 type AccountType = 'employer' | 'employee';
 
 export default function JobCard({ job, onApply, currentAccount, applicationStatus }: { job: any; onApply?: (job: any) => void; currentAccount?: { type: AccountType; id: string } | null; applicationStatus?: 'pending' | 'accepted' | 'rejected' | null }) {
-  const isOwnJob = currentAccount?.type === 'employer' && currentAccount.id === job.employerAccountId;
+  const isOwnJob = currentAccount?.id === job.employerAccountId;
 
   return (
     <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between h-full hover:border-zinc-700 transition-all duration-200 shadow-xl">

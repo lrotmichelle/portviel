@@ -37,7 +37,7 @@ export default function DiscoverPage() {
   // 1. Filter Engine (Executes First)
   const filteredJobs = jobsList.filter((job) => {
     // Exclude jobs created by the current account (employer's own jobs)
-    if (currentAccount?.type === 'employer' && job.employerAccountId === currentAccount.id) {
+    if (job.employerAccountId === currentAccount?.id) {
       return false;
     }
 
@@ -73,9 +73,8 @@ export default function DiscoverPage() {
   }, []);
 
   const handleApplyJob = (job: JobOffer) => {
-    // Prevent employer from applying to their own job
-    if (currentAccount?.type === 'employer' && currentAccount.id === job.employerAccountId) {
-      // Employer cannot apply to their own job
+    // Prevent employer from applying to their own job (by vacancy ID / employerAccountId)
+    if (currentAccount?.id === job.employerAccountId) {
       return;
     }
 
@@ -342,7 +341,7 @@ export default function DiscoverPage() {
           const newListing: JobOffer = {
             id: `local-${Date.now()}`,
             employerName: newJobData.employerName,
-            employerAccountId: currentAccount?.id || 'acc-employer-1',
+            employerAccountId: currentAccount?.id || 'acc-employee-1',
             handle: newJobData.employerName?.toLowerCase().replace(/\s+/g, '') || '@company',
             rating: 4.8,
             title: newJobData.title,
