@@ -45,7 +45,6 @@ const serviceLinks = [
 ];
 
 export default function Footer() {
-    const currentYear = new Date().getFullYear();
     const [showPhoneOptions, setShowPhoneOptions] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -203,14 +202,6 @@ export default function Footer() {
                     </div>
 
                 </div>
-
-                {/* Separator Section line */}
-                <div className="mt-6 pt-4 border-t border-zinc-900">
-                    <div className="flex flex-col sm:flex-row items-center sm:justify-center text-center text-[11px] text-gray-500 w-full gap-x-6 gap-y-1">
-                        <p className="hidden sm:block">&copy; {currentYear} {data.company.name}. All rights reserved.</p>
-                    </div>
-                </div>
-
             </div>
         </footer>
     );
