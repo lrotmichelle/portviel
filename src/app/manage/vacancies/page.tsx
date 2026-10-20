@@ -68,15 +68,19 @@ export default function ManageVacanciesPage() {
   const handleApplyJob = () => {
     // Employer viewing their own jobs - no apply action needed
   };
-  const handleEditJob = (job: any) => {
+const handleEditJob = (job: any) => {
     const now = Date.now();
-    const lastEdit = job.lastEditedAt ? new Date(job.lastEditedAt).getTime() : 0;
+    const lastEdit = job.lastEditedAt ? new Date(job.lastEditedAt).getTime() : new Date(job.createdAt || now).getTime();
     const daysSinceEdit = (now - lastEdit) / (1000 * 60 * 60 * 24);
     const maxEdits = (job.daysRemaining || 14) >= 21 ? 2 : 1;
     const editsUsed = job.editCount || 0;
 
-    if (daysSinceEdit < 7 && editsUsed >= maxEdits) {
-      alert('Edit limit reached. You can edit again after 7 days.');
+    if (editsUsed >= maxEdits) {
+      alert('Edit limit reached for this vacancy.');
+      return;
+    }
+    if (maxEdits === 2 && daysSinceEdit < 7) {
+      alert('You can edit again after 7 days from your last edit.');
       return;
     }
 
@@ -117,13 +121,13 @@ export default function ManageVacanciesPage() {
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4">Vacancies ({ownJobs.length})</h2>
           <Grid>
-            {ownJobs.map((job: any) => {
+{ownJobs.map((job: any) => {
             const now = Date.now();
-            const lastEdit = job.lastEditedAt ? new Date(job.lastEditedAt).getTime() : 0;
+            const lastEdit = job.lastEditedAt ? new Date(job.lastEditedAt).getTime() : new Date(job.createdAt || now).getTime();
             const daysSinceEdit = (now - lastEdit) / (1000 * 60 * 60 * 24);
             const maxEdits = (job.daysRemaining || 14) >= 21 ? 2 : 1;
             const editsUsed = job.editCount || 0;
-            const canEdit = !(daysSinceEdit < 7 && editsUsed >= maxEdits);
+            const canEdit = editsUsed < maxEdits && !(maxEdits === 2 && daysSinceEdit < 7);
             return (
               <JobCard key={job.id} job={job} onApply={handleApplyJob} onEdit={handleEditJob} currentAccount={{ type: 'employee', id: 'acc-employee-1' }} canEdit={canEdit} />
             );
