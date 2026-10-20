@@ -32,13 +32,6 @@ const data = {
     },
 };
 
-const socialLinks = [
-    { label: 'Facebook', href: data.facebookLink },
-    { label: 'Instagram', href: data.instaLink },
-    { label: 'TikTok', href: data.tiktokLink },
-    { label: 'Snapchat', href: data.snapchatLink },
-];
-
 const aboutLinks = [
     { text: 'Terms of Service', href: data.about.terms },
     { text: 'Privacy Policy', href: data.about.privacy },
@@ -98,16 +91,6 @@ export default function Footer() {
                         <p className="text-[11px] text-gray-400 leading-normal max-w-xs text-center min-[520px]:text-left">
                             {data.company.description}
                         </p>
-
-                        <ul className="flex justify-center min-[520px]:justify-start gap-4 pt-1 text-sm">
-                            {socialLinks.map(({ label, href }) => (
-                                <li key={label}>
-                                    <Link href={href} className="text-gray-500 hover:text-white transition-colors">
-                                        {label}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
                     </div>
 
                     {/* Combined Desktop Grid / Mobile side-by-side split container */}
