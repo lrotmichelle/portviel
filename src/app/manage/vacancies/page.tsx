@@ -1,7 +1,5 @@
 'use client';
 
-'use client';
-
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import JobCard from '@/components/job-card';
@@ -21,6 +19,7 @@ interface VacancyItem {
 export default function ManageVacanciesPage() {
   const [items, setItems] = useState<VacancyItem[]>([]);
   const [ownJobs, setOwnJobs] = useState<JobOffer[]>([]);
+  const [appliedJobIds, setAppliedJobIds] = useState<Record<string, 'pending' | 'accepted' | 'rejected'>>({});
 
   useEffect(() => {
     const load = async () => {
@@ -43,16 +42,31 @@ export default function ManageVacanciesPage() {
       setOwnJobs([...storedJobs, ...mockEmployerJobs]);
     };
 
+    const loadAppliedJobs = () => {
+      const stored = localStorage.getItem('applied-jobs');
+      if (stored) {
+        try {
+          setAppliedJobIds(JSON.parse(stored));
+        } catch {}
+      }
+    };
+
     loadOwnJobs();
+    loadAppliedJobs();
 
     // Poll for new jobs created from discover page
-    const interval = setInterval(loadOwnJobs, 2000);
+    const interval = setInterval(() => {
+      loadOwnJobs();
+      loadAppliedJobs();
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
   const handleApplyJob = () => {
     // Employer viewing their own jobs - no apply action needed
   };
+
+  const appliedJobsList = mockJobs.filter((job) => appliedJobIds[job.id]);
 
   return (
     <div className="min-h-screen bg-zinc-950 p-8 text-white">
@@ -71,6 +85,23 @@ export default function ManageVacanciesPage() {
           <Grid>
             {ownJobs.map((job) => (
               <JobCard key={job.id} job={job} onApply={handleApplyJob} />
+            ))}
+          </Grid>
+        </div>
+      )}
+
+      {/* My Applications as cards */}
+      {appliedJobsList.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold mb-4">My Applications</h2>
+          <Grid>
+            {appliedJobsList.map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                onApply={handleApplyJob}
+                applicationStatus={appliedJobIds[job.id]}
+              />
             ))}
           </Grid>
         </div>
