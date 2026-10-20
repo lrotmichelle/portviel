@@ -2,33 +2,44 @@
 
 import Link from 'next/link';
 import { Star } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function ProfilePage({ params }: { params: { accountId: string } }) {
   const { accountId } = params;
-
-  const profile = {
-    name: 'John Doe',
-    role: 'Employer',
-    bio: 'Passionate about building great products and connecting talent with opportunity.',
-    dateJoined: '2025-01-15',
-    rating: 4.5,
-    totalRatings: 12,
-    sales: 12500000,
-    invested: 3200000,
-  };
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const [userRating, setUserRating] = useState(0);
-  const [rating, setRating] = useState(profile.rating);
-  const [totalRatings, setTotalRatings] = useState(profile.totalRatings);
+  const [rating, setRating] = useState(0);
+  const [totalRatings, setTotalRatings] = useState(0);
+  const [verified, setVerified] = useState(false);
+  const [verificationType, setVerificationType] = useState<'kyc' | 'admin' | null>(null);
   const isOwnProfile = accountId === 'acc-employee-1';
 
-  const [name, setName] = useState(profile.name);
-  const [bio, setBio] = useState(profile.bio);
+  useEffect(() => {
+    fetch(`/api/profile/${accountId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setProfile(data);
+        setRating(data.rating || 0);
+        setTotalRatings(data.totalRatings || 0);
+        setVerified(data.verified || false);
+        setVerificationType(data.verificationType || null);
+        setName(data.name || '');
+        setBio(data.bio || '');
+        setNameInput(data.name || '');
+        setBioInput(data.bio || '');
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [accountId]);
+
+  const [name, setName] = useState('');
+  const [bio, setBio] = useState('');
   const [editingName, setEditingName] = useState(false);
   const [editingBio, setEditingBio] = useState(false);
-  const [nameInput, setNameInput] = useState(profile.name);
-  const [bioInput, setBioInput] = useState(profile.bio);
+  const [nameInput, setNameInput] = useState('');
+  const [bioInput, setBioInput] = useState('');
 
   const canEditName = () => {
     const last = localStorage.getItem(`name-edit-${accountId}`);
@@ -44,10 +55,7 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
     return days >= 30;
   };
 
-const [verified, setVerified] = useState(false);
-  const [verificationType, setVerificationType] = useState<'kyc' | 'admin' | null>(null);
-
-  const handleVerify = () => {
+const handleVerify = () => {
     setVerified(true);
     setVerificationType('kyc');
   };
@@ -80,28 +88,37 @@ const [verified, setVerified] = useState(false);
     setEditingBio(false);
   };
 
-  const discoverJobs = [
+  const discoverJobs: any[] = (profile?.discoverJobs || [
     { title: 'Social Media Manager', vacants: 3, recruited: 2 },
     { title: 'Frontend Developer', vacants: 5, recruited: 4 },
     { title: 'Graphics Illustrator', vacants: 2, recruited: 0 },
-  ];
+  ]);
 
-  const campaigns = [
+  const campaigns: any[] = (profile?.campaigns || [
     { name: 'Brand Awareness Q1', members: 12, rank: 3, amount: 500000 },
     { name: 'Product Launch', members: 8, rank: 1, amount: 1200000 },
-  ];
+  ]);
 
-  const marketTransactions = [
+  const marketTransactions: any[] = (profile?.marketTransactions || [
     { account: 'Acme Corp', type: 'sold', amount: 850000 },
     { account: 'Beta Inc', type: 'purchased', amount: 420000 },
     { account: 'Gamma Ltd', type: 'sold', amount: 1100000 },
-  ];
+  ]);
 
   const formatUGX = (amount: number) => {
     if (amount >= 1000000) return `UGX ${(amount / 1000000).toFixed(1)}M`;
     return `UGX ${Math.floor(amount / 1000)}k`;
   };
 
+if (loading) {
+    return (
+      <main className="min-h-screen bg-black px-4 py-8 text-zinc-100 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <p className="text-zinc-400">Loading profile...</p>
+        </div>
+      </main>
+    );
+  }
   return (
     <main className="min-h-screen bg-black px-4 py-8 text-zinc-100 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl space-y-4">
@@ -152,7 +169,7 @@ const [verified, setVerified] = useState(false);
             </div>
             <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Role</p>
-              <p className="text-white font-medium">{profile.role}</p>
+              <p className="text-white font-medium">{profile?.role || 'N/A'}</p>
             </div>
             <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Rating</p>
@@ -163,15 +180,15 @@ const [verified, setVerified] = useState(false);
             </div>
             <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Date Joined</p>
-              <p className="text-white font-medium">{profile.dateJoined}</p>
+              <p className="text-white font-medium">{profile?.dateJoined || 'N/A'}</p>
             </div>
             <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Sales (Total Collected)</p>
-              <p className="text-white font-medium">{formatUGX(profile.sales)}</p>
+              <p className="text-white font-medium">{formatUGX(profile?.sales || 0)}</p>
             </div>
             <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Invested (Campaigns)</p>
-              <p className="text-white font-medium">{formatUGX(profile.invested)}</p>
+              <p className="text-white font-medium">{formatUGX(profile?.invested || 0)}</p>
             </div>
           </div>
         </section>
