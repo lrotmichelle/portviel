@@ -45,9 +45,16 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
   };
 
 const [verified, setVerified] = useState(false);
+  const [verificationType, setVerificationType] = useState<'kyc' | 'admin' | null>(null);
 
   const handleVerify = () => {
     setVerified(true);
+    setVerificationType('kyc');
+  };
+
+  const handleAdminVerify = () => {
+    setVerified(true);
+    setVerificationType('admin');
   };
 
   const handleRate = (star: number) => {
@@ -97,7 +104,7 @@ const [verified, setVerified] = useState(false);
 
   return (
     <main className="min-h-screen bg-black px-4 py-8 text-zinc-100 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl space-y-8">
+      <div className="mx-auto max-w-4xl space-y-4">
         <header className="space-y-2">
           <Link href="/discover" className="inline-flex items-center gap-2 text-xs text-emerald-400 hover:text-emerald-300 underline">
             ← Back to Discover
@@ -105,14 +112,19 @@ const [verified, setVerified] = useState(false);
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight">{name}</h1>
             {verified && (
-              <span className="text-amber-400" title="Verified">
+              <span className={verificationType === 'kyc' ? 'text-green-500' : 'text-amber-400'} title={verificationType === 'kyc' ? 'KYC Verified' : 'Admin Verified'}>
                 <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </span>
             )}
             {!verified && isOwnProfile && (
-              <button onClick={handleVerify} className="px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase rounded-lg hover:bg-amber-500/20 transition-colors">
-                Verify Account
-              </button>
+              <div className="flex gap-2">
+                <button onClick={handleVerify} className="px-3 py-1.5 bg-green-500/10 border border-green-500/30 text-green-400 text-xs font-bold uppercase rounded-lg hover:bg-green-500/20 transition-colors">
+                  KYC Verify
+                </button>
+                <button onClick={handleAdminVerify} className="px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase rounded-lg hover:bg-amber-500/20 transition-colors">
+                  Admin Verify
+                </button>
+              </div>
             )}
           </div>
         </header>
