@@ -81,10 +81,10 @@ export default function ManageVacanciesPage() {
       {/* Own jobs as cards */}
       {ownJobs.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">Your Posted Jobs</h2>
+          <h2 className="text-lg font-semibold mb-4">Vacancies ({ownJobs.length})</h2>
           <Grid>
             {ownJobs.map((job) => (
-              <JobCard key={job.id} job={job} onApply={handleApplyJob} />
+              <JobCard key={job.id} job={job} onApply={handleApplyJob} currentAccount={{ type: 'employee', id: 'acc-employee-1' }} />
             ))}
           </Grid>
         </div>
@@ -93,7 +93,7 @@ export default function ManageVacanciesPage() {
       {/* My Applications as cards */}
       {appliedJobsList.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">My Applications</h2>
+          <h2 className="text-lg font-semibold mb-4">My Applications ({appliedJobsList.length})</h2>
           <Grid>
             {appliedJobsList.map((job) => (
               <JobCard
@@ -101,6 +101,7 @@ export default function ManageVacanciesPage() {
                 job={job}
                 onApply={handleApplyJob}
                 applicationStatus={appliedJobIds[job.id]}
+                currentAccount={{ type: 'employee', id: 'acc-employee-1' }}
               />
             ))}
           </Grid>

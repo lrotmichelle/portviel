@@ -30,6 +30,10 @@ export default function RecruitModal({ isOpen, onClose, onPublishSuccess }: Recr
       alert("Please fill in the required fields (Title, Company, and Description)!");
       return;
     }
+    if (minSalary && maxSalary && parseInt(maxSalary, 10) <= parseInt(minSalary, 10)) {
+      alert("Maximum salary must be higher than minimum salary!");
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -201,11 +205,11 @@ export default function RecruitModal({ isOpen, onClose, onPublishSuccess }: Recr
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">Job Description</label>
-              <span className="text-[9px] font-medium text-zinc-600">{description.length}/350</span>
+              <span className="text-[9px] font-medium text-zinc-600">{description.length}/250</span>
             </div>
             <textarea 
               rows={3}
-              maxLength={350}
+              maxLength={250}
               placeholder="Outline parameters/context..."
               value={description} 
               onChange={(e) => setDescription(e.target.value)}
