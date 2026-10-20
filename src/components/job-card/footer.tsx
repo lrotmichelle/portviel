@@ -3,17 +3,18 @@ import React from 'react';
 interface FooterProps {
   status: 'apply' | 'paused' | 'filled' | 'acquired';
   onApply?: () => void;
+  onEdit?: () => void;
   isOwnJob?: boolean;
   applicationStatus?: 'pending' | 'accepted' | 'rejected' | null;
 }
 
-export const Footer: React.FC<FooterProps> = ({ status, onApply, isOwnJob = false, applicationStatus = null }) => {
+export const Footer: React.FC<FooterProps> = ({ status, onApply, onEdit, isOwnJob = false, applicationStatus = null }) => {
   const getButtonConfig = () => {
     if (isOwnJob) {
       return {
-        text: "Can't apply to your own job",
-        isDisabled: true,
-        styles: 'border-zinc-800 text-zinc-500 cursor-not-allowed'
+        text: 'Edit Vacancy',
+        isDisabled: false,
+        styles: 'border-blue-500/80 text-blue-400 hover:bg-blue-500 active:bg-blue-500 hover:text-white active:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.2)]'
       };
     }
 
@@ -78,7 +79,7 @@ export const Footer: React.FC<FooterProps> = ({ status, onApply, isOwnJob = fals
       <button
         type="button"
         disabled={button.isDisabled}
-        onClick={onApply}
+        onClick={isOwnJob ? onEdit : onApply}
         className={`w-full py-2.5 px-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-200 bg-transparent border select-none ${button.styles}`}
       >
         {button.text}

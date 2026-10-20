@@ -65,6 +65,9 @@ export default function ManageVacanciesPage() {
   const handleApplyJob = () => {
     // Employer viewing their own jobs - no apply action needed
   };
+  const handleEditJob = (job: any) => {
+    alert(`Edit vacancy: ${job.title}`);
+  };
 
   const appliedJobsList = mockJobs.filter((job) => appliedJobIds[job.id]);
 
@@ -84,7 +87,7 @@ export default function ManageVacanciesPage() {
           <h2 className="text-lg font-semibold mb-4">Vacancies ({ownJobs.length})</h2>
           <Grid>
             {ownJobs.map((job) => (
-              <JobCard key={job.id} job={job} onApply={handleApplyJob} currentAccount={{ type: 'employee', id: 'acc-employee-1' }} />
+              <JobCard key={job.id} job={job} onApply={handleApplyJob} onEdit={handleEditJob} currentAccount={{ type: 'employee', id: 'acc-employee-1' }} />
             ))}
           </Grid>
         </div>
