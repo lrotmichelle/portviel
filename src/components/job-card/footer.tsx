@@ -5,12 +5,20 @@ interface FooterProps {
   onApply?: () => void;
   onEdit?: () => void;
   isOwnJob?: boolean;
+  canEdit?: boolean;
   applicationStatus?: 'pending' | 'accepted' | 'rejected' | null;
 }
 
-export const Footer: React.FC<FooterProps> = ({ status, onApply, onEdit, isOwnJob = false, applicationStatus = null }) => {
+export const Footer: React.FC<FooterProps> = ({ status, onApply, onEdit, isOwnJob = false, canEdit = true, applicationStatus = null }) => {
   const getButtonConfig = () => {
     if (isOwnJob) {
+      if (!canEdit) {
+        return {
+          text: 'Edit limit reached',
+          isDisabled: true,
+          styles: 'border-zinc-800 text-zinc-500 cursor-not-allowed'
+        };
+      }
       return {
         text: 'Edit Vacancy',
         isDisabled: false,

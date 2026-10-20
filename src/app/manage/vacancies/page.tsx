@@ -69,18 +69,34 @@ export default function ManageVacanciesPage() {
     // Employer viewing their own jobs - no apply action needed
   };
   const handleEditJob = (job: any) => {
+    const now = Date.now();
+    const lastEdit = job.lastEditedAt ? new Date(job.lastEditedAt).getTime() : 0;
+    const daysSinceEdit = (now - lastEdit) / (1000 * 60 * 60 * 24);
+    const maxEdits = (job.daysRemaining || 14) >= 21 ? 2 : 1;
+    const editsUsed = job.editCount || 0;
+
+    if (daysSinceEdit < 7 && editsUsed >= maxEdits) {
+      alert('Edit limit reached. You can edit again after 7 days.');
+      return;
+    }
+
     setEditingJob(job);
     setIsEditOpen(true);
   };
 
   const handleSaveEdit = (updatedJob: any) => {
-    setOwnJobs((prev) => prev.map((j) => (j.id === updatedJob.id ? updatedJob : j)));
-    // Also update localStorage
+    const now = new Date().toISOString();
+    const updated = {
+      ...updatedJob,
+      editCount: (updatedJob.editCount || 0) + 1,
+      lastEditedAt: now,
+    };
+    setOwnJobs((prev) => prev.map((j) => (j.id === updated.id ? updated : j)));
     const stored = localStorage.getItem('employer-jobs');
     if (stored) {
       const jobs: JobOffer[] = JSON.parse(stored);
-      const updated = jobs.map((j) => (j.id === updatedJob.id ? updatedJob : j));
-      localStorage.setItem('employer-jobs', JSON.stringify(updated));
+      const updatedJobs = jobs.map((j) => (j.id === updated.id ? updated : j));
+      localStorage.setItem('employer-jobs', JSON.stringify(updatedJobs));
     }
   };
 
@@ -101,9 +117,17 @@ export default function ManageVacanciesPage() {
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4">Vacancies ({ownJobs.length})</h2>
           <Grid>
-            {ownJobs.map((job) => (
-              <JobCard key={job.id} job={job} onApply={handleApplyJob} onEdit={handleEditJob} currentAccount={{ type: 'employee', id: 'acc-employee-1' }} />
-            ))}
+            {ownJobs.map((job: any) => {
+            const now = Date.now();
+            const lastEdit = job.lastEditedAt ? new Date(job.lastEditedAt).getTime() : 0;
+            const daysSinceEdit = (now - lastEdit) / (1000 * 60 * 60 * 24);
+            const maxEdits = (job.daysRemaining || 14) >= 21 ? 2 : 1;
+            const editsUsed = job.editCount || 0;
+            const canEdit = !(daysSinceEdit < 7 && editsUsed >= maxEdits);
+            return (
+              <JobCard key={job.id} job={job} onApply={handleApplyJob} onEdit={handleEditJob} currentAccount={{ type: 'employee', id: 'acc-employee-1' }} canEdit={canEdit} />
+            );
+          })}
           </Grid>
         </div>
       )}
