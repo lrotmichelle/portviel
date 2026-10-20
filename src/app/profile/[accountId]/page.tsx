@@ -6,6 +6,18 @@ import { useState } from 'react';
 
 export default function ProfilePage({ params }: { params: { accountId: string } }) {
   const { accountId } = params;
+
+  const profile = {
+    name: 'John Doe',
+    role: 'Employer',
+    bio: 'Passionate about building great products and connecting talent with opportunity.',
+    dateJoined: '2025-01-15',
+    rating: 4.5,
+    totalRatings: 12,
+    sales: 12500000,
+    invested: 3200000,
+  };
+
   const [userRating, setUserRating] = useState(0);
   const [rating, setRating] = useState(profile.rating);
   const [totalRatings, setTotalRatings] = useState(profile.totalRatings);
@@ -18,17 +30,6 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
     setRating(newRating);
     setTotalRatings(newTotal);
     setUserRating(star);
-  };
-
-  const profile = {
-    name: 'John Doe',
-    role: 'Employer',
-    bio: 'Passionate about building great products and connecting talent with opportunity.',
-    dateJoined: '2025-01-15',
-    rating: 4.5,
-    totalRatings: 12,
-    sales: 12500000,
-    invested: 3200000,
   };
 
   const discoverJobs = [
@@ -47,10 +48,6 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
     { account: 'Beta Inc', type: 'purchased', amount: 420000 },
     { account: 'Gamma Ltd', type: 'sold', amount: 1100000 },
   ];
-
-  const handleRate = (rating: number) => {
-    setUserRating(rating);
-  };
 
   const formatUGX = (amount: number) => {
     if (amount >= 1000000) return `UGX ${(amount / 1000000).toFixed(1)}M`;
