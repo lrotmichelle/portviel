@@ -14,6 +14,7 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
     bio: 'Passionate about building great products and connecting talent with opportunity.',
     dateJoined: '2025-01-15',
     rating: 4.5,
+    totalRatings: 12,
     sales: 12500000,
     invested: 3200000,
   };
@@ -70,7 +71,7 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Rating</p>
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
-                <span className="text-white font-medium">{profile.rating.toFixed(1)}</span>
+                <span className="text-white font-medium">{profile.rating.toFixed(1)} / {profile.totalRatings}</span>
               </div>
             </div>
             <div className="bg-zinc-900/50 rounded-xl p-3">
