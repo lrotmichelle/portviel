@@ -19,8 +19,7 @@ export const Content: React.FC<ContentProps> = ({
   requirements = [] 
 }) => {
   return (
-    <div className="mt-3.5 space-y-4">
-      
+    <div className="mt-3.5 flex flex-col h-full">
       {title && (
         <h3 className="text-sm font-semibold text-zinc-100 tracking-wide">
           {title}
@@ -43,11 +42,6 @@ export const Content: React.FC<ContentProps> = ({
             {requirements.map((skill, index) => (
               <span 
                 key={index} 
-                /* 
-                  BORDERLESS FLAT UPGRADE: 
-                  Removed border, hover:border-zinc-700/60, and bg-zinc-900/20. 
-                  Replaced with a clean, flat bg-zinc-900 surface.
-                */
                 className="text-[10px] font-semibold tracking-wide text-zinc-400 rounded-md px-2.5 py-1 bg-zinc-900 transition-colors cursor-default"
               >
                 {skill}
@@ -56,6 +50,9 @@ export const Content: React.FC<ContentProps> = ({
           </div>
         </div>
       )}
+
+      {/* Spacer to push metrics to bottom */}
+      <div className="flex-1" />
 
       {/* 3. Reordered and re-aligned metrics matrix */}
       <div className="grid grid-cols-3 gap-2 bg-transparent p-2.5 rounded-xl border border-zinc-800 text-center">
@@ -88,7 +85,6 @@ export const Content: React.FC<ContentProps> = ({
         </div>
 
       </div>
-
     </div>
   );
 };

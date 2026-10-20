@@ -9,7 +9,7 @@ export default function JobCard({ job, onApply, currentAccount }: { job: any; on
 
   return (
     <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between h-full hover:border-zinc-700 transition-all duration-200 shadow-xl">
-      <div>
+      <div className="flex flex-col flex-1">
         <Header 
           name={job.employerName} 
           handle={job.handle || '@company'} 
@@ -19,7 +19,7 @@ export default function JobCard({ job, onApply, currentAccount }: { job: any; on
           niche={job.title} 
           maxSalary={job.maxSalary} 
         />
-        <div className="my-4">
+        <div className="my-4 flex-1">
           <Content 
             title={job.title} 
             requiredPeople={job.requiredPeople} 
