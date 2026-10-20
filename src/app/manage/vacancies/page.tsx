@@ -6,6 +6,7 @@ import JobCard from '@/components/job-card';
 import Grid from '@/components/layout/grid';
 import type { JobOffer } from '@/components/job-card/data';
 import { mockJobs } from '@/components/job-card/data';
+import EditVacancyModal from '@/components/layout/edit-vacancy-modal';
 
 interface VacancyItem {
   id: string;
@@ -20,6 +21,8 @@ export default function ManageVacanciesPage() {
   const [items, setItems] = useState<VacancyItem[]>([]);
   const [ownJobs, setOwnJobs] = useState<JobOffer[]>([]);
   const [appliedJobIds, setAppliedJobIds] = useState<Record<string, 'pending' | 'accepted' | 'rejected'>>({});
+  const [editingJob, setEditingJob] = useState<JobOffer | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -66,7 +69,19 @@ export default function ManageVacanciesPage() {
     // Employer viewing their own jobs - no apply action needed
   };
   const handleEditJob = (job: any) => {
-    alert(`Edit vacancy: ${job.title}`);
+    setEditingJob(job);
+    setIsEditOpen(true);
+  };
+
+  const handleSaveEdit = (updatedJob: any) => {
+    setOwnJobs((prev) => prev.map((j) => (j.id === updatedJob.id ? updatedJob : j)));
+    // Also update localStorage
+    const stored = localStorage.getItem('employer-jobs');
+    if (stored) {
+      const jobs: JobOffer[] = JSON.parse(stored);
+      const updated = jobs.map((j) => (j.id === updatedJob.id ? updatedJob : j));
+      localStorage.setItem('employer-jobs', JSON.stringify(updated));
+    }
   };
 
   const appliedJobsList = mockJobs.filter((job) => appliedJobIds[job.id]);
@@ -111,6 +126,12 @@ export default function ManageVacanciesPage() {
         </div>
       )}
 
+      <EditVacancyModal
+        isOpen={isEditOpen}
+        job={editingJob}
+        onClose={() => setIsEditOpen(false)}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 }
