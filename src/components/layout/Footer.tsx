@@ -83,23 +83,23 @@ export default function Footer() {
 
     return (
         <footer className="bg-zinc-950 border-t border-zinc-900 text-gray-400 text-sm mt-auto w-full">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 min-[520px]:px-8 py-6 md:py-8">
 
                 {/* Main responsive row container */}
-                <div className="flex flex-col lg:flex-row items-stretch justify-between gap-y-6 lg:gap-y-0 lg:divide-x lg:divide-zinc-800 w-full">
+                <div className="flex flex-col min-[520px]:flex-row items-stretch justify-between gap-y-6 min-[520px]:gap-y-0 min-[520px]:divide-x min-[520px]:divide-zinc-800 w-full">
 
                     {/* Column 1: Brand Info */}
-                    <div className="w-full lg:w-1/4 text-center lg:text-left flex flex-col items-center lg:items-start justify-start space-y-2 lg:pr-6 pb-2 lg:pb-0">
-                        <div className="flex items-center justify-center lg:justify-start gap-2">
+                    <div className="w-full min-[520px]:w-1/4 text-center min-[520px]:text-left flex flex-col items-center min-[520px]:items-start justify-start space-y-2 min-[520px]:pr-6 pb-2 min-[520px]:pb-0">
+                        <div className="flex items-center justify-center min-[520px]:justify-start gap-2">
                             <span className="text-base font-bold text-white tracking-tight">
                                 {data.company.name}
                             </span>
                         </div>
-                        <p className="text-[11px] text-gray-400 leading-normal max-w-xs text-center lg:text-left">
+                        <p className="text-[11px] text-gray-400 leading-normal max-w-xs text-center min-[520px]:text-left">
                             {data.company.description}
                         </p>
 
-                        <ul className="flex justify-center lg:justify-start gap-4 pt-1 text-sm">
+                        <ul className="flex justify-center min-[520px]:justify-start gap-4 pt-1 text-sm">
                             {socialLinks.map(({ label, href }) => (
                                 <li key={label}>
                                     <Link href={href} className="text-gray-500 hover:text-white transition-colors">
@@ -111,10 +111,10 @@ export default function Footer() {
                     </div>
 
                     {/* Combined Desktop Grid / Mobile side-by-side split container */}
-                    <div className="w-full lg:w-3/4 grid grid-cols-2 lg:grid-cols-3 divide-x divide-zinc-800 lg:px-6 items-start pt-2 lg:pt-0">
+                    <div className="w-full min-[520px]:w-3/4 grid grid-cols-2 min-[520px]:grid-cols-3 divide-x divide-zinc-800 min-[520px]:px-6 items-start pt-2 min-[520px]:pt-0">
 
                         {/* Column 2: Legal / Info Links */}
-                        <div className="text-center w-full space-y-1 pr-2 lg:px-4">
+                        <div className="text-center w-full space-y-1 pr-2 min-[520px]:px-4">
                             <h3 className="font-semibold text-white text-xs uppercase tracking-wider mb-1">
                                 Platform
                             </h3>
@@ -130,7 +130,7 @@ export default function Footer() {
                         </div>
 
                         {/* Column 3: Navigation Hub */}
-                        <div className="text-center w-full space-y-1 hidden lg:block lg:px-4">
+                        <div className="text-center w-full space-y-1 hidden min-[520px]:block min-[520px]:px-4">
                             <h3 className="font-semibold text-white text-xs uppercase tracking-wider mb-1">
                                 Explore
                             </h3>
@@ -146,11 +146,11 @@ export default function Footer() {
                         </div>
 
                         {/* Column 4: Contact Us Content */}
-                        <div className="text-center lg:text-right w-full space-y-1 pl-4 lg:pl-6 flex flex-col items-center lg:items-end">
+                        <div className="text-center min-[520px]:text-right w-full space-y-1 pl-4 min-[520px]:pl-6 flex flex-col items-center min-[520px]:items-end">
                             <h3 className="font-semibold text-white text-xs uppercase tracking-wider mb-1">
                                 Contact Us
                             </h3>
-                            <ul className="space-y-2 text-[11px] flex flex-col items-center lg:items-end w-full">
+                            <ul className="space-y-2 text-[11px] flex flex-col items-center min-[520px]:items-end w-full">
                                 {/* Email - direct mailto */}
                                 <li className="text-gray-400 flex items-center gap-2">
                                     <Mail className="h-4 w-4 text-zinc-500" />
@@ -163,7 +163,7 @@ export default function Footer() {
                                 </li>
                                 {/* Phone - with dropdown options */}
                                 <li className="text-gray-400 relative">
-                                    <div className="flex items-center gap-2 justify-center lg:justify-end">
+                                    <div className="flex items-center gap-2 justify-center min-[520px]:justify-end">
                                         <Phone className="h-4 w-4 text-zinc-500" />
                                         <button
                                             onClick={handlePhoneClick}
@@ -209,8 +209,8 @@ export default function Footer() {
                                     )}
                                 </li>
                                 {/* Address */}
-                                <li className="text-gray-400 flex items-center gap-2 justify-center lg:justify-end">
-                                    <address className="not-italic text-center lg:text-right max-w-[130px] sm:max-w-none">
+                                <li className="text-gray-400 flex items-center gap-2 justify-center min-[520px]:justify-end">
+                                    <address className="not-italic text-center min-[520px]:text-right max-w-[130px] sm:max-w-none">
                                         {data.contact.address}
                                     </address>
                                 </li>
