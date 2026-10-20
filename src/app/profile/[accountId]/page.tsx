@@ -169,6 +169,12 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
           </div>
         </section>
 
+        {/* Account Bio */}
+        <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
+          <h2 className="text-lg font-semibold text-white mb-2">Account Bio</h2>
+          <p className="text-zinc-300 text-sm">{profile.bio}</p>
+        </section>
+
         {/* Star Rating */}
         <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
           <div className="flex flex-col gap-4">
@@ -198,12 +204,6 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
               {userRating === 0 ? 'Tap a star to rate this account' : `You rated this account ${userRating} star${userRating > 1 ? 's' : ''}`}
             </p>
           </div>
-        </section>
-
-        {/* Account Bio */}
-        <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
-          <h2 className="text-lg font-semibold text-white mb-2">Account Bio</h2>
-          <p className="text-zinc-300 text-sm">{profile.bio}</p>
         </section>
       </div>
     </main>
