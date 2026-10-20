@@ -169,42 +169,43 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
           </div>
         </section>
 
-        {/* Account Bio */}
-        <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
-          <h2 className="text-lg font-semibold text-white mb-2">Account Bio</h2>
-          <p className="text-zinc-300 text-sm">{profile.bio}</p>
-        </section>
+        {/* Account Bio + Rate this account */}
+        <div className="flex flex-col min-[500px]:flex-row gap-4">
+          <section className="rounded-2xl border border-zinc-800/60 bg-black p-6 flex-1">
+            <h2 className="text-lg font-semibold text-white mb-2">Account Bio</h2>
+            <p className="text-zinc-300 text-sm">{profile.bio}</p>
+          </section>
 
-        {/* Star Rating */}
-        <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold text-white">Rate this account</h2>
-              <span className={`ml-2 text-[12px] font-bold ${userRating > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>
-                {userRating} / 5
-              </span>
+          <section className="rounded-2xl border border-zinc-800/60 bg-black p-6 flex-1">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-white">Rate this account</h2>
+                <span className={`ml-2 text-[12px] font-bold ${userRating > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>
+                  {userRating} / 5
+                </span>
+              </div>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => handleRate(star)}
+                    className={`w-8 h-8 rounded transition-colors duration-200 ${
+                      star <= userRating
+                        ? 'text-amber-400 fill-amber-400 stroke-amber-400'
+                        : 'text-zinc-700 hover:text-amber-400'
+                    }`}
+                  >
+                    <Star className="w-full h-full fill-current stroke-current" />
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-zinc-500 mt-2">
+                {userRating === 0 ? 'Tap a star to rate this account' : `You rated this account ${userRating} star${userRating > 1 ? 's' : ''}`}
+              </p>
             </div>
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => handleRate(star)}
-                  className={`w-8 h-8 rounded transition-colors duration-200 ${
-                    star <= userRating
-                      ? 'text-amber-400 fill-amber-400 stroke-amber-400'
-                      : 'text-zinc-700 hover:text-amber-400'
-                  }`}
-                >
-                  <Star className="w-full h-full fill-current stroke-current" />
-                </button>
-              ))}
-            </div>
-            <p className="text-[11px] text-zinc-500 mt-2">
-              {userRating === 0 ? 'Tap a star to rate this account' : `You rated this account ${userRating} star${userRating > 1 ? 's' : ''}`}
-            </p>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
     </main>
   );
