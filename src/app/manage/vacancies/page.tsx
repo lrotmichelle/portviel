@@ -108,20 +108,6 @@ export default function ManageVacanciesPage() {
         </div>
       )}
 
-      <div className="space-y-4">
-        {items.length === 0 ? (
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-8 text-sm text-zinc-400">No vacancies published yet.</div>
-        ) : items.map((item) => (
-          <div key={item.id} className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">{item.title}</h2>
-              <span className="rounded-full bg-amber-500/15 px-3 py-1 text-xs text-amber-400">{item.category}</span>
-            </div>
-            <p className="mt-2 text-sm text-zinc-400">{item.description}</p>
-            <p className="mt-3 text-xs uppercase tracking-[0.25em] text-zinc-500">Posted by {item.createdBy}</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
