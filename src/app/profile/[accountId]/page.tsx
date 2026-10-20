@@ -44,7 +44,13 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
     return days >= 30;
   };
 
-const handleRate = (star: number) => {
+const [verified, setVerified] = useState(false);
+
+  const handleVerify = () => {
+    setVerified(true);
+  };
+
+  const handleRate = (star: number) => {
     if (isOwnProfile) return;
     const newTotal = totalRatings + 1;
     const newRating = Math.min(4.9, (rating * totalRatings + star) / newTotal);
@@ -96,7 +102,19 @@ const handleRate = (star: number) => {
           <Link href="/discover" className="inline-flex items-center gap-2 text-xs text-emerald-400 hover:text-emerald-300 underline">
             ← Back to Discover
           </Link>
-          <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight">{name}</h1>
+            {verified && (
+              <span className="text-amber-400" title="Verified">
+                <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </span>
+            )}
+            {!verified && isOwnProfile && (
+              <button onClick={handleVerify} className="px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase rounded-lg hover:bg-amber-500/20 transition-colors">
+                Verify Account
+              </button>
+            )}
+          </div>
         </header>
 
         {/* Account Summary */}
