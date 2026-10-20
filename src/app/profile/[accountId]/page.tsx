@@ -130,8 +130,8 @@ const [verified, setVerified] = useState(false);
         </header>
 
         {/* Account Summary */}
+        <h2 className="text-lg font-semibold text-white mb-2">Account Summary</h2>
         <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Account Summary</h2>
           <div className="grid w-full gap-3 md:grid-cols-2">
             <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Name</p>
