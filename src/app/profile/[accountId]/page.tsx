@@ -57,35 +57,31 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
         {/* Account Summary */}
         <section className="rounded-2xl border border-zinc-800/60 bg-black p-6">
           <h2 className="text-lg font-semibold text-white mb-4">Account Summary</h2>
-          <div className="grid w-full gap-4 md:grid-cols-2">
-            <div className="bg-zinc-900/50 rounded-xl p-4">
+          <div className="grid w-full gap-3 md:grid-cols-2">
+            <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Name</p>
               <p className="text-white font-medium">{profile.name}</p>
             </div>
-            <div className="bg-zinc-900/50 rounded-xl p-4">
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Account ID</p>
-              <p className="text-white font-medium">{accountId}</p>
-            </div>
-            <div className="bg-zinc-900/50 rounded-xl p-4">
+            <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Role</p>
               <p className="text-white font-medium">{profile.role}</p>
             </div>
-            <div className="bg-zinc-900/50 rounded-xl p-4">
+            <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Rating</p>
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
                 <span className="text-white font-medium">{profile.rating.toFixed(1)}</span>
               </div>
             </div>
-            <div className="bg-zinc-900/50 rounded-xl p-4">
+            <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Date Joined</p>
               <p className="text-white font-medium">{profile.dateJoined}</p>
             </div>
-            <div className="bg-zinc-900/50 rounded-xl p-4">
+            <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Sales (Total Collected)</p>
               <p className="text-white font-medium">{formatUGX(profile.sales)}</p>
             </div>
-            <div className="bg-zinc-900/50 rounded-xl p-4">
+            <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Invested (Campaigns)</p>
               <p className="text-white font-medium">{formatUGX(profile.invested)}</p>
             </div>
