@@ -23,13 +23,48 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
   const [totalRatings, setTotalRatings] = useState(profile.totalRatings);
   const isOwnProfile = accountId === 'acc-employee-1';
 
-  const handleRate = (star: number) => {
+  const [name, setName] = useState(profile.name);
+  const [bio, setBio] = useState(profile.bio);
+  const [editingName, setEditingName] = useState(false);
+  const [editingBio, setEditingBio] = useState(false);
+  const [nameInput, setNameInput] = useState(profile.name);
+  const [bioInput, setBioInput] = useState(profile.bio);
+
+  const canEditName = () => {
+    const last = localStorage.getItem(`name-edit-${accountId}`);
+    if (!last) return true;
+    const days = (Date.now() - new Date(last).getTime()) / (1000 * 60 * 60 * 24);
+    return days >= 365;
+  };
+
+  const canEditBio = () => {
+    const last = localStorage.getItem(`bio-edit-${accountId}`);
+    if (!last) return true;
+    const days = (Date.now() - new Date(last).getTime()) / (1000 * 60 * 60 * 24);
+    return days >= 30;
+  };
+
+const handleRate = (star: number) => {
     if (isOwnProfile) return;
     const newTotal = totalRatings + 1;
     const newRating = Math.min(4.9, (rating * totalRatings + star) / newTotal);
     setRating(newRating);
     setTotalRatings(newTotal);
     setUserRating(star);
+  };
+
+  const saveName = () => {
+    if (!canEditName()) return;
+    setName(nameInput);
+    localStorage.setItem(`name-edit-${accountId}`, new Date().toISOString());
+    setEditingName(false);
+  };
+
+  const saveBio = () => {
+    if (!canEditBio()) return;
+    setBio(bioInput);
+    localStorage.setItem(`bio-edit-${accountId}`, new Date().toISOString());
+    setEditingBio(false);
   };
 
   const discoverJobs = [
@@ -70,7 +105,20 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
           <div className="grid w-full gap-3 md:grid-cols-2">
             <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Name</p>
-              <p className="text-white font-medium">{profile.name}</p>
+              {isOwnProfile && editingName ? (
+                <div className="flex gap-2">
+                  <input value={nameInput} onChange={(e) => setNameInput(e.target.value)} className="bg-zinc-800 text-white text-sm rounded px-2 py-1 flex-1" />
+                  <button onClick={saveName} className="text-emerald-400 text-xs">Save</button>
+                  <button onClick={() => setEditingName(false)} className="text-zinc-500 text-xs">Cancel</button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="text-white font-medium">{name}</p>
+                  {isOwnProfile && canEditName() && (
+                    <button onClick={() => { setNameInput(name); setEditingName(true); }} className="text-blue-400 text-xs">Edit</button>
+                  )}
+                </div>
+              )}
             </div>
             <div className="bg-zinc-900/50 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Role</p>
@@ -179,7 +227,22 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
         <div className="flex flex-col min-[500px]:flex-row gap-4">
           <section className="rounded-2xl border border-zinc-800/60 bg-black p-6 flex-1">
             <h2 className="text-lg font-semibold text-white mb-2">Account Bio</h2>
-            <p className="text-zinc-300 text-sm">{profile.bio}</p>
+            {isOwnProfile && editingBio ? (
+              <div className="space-y-2">
+                <textarea value={bioInput} onChange={(e) => setBioInput(e.target.value)} maxLength={250} rows={3} className="w-full bg-zinc-800 text-white text-sm rounded px-2 py-1" />
+                <div className="flex gap-2">
+                  <button onClick={saveBio} className="text-emerald-400 text-xs">Save</button>
+                  <button onClick={() => setEditingBio(false)} className="text-zinc-500 text-xs">Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p className="text-zinc-300 text-sm">{bio}</p>
+                {isOwnProfile && canEditBio() && (
+                  <button onClick={() => { setBioInput(bio); setEditingBio(true); }} className="text-blue-400 text-xs mt-2">Edit Bio</button>
+                )}
+              </div>
+            )}
           </section>
 
           <section className="rounded-2xl border border-zinc-800/60 bg-black p-6 flex-1">
