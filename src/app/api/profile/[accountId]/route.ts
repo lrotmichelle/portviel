@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { readFileSync, existsSync } from 'fs';
+import path from 'path';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -8,35 +10,48 @@ export async function GET(
   { params }: { params: Promise<{ accountId: string }> }
 ) {
   const { accountId } = await params;
+  const dataDir = path.join(process.cwd(), 'data', 'profile', accountId);
 
-  // Mock profile data - replace with DB queries
-  const profile = {
-    accountId,
-    name: 'John Doe',
-    role: 'Employer',
-    bio: 'Passionate about building great products and connecting talent with opportunity.',
-    dateJoined: '2025-01-15',
-    rating: 4.5,
-    totalRatings: 12,
-    sales: 12500000,
-    invested: 3200000,
-    verified: false,
-    verificationType: null,
-    discoverJobs: [
-      { title: 'Social Media Manager', vacants: 3, recruited: 2 },
-      { title: 'Frontend Developer', vacants: 5, recruited: 4 },
-      { title: 'Graphics Illustrator', vacants: 2, recruited: 0 },
-    ],
-    campaigns: [
-      { name: 'Brand Awareness Q1', members: 12, rank: 3, amount: 500000 },
-      { name: 'Product Launch', members: 8, rank: 1, amount: 1200000 },
-    ],
-    marketTransactions: [
-      { account: 'Acme Corp', type: 'sold', amount: 850000 },
-      { account: 'Beta Inc', type: 'purchased', amount: 420000 },
-      { account: 'Gamma Ltd', type: 'sold', amount: 1100000 },
-    ],
-  };
+  try {
+    const readJson = (file: string) => {
+      const filePath = path.join(dataDir, file);
+      if (!existsSync(filePath)) return null;
+      return JSON.parse(readFileSync(filePath, 'utf8'));
+    };
 
-  return NextResponse.json(profile);
+    const summary = readJson('account-summary.txt') || {};
+    const discoverJobs = readJson('discover-activity.txt') || [];
+    const campaigns = readJson('campaign-activity.txt') || [];
+    const marketTransactions = readJson('market-activity.txt') || [];
+    const bioData = readJson('account-bio.txt') || {};
+    const ratingsData = readJson('account-ratings.txt') || {};
+    const nameData = readJson('account-name.txt') || {};
+
+    const profile = {
+      accountId,
+      name: nameData.name || summary.name || 'Unknown',
+      role: summary.role || 'User',
+      bio: bioData.bio || summary.bio || '',
+      dateJoined: summary.dateJoined || 'N/A',
+      rating: ratingsData.rating ?? summary.rating ?? 0,
+      totalRatings: ratingsData.totalRatings ?? summary.totalRatings ?? 0,
+      sales: summary.sales || 0,
+      invested: summary.invested || 0,
+      verified: summary.verified || false,
+      verificationType: summary.verificationType || null,
+      discoverJobs,
+      campaigns,
+      marketTransactions,
+    };
+
+    return NextResponse.json(profile, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+      },
+    });
+  } catch (error) {
+    console.error('Profile data error:', error);
+    return NextResponse.json({ error: 'Failed to load profile' }, { status: 500 });
+  }
 }
+
