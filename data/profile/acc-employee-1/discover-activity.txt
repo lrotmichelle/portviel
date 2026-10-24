@@ -1,0 +1,1 @@
+[{"title": "Social Media Manager", "vacants": 3, "recruited": 2}, {"title": "Frontend Developer", "vacants": 5, "recruited": 4}, {"title": "Graphics Illustrator", "vacants": 2, "recruited": 0}]

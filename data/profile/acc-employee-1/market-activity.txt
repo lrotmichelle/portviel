@@ -1,0 +1,1 @@
+[{"account": "Acme Corp", "type": "sold", "amount": 850000}, {"account": "Beta Inc", "type": "purchased", "amount": 420000}, {"account": "Gamma Ltd", "type": "sold", "amount": 1100000}]

@@ -1,0 +1,1 @@
+[{"name": "Brand Awareness Q1", "members": 12, "rank": 3, "amount": 500000}, {"name": "Product Launch", "members": 8, "rank": 1, "amount": 1200000}]
