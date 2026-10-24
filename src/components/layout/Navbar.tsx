@@ -11,6 +11,7 @@ const navLinks = [
     { href: "/campaign", label: "Campaign" },
     { href: "/market", label: "Market" },
     { href: "/office", label: "Office" },
+    { href: "/office/profile", label: "Profile" },
 ]
 
 export default function Navbar() {
@@ -57,6 +58,7 @@ export default function Navbar() {
                     <Link href="/campaign" className="text-sm font-medium hover:underline">Campaign</Link>
                     <Link href="/market" className="text-sm font-medium hover:underline">Market</Link>
                     <Link href="/office" className="text-sm font-medium hover:underline">Office</Link>
+                    <Link href="/office/profile" className="text-sm font-medium hover:underline">Profile</Link>
                 </nav>
 
                 <div className="flex items-center space-x-1 sm:space-x-5">
