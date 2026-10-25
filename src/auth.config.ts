@@ -1,16 +1,6 @@
 import type { NextAuthConfig } from 'next-auth';
 import Google from 'next-auth/providers/google';
 
-const publicPaths = [
-  '/auth/login',
-  '/auth/signup',
-  '/auth/forgot-password',
-  '/auth/reset-password',
-  '/api/auth',
-  '/privacy',
-  '/terms',
-];
-
 const authConfig = {
   providers: [
     Google({
@@ -26,7 +16,7 @@ const authConfig = {
     }),
   ],
   pages: {
-    signIn: '/auth/login',
+    signIn: '/',
   },
   session: {
     strategy: 'jwt',
@@ -34,11 +24,9 @@ const authConfig = {
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   trustHost: true,
   callbacks: {
-    authorized({ auth, request }) {
-      const { pathname } = request.nextUrl;
-      if (publicPaths.some((path) => pathname.startsWith(path))) return true;
-      return Boolean(auth);
-    },
+    // The Next.js proxy applies the site's public-route allowlist itself and
+    // redirects to a URL based on the current request, not a stale AUTH_URL.
+    authorized: () => true,
     jwt({ token, user, account }) {
       if (user) token.role = user.role;
       if (account) token.provider = account.provider;

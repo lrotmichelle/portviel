@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 // Import directly from your layout components folder
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import SiteChrome from "@/components/layout/SiteChrome";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { NegotiationProvider } from "@/context/NegotiationContext";
 
@@ -25,16 +24,7 @@ export default function RootLayout({
       <body className="min-h-screen m-0 p-0 flex flex-col bg-background text-foreground antialiased">
         <NotificationProvider>
           <NegotiationProvider>
-            {/* Persistent top navbar */}
-            <Navbar />
-
-            {/* Main canvas area expands to fill empty space */}
-            <main className="flex-grow">
-              {children}
-            </main>
-
-            {/* Persistent bottom footer */}
-            <Footer />
+            <SiteChrome>{children}</SiteChrome>
           </NegotiationProvider>
         </NotificationProvider>
       </body>
