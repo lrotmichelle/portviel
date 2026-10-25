@@ -8,8 +8,9 @@
   },
   "scripts": {
     "dev": "node scripts/run-migrations.mjs && node scripts/run-with-local-env.mjs node_modules/next/dist/bin/next dev -H 0.0.0.0",
-    "build": "node scripts/run-migrations.mjs && node scripts/run-with-local-env.mjs node_modules/next/dist/bin/next build",
-    "start": "node scripts/run-migrations.mjs && node scripts/run-with-local-env.mjs node_modules/next/dist/bin/next start",
+    "build": "node scripts/run-with-local-env.mjs node_modules/next/dist/bin/next build",
+    "start": "node scripts/run-with-local-env.mjs node_modules/next/dist/bin/next start",
+    "db:migrate": "node scripts/run-migrations.mjs",
     "lint": "eslint"
   },
   "dependencies": {

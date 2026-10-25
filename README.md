@@ -1,8 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+PortVille is a Next.js 16 application using PostgreSQL, Drizzle ORM, and Auth.js v5.
 
-## Getting Started
+## Local development
 
-First, run the development server:
+Use Node.js 20.19+ and npm 10+. Create a local `local.env` file with your development `DATABASE_URL`, `NEXTAUTH_SECRET` (or `AUTH_SECRET`), and Google OAuth client credentials. Never commit this file. Then run:
 
 ```bash
 npm run dev
@@ -14,23 +14,17 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The development server may select another port if 3000 is occupied.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The repository includes a Nixpacks configuration for Node.js 20. Set these variables in your hosting provider’s environment:
 
-## Learn More
+- `DATABASE_URL` — PostgreSQL connection string.
+- `AUTH_SECRET` — a unique, randomly generated secret (`NEXTAUTH_SECRET` is also supported for compatibility).
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` — Google OAuth credentials.
+- `AUTH_TRUST_HOST=true` when the app is behind a reverse proxy and the host does not otherwise configure trusted hosts.
 
-To learn more about Next.js, take a look at the following resources:
+Use `npm run build` as the build command and `npm run start` as the start command. Run `npm run db:migrate` as a release/pre-deploy step when database migrations are pending. Set Google’s production redirect URI to `https://<your-domain>/api/auth/callback/google`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Production secrets belong in the hosting provider, never in Git or `local.env`.
