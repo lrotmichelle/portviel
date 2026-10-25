@@ -23,6 +23,15 @@ export default function ManageVacanciesPage() {
   const [appliedJobIds, setAppliedJobIds] = useState<Record<string, 'pending' | 'accepted' | 'rejected'>>({});
   const [editingJob, setEditingJob] = useState<JobOffer | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [nowValue, setNow] = useState(0);
+
+  useEffect(() => {
+    setNow(Date.now());
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -122,7 +131,7 @@ const handleEditJob = (job: any) => {
           <h2 className="text-lg font-semibold mb-4">Vacancies ({ownJobs.length})</h2>
           <Grid>
 {ownJobs.map((job: any) => {
-            const now = Date.now();
+            const now = nowValue;
             const lastEdit = job.lastEditedAt ? new Date(job.lastEditedAt).getTime() : new Date(job.createdAt || now).getTime();
             const daysSinceEdit = (now - lastEdit) / (1000 * 60 * 60 * 24);
             const maxEdits = (job.daysRemaining || 14) >= 21 ? 2 : 1;

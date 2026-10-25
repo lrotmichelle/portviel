@@ -14,7 +14,22 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
   const [totalRatings, setTotalRatings] = useState(0);
   const [verified, setVerified] = useState(false);
   const [verificationType, setVerificationType] = useState<'kyc' | 'admin' | null>(null);
+  const [name, setName] = useState('');
+  const [bio, setBio] = useState('');
+  const [editingName, setEditingName] = useState(false);
+  const [editingBio, setEditingBio] = useState(false);
+  const [nameInput, setNameInput] = useState('');
+  const [bioInput, setBioInput] = useState('');
   const isOwnProfile = accountId === 'acc-employee-1';
+  const [nowValue, setNow] = useState(0);
+
+  useEffect(() => {
+    setNow(Date.now());
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     fetch(`/api/profile/${accountId}`)
@@ -34,24 +49,17 @@ export default function ProfilePage({ params }: { params: { accountId: string } 
       .catch(() => setLoading(false));
   }, [accountId]);
 
-  const [name, setName] = useState('');
-  const [bio, setBio] = useState('');
-  const [editingName, setEditingName] = useState(false);
-  const [editingBio, setEditingBio] = useState(false);
-  const [nameInput, setNameInput] = useState('');
-  const [bioInput, setBioInput] = useState('');
-
   const canEditName = () => {
     const last = localStorage.getItem(`name-edit-${accountId}`);
     if (!last) return true;
-    const days = (Date.now() - new Date(last).getTime()) / (1000 * 60 * 60 * 24);
+    const days = (nowValue - new Date(last).getTime()) / (1000 * 60 * 60 * 24);
     return days >= 365;
   };
 
   const canEditBio = () => {
     const last = localStorage.getItem(`bio-edit-${accountId}`);
     if (!last) return true;
-    const days = (Date.now() - new Date(last).getTime()) / (1000 * 60 * 60 * 24);
+    const days = (nowValue - new Date(last).getTime()) / (1000 * 60 * 60 * 24);
     return days >= 30;
   };
 

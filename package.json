@@ -7,9 +7,9 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "dev": "node scripts/run-migrations.mjs && next dev -H 0.0.0.0",
-    "build": "node scripts/run-migrations.mjs && next build",
-    "start": "node scripts/run-migrations.mjs && next start",
+    "dev": "node scripts/run-migrations.mjs && node scripts/run-with-local-env.mjs node_modules/next/dist/bin/next dev -H 0.0.0.0",
+    "build": "node scripts/run-migrations.mjs && node scripts/run-with-local-env.mjs node_modules/next/dist/bin/next build",
+    "start": "node scripts/run-migrations.mjs && node scripts/run-with-local-env.mjs node_modules/next/dist/bin/next start",
     "lint": "eslint"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "jspdf": "^4.2.1",
     "lucide-react": "^1.21.0",
     "next": "^16.2.12",
+    "next-auth": "^5.0.0-beta.32",
     "pg": "^8.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
