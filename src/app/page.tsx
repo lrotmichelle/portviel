@@ -28,23 +28,23 @@ export default async function WelcomePage() {
             <div>
               <Link href="/" className="inline-flex items-center gap-3 text-lg font-bold tracking-tight">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400 font-black text-slate-950">P</span>
-                PortVille
+                <span className="text-gold-400">PortVille</span>
               </Link>
               <p className="mt-16 text-xs font-semibold uppercase tracking-[0.28em] text-emerald-300">Your next opportunity starts here</p>
-              <h1 className="mt-5 max-w-xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="mt-5 max-w-xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl text-gold-400">
                 One place to build, grow, and trade.
               </h1>
-              <p className="mt-6 max-w-lg text-base leading-7 text-slate-300 sm:text-lg">
+              <p className="mt-6 max-w-lg text-base leading-7 text-pale-yellow-300 sm:text-lg">
                 Discover work, join campaigns, and explore a trusted marketplace—all with your PortVille account.
               </p>
             </div>
-            <p className="mt-16 text-xs text-slate-500">A connected marketplace for people, creators, and businesses.</p>
+            <p className="mt-16 text-xs text-pale-yellow-300">A connected marketplace for people, creators, and businesses.</p>
           </section>
 
           <section className="flex items-center border-t border-white/10 bg-black/20 p-8 sm:p-12 md:border-l md:border-t-0 lg:p-16">
             <div className="mx-auto w-full max-w-sm">
-              <p className="text-sm font-medium text-emerald-300">Welcome to PortVille</p>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight">Sign in to continue</h2>
+              <p className="text-sm font-medium text-green-400">Welcome to PortVille</p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-gold-400">Sign in to continue</h2>
               <p className="mt-3 text-sm leading-6 text-slate-400">Create an account or sign in to access the platform.</p>
 
               <div className="mt-8 space-y-3">
@@ -73,11 +73,11 @@ export default async function WelcomePage() {
               <Link href="/auth/login" className="block w-full rounded-xl border border-emerald-300/40 px-5 py-3.5 text-center text-sm font-semibold text-emerald-200 transition hover:bg-emerald-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
                 Sign in with email
               </Link>
-              <p className="mt-5 text-center text-xs leading-5 text-slate-500">
+              <p className="mt-5 text-center text-xs leading-5 text-pale-yellow-300">
                 By continuing, you agree to our{' '}
-                <Link href="/terms" className="text-slate-300 underline underline-offset-4 hover:text-white">Terms</Link>
+                <Link href="/terms" className="text-pale-yellow-200 underline underline-offset-4 hover:text-pale-yellow-100">Terms</Link>
                 {' '}and{' '}
-                <Link href="/privacy" className="text-slate-300 underline underline-offset-4 hover:text-white">Privacy Policy</Link>.
+                <Link href="/privacy" className="text-pale-yellow-200 underline underline-offset-4 hover:text-pale-yellow-100">Privacy Policy</Link>.
               </p>
             </div>
           </section>

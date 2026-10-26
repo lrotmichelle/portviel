@@ -3,6 +3,7 @@ import "./globals.css";
 
 // Import directly from your layout components folder
 import SiteChrome from "@/components/layout/SiteChrome";
+import AuthSessionProvider from "@/components/auth/AuthSessionProvider";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { NegotiationProvider } from "@/context/NegotiationContext";
 
@@ -22,11 +23,13 @@ export default function RootLayout({
         ADDED: bg-background text-foreground to sync directly with your dark globals variables!
       */}
       <body className="min-h-screen m-0 p-0 flex flex-col bg-background text-foreground antialiased">
-        <NotificationProvider>
-          <NegotiationProvider>
-            <SiteChrome>{children}</SiteChrome>
-          </NegotiationProvider>
-        </NotificationProvider>
+        <AuthSessionProvider>
+          <NotificationProvider>
+            <NegotiationProvider>
+              <SiteChrome>{children}</SiteChrome>
+            </NegotiationProvider>
+          </NotificationProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

@@ -12,24 +12,24 @@ export default function SignupForm({ callbackUrl = '/discover' }: SignupFormProp
     <main className="min-h-screen bg-black flex items-center justify-center px-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-white">Create Account</h1>
-          <p className="text-zinc-400 mt-2">
+          <h1 className="text-3xl font-bold text-green-400">Create Account</h1>
+          <p className="text-gold-400 mt-2">
             Join PortVille today with your Google account
           </p>
         </div>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-zinc-800"></span>
+            <span className="w-full border-t border-gold-500/50"></span>
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-black px-2 text-zinc-500">Continue with</span>
+            <span className="bg-black px-2 text-gold-400">Continue with</span>
           </div>
         </div>
 
         <form action={signInWithGoogle}>
           <input type="hidden" name="callbackUrl" value={callbackUrl} />
-          <button className="w-full py-3 bg-white text-zinc-900 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-zinc-100 transition-colors border border-zinc-200">
+          <button className="w-full py-3 bg-black text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-zinc-900 transition-colors border border-gold-500/50">
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
@@ -53,7 +53,7 @@ export default function SignupForm({ callbackUrl = '/discover' }: SignupFormProp
         </form>
 
         <div className="text-center space-y-2">
-          <Link href="/auth/login" className="text-emerald-400 hover:underline text-sm">
+          <Link href="/auth/login" className="text-green-400 hover:underline text-sm">
             Already have an account? Sign in
           </Link>
         </div>

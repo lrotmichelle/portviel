@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { Star } from 'lucide-react';
 
-export function ProfileComponent({ accountId }: { accountId: string }) {
+export function ProfileComponent({ accountId, userName }: { accountId: string; userName?: string | null }) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,6 +21,7 @@ export function ProfileComponent({ accountId }: { accountId: string }) {
   if (!data) return <div className="text-zinc-400">No profile data</div>;
 
   const profile = data;
+  const displayName = userName?.trim() || profile.name || 'User';
   const formatUGX = (amount: number) => {
     if (amount >= 1000000) return `UGX ${(amount / 1000000).toFixed(1)}M`;
     return `UGX ${Math.floor(amount / 1000)}k`;
@@ -35,7 +35,7 @@ export function ProfileComponent({ accountId }: { accountId: string }) {
     <div className="space-y-4">
       <header className="space-y-2">
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight">{profile.name}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{displayName}</h1>
           {profile.verified && (
             <span className={profile.verificationType === 'kyc' ? 'text-green-500' : 'text-amber-400'}>
               <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -49,7 +49,7 @@ export function ProfileComponent({ accountId }: { accountId: string }) {
         <div className="grid w-full gap-3 md:grid-cols-2">
           <div className="bg-zinc-900/50 rounded-xl p-3">
             <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Name</p>
-            <p className="text-white font-medium">{profile.name}</p>
+            <p className="text-white font-medium">{displayName}</p>
           </div>
           <div className="bg-zinc-900/50 rounded-xl p-3">
             <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Role</p>
