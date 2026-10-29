@@ -74,6 +74,15 @@ async function ensureDatabaseSchema() {
       created_at TIMESTAMP NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMP NOT NULL DEFAULT NOW()
     )`,
+    `ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS username VARCHAR(100)`,
+    `ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS profile_bio TEXT`,
+    `ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS legal_name VARCHAR(255)`,
+    `ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS name_locked BOOLEAN NOT NULL DEFAULT FALSE`,
+    `ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS kyc_status VARCHAR(20) NOT NULL DEFAULT 'not_started'`,
+    `ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS kyc_requested_at TIMESTAMP`,
+    `ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS kyc_verified_at TIMESTAMP`,
+    `ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS is_kyc_verified BOOLEAN NOT NULL DEFAULT FALSE`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS auth_users_username_lower_unique ON auth_users (LOWER(username)) WHERE username IS NOT NULL`,
     `CREATE TABLE IF NOT EXISTS auth_sessions (
       id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
@@ -103,6 +112,23 @@ async function ensureDatabaseSchema() {
       is_trusted BOOLEAN NOT NULL DEFAULT FALSE,
       last_verified_at TIMESTAMP,
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )`,
+    `CREATE TABLE IF NOT EXISTS auth_user_ratings (
+      id SERIAL PRIMARY KEY,
+      target_user_id INTEGER NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
+      rater_user_id INTEGER NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
+      rating DOUBLE PRECISION NOT NULL CHECK (rating >= 1 AND rating <= 5),
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      UNIQUE (target_user_id, rater_user_id),
+      CHECK (target_user_id <> rater_user_id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS campaign_star_votes (
+      id SERIAL PRIMARY KEY,
+      campaign_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      UNIQUE (campaign_id, user_id)
     )`,
 
     /* ========================================================================
@@ -141,8 +167,13 @@ async function ensureDatabaseSchema() {
       campaign_id INTEGER NOT NULL REFERENCES campaign_campaigns(id) ON DELETE CASCADE,
       user_id INTEGER NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
       status VARCHAR(50) NOT NULL DEFAULT 'active',
+      views_generated INTEGER NOT NULL DEFAULT 0,
+      amount DOUBLE PRECISION NOT NULL DEFAULT 0,
       joined_at TIMESTAMP NOT NULL DEFAULT NOW()
     )`,
+    `ALTER TABLE campaign_members ADD COLUMN IF NOT EXISTS views_generated INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE campaign_members ADD COLUMN IF NOT EXISTS amount DOUBLE PRECISION NOT NULL DEFAULT 0`,
+    `ALTER TABLE campaign_members ADD COLUMN IF NOT EXISTS rank INTEGER NOT NULL DEFAULT 0`,
 
     /* ========================================================================
        MARKET SCHEMA
@@ -293,6 +324,16 @@ async function ensureDatabaseSchema() {
       max_salary INTEGER NOT NULL DEFAULT 0,
       status TEXT NOT NULL DEFAULT 'apply',
       status_updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )`,
+    `ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS location TEXT NOT NULL DEFAULT 'Location not specified'`,
+    `ALTER TABLE vacancies ADD COLUMN IF NOT EXISTS salary_period TEXT NOT NULL DEFAULT 'month'`,
+    `CREATE TABLE IF NOT EXISTS vacancy_applications (
+      id SERIAL PRIMARY KEY,
+      vacancy_id INTEGER NOT NULL REFERENCES vacancies(id) ON DELETE CASCADE,
+      applicant_id INTEGER NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      CONSTRAINT vacancy_applications_vacancy_applicant_unique UNIQUE (vacancy_id, applicant_id)
     )`,
     `CREATE TABLE IF NOT EXISTS market_listings_legacy (
       id SERIAL PRIMARY KEY,

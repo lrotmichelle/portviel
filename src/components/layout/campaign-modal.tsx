@@ -516,14 +516,14 @@ export default function CampaignModal({ isOpen, onClose, onPublishSuccess }: Cam
             </div>
 
             <div className="w-full min-[360px]:w-1/2">
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Niche filters (up to 3)</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Role filters (up to 3)</label>
               <div className="flex gap-2">
                 <select
                   value={nicheOption}
                   onChange={(e) => setNicheOption(e.target.value)}
                   className={`flex-1 rounded-xl border border-zinc-800 bg-zinc-900/60 p-2.5 text-sm outline-none ${nicheOption ? 'text-zinc-200' : 'text-zinc-500'}`}
                 >
-                  <option value="" disabled hidden>Choose niche</option>
+                  <option value="" disabled hidden>Choose role</option>
                   {nicheOptions.map((option) => (
                     <option key={option} value={option}>{option}</option>
                   ))}

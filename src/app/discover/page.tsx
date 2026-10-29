@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Search, X, Briefcase, Flame, ArrowUpWideNarrow, UserCheck, Timer, ClipboardList } from 'lucide-react';
 import JobCard from '@/components/job-card';
 import Grid from '@/components/layout/grid';
@@ -16,9 +17,11 @@ type AccountType = 'employer' | 'employee';
 
 export default function DiscoverPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [searchQuery, setSearchQuery] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
   const [activeSort, setActiveSort] = useState<SortFilter>('newest');
-  const [currentAccount] = useState<{ type: AccountType; id: string } | null>({ type: 'employee', id: 'acc-employee-1' });
+  const currentAccount: { type: AccountType; id: string } | null = session?.user?.id ? { type: 'employee', id: `acc-${session.user.id}` } : null;
 
   const [isRecruitOpen, setIsRecruitOpen] = useState(false); // Controls pop-out form engine visibility
   const [jobsList, setJobsList] = useState<JobOffer[]>([]);
@@ -42,10 +45,13 @@ export default function DiscoverPage() {
     }
 
     const query = searchQuery.toLowerCase().trim();
+    const selectedLocation = locationFilter.toLowerCase().trim();
+    if (selectedLocation && !job.location?.toLowerCase().includes(selectedLocation)) return false;
     if (!query) return true;
 
     const matchesName = job.employerName?.toLowerCase().includes(query);
     const matchesTitle = job.title?.toLowerCase().includes(query);
+    const matchesLocation = job.location?.toLowerCase().includes(query);
 
     const matchesRequirements = Array.isArray(job.requirements) && job.requirements.some((skill: string) =>
       skill.toLowerCase().includes(query)
@@ -53,8 +59,10 @@ export default function DiscoverPage() {
 
     const matchesRequiredCount = job.requiredPeople?.toString() === query;
 
-    return matchesName || matchesTitle || matchesRequirements || matchesRequiredCount;
+    return matchesName || matchesTitle || matchesLocation || matchesRequirements || matchesRequiredCount;
   });
+
+  const locations = [...new Set(jobsList.map((job) => job.location?.trim()).filter((value): value is string => Boolean(value)))].sort();
 
   React.useEffect(() => {
     const loadJobs = async () => {
@@ -72,7 +80,7 @@ export default function DiscoverPage() {
     loadJobs();
   }, []);
 
-  const handleApplyJob = (job: JobOffer) => {
+  const handleApplyJob = async (job: JobOffer) => {
     // Prevent employer from applying to their own job (by vacancy ID / employerAccountId)
     if (currentAccount?.id === job.employerAccountId) {
       return;
@@ -96,7 +104,19 @@ export default function DiscoverPage() {
       return;
     }
 
-    setJobsList((prev) => prev.map((item) => (item.id === job.id ? { ...item, applicants: item.applicants + 1 } : item)));
+    try {
+      const response = await fetch(`/api/discover/${encodeURIComponent(job.id)}/applications`, { method: 'POST' });
+      const result = await response.json();
+      if (!response.ok) {
+        if (response.status === 401) router.push('/auth/login');
+        throw new Error(result.error || 'Unable to submit application.');
+      }
+      setJobsList((prev) => prev.map((item) => (item.id === job.id ? { ...item, applicants: result.applicants ?? item.applicants + 1, hasApplied: true } : item)));
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : 'Unable to submit application.');
+      return;
+    }
+
     recordOfficeEvent({
       type: 'application',
       title: 'Application submitted',
@@ -112,7 +132,7 @@ export default function DiscoverPage() {
   };
 
   // Check if a search query was typed but no records were found
-  const hasSearchQuery = searchQuery.trim().length > 0;
+  const hasSearchQuery = searchQuery.trim().length > 0 || locationFilter.length > 0;
   const hasNoMatches = hasSearchQuery && filteredJobs.length === 0;
 
   // 2. Sorting Engine Sorting Rules Strategy (Only runs if search matches exist)
@@ -143,8 +163,8 @@ export default function DiscoverPage() {
     <div className="w-full max-w-7xl mx-auto px-4 py-8 bg-transparent">
 
       {/* Intro: Heading + short description + CV link */}
-      <div className="w-full max-w-2xl mx-auto mb-4 text-center sm:text-left">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">work & hiring</h1>
+      <div className="w-full max-w-2xl mx-auto mb-4 text-center">
+        <h1 className="text-xl sm:text-2xl font-bold text-white">work & hiring</h1>
         <p className="mt-2 text-sm text-zinc-400">professionals , talented & dynamic people who are ready to work. <Link href="/profile" className="text-emerald-400 underline ml-2">Update CV</Link></p>
       </div>
 
@@ -236,7 +256,17 @@ export default function DiscoverPage() {
       </div>
 
       {/* 🧭 Filters: two rows on small screens, single row on larger screens */}
-      <div className="w-full max-w-2xl mx-auto mb-10 grid grid-cols-2 gap-2 sm:grid-cols-4 pb-2">
+      <div className="w-full max-w-2xl mx-auto mb-10 grid grid-cols-2 gap-2 sm:grid-cols-5 pb-2">
+
+        <select
+          value={locationFilter}
+          onChange={(event) => setLocationFilter(event.target.value)}
+          aria-label="Filter jobs by location"
+          className="min-w-0 rounded-2xl border border-zinc-800 bg-zinc-950 px-2 py-2 text-[11px] font-semibold text-zinc-300 outline-none focus:border-emerald-500/60"
+        >
+          <option value="">All locations</option>
+          {locations.map((location) => <option key={location} value={location}>{location}</option>)}
+        </select>
 
         <button
           type="button"
@@ -308,7 +338,7 @@ export default function DiscoverPage() {
       {sortedJobs.length > 0 ? (
         <Grid>
           {sortedJobs.map((job) => (
-            <JobCard key={job.id} job={job} onApply={handleApplyJob} currentAccount={currentAccount} applicationStatus={appliedJobs[job.id] || null} />
+            <JobCard key={job.id} job={job} onApply={handleApplyJob} currentAccount={currentAccount} applicationStatus={appliedJobs[job.id] || (job.hasApplied ? 'pending' : null)} />
           ))}
         </Grid>
       ) : (
@@ -324,6 +354,7 @@ export default function DiscoverPage() {
             type="button"
             onClick={() => {
               setSearchQuery('');
+              setLocationFilter('');
               setActiveSort('newest');
             }}
             className="mt-3 text-xs text-emerald-400 font-bold underline cursor-pointer bg-transparent border-0 outline-none"
@@ -345,6 +376,8 @@ export default function DiscoverPage() {
             handle: newJobData.employerName?.toLowerCase().replace(/\s+/g, '') || '@company',
             rating: 4.8,
             title: newJobData.title,
+            location: newJobData.location || 'Location not specified',
+            salaryPeriod: newJobData.salaryPeriod || 'month',
             niche: 'Discover',
             daysRemaining: newJobData.daysRemaining || 14,
             requiredPeople: newJobData.vacant || 1,

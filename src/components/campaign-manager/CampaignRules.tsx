@@ -18,8 +18,10 @@ interface CampaignRulesProps {
   editing?: boolean;
   onEdit?: () => void;
   showJoinedActions?: boolean;
+  hasJoined?: boolean;
   onRemind?: () => void;
   onLeave?: () => void;
+  onJoin?: () => void;
 }
 
 export default function CampaignRules({
@@ -32,13 +34,15 @@ export default function CampaignRules({
   resourceCopied = false,
   onSave,
   saveDisabled = true,
-  saveLabel = 'Save campaign rules',
+  saveLabel = 'Save rules',
   helperText,
   editing = editable,
   onEdit,
   showJoinedActions = false,
+  hasJoined = false,
   onRemind,
   onLeave,
+  onJoin,
 }: CampaignRulesProps) {
   const visibleRules = [...rules, '', '', '', '', ''].slice(0, 5);
 
@@ -96,7 +100,11 @@ export default function CampaignRules({
         {showJoinedActions && (
           <div className="flex gap-2 pt-1">
             <button type="button" onClick={onRemind} className="flex-1 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300 hover:bg-amber-500 hover:text-white">Remind</button>
-            <button type="button" onClick={onLeave} className="flex-1 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300 hover:bg-red-500 hover:text-white">Leave</button>
+            {hasJoined ? (
+              <button type="button" onClick={onLeave} className="flex-1 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300 hover:bg-red-500 hover:text-white">Leave</button>
+            ) : (
+              <button type="button" onClick={onJoin} className="flex-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300 hover:bg-emerald-500 hover:text-white">Join</button>
+            )}
           </div>
         )}
       </div>

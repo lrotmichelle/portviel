@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Wallet from './joined/wallet';
 import Transactions from './joined/transactions';
 import JoinedCampaigns from './joined/joined-campaigns';
@@ -11,18 +13,56 @@ import CampaignPressure from './joined/campaign-pressure';
 import CampaignStatus from './joined/campaign-status';
 import CampaignTransactions from '@/components/campaign-manager/CampaignTransactions';
 import CampaignRules from '@/components/campaign-manager/CampaignRules';
+import CampaignReviews from '@/components/campaign-card/CampaignReviews';
 import type { CampaignCardData } from '@/types/campaign';
-import { getMockCampaigns } from '@/lib/mockCampaigns';
+import { getMockCampaignMembershipOverrides, getMockCampaigns, normalizeMockCampaignIdentity, setMockCampaignMembership } from '@/lib/mockCampaigns';
 import { formatCompactValue } from '@/lib/currency';
 import { addTransaction } from '@/components/office/finance/transactions-data';
 import { Eye, Heart, Users } from 'lucide-react';
 
 export default function JoinedComponent() {
-  const [campaigns] = useState<CampaignCardData[]>(() => getMockCampaigns());
+  const searchParams = useSearchParams();
+  const { data: session } = useSession();
+  const viewerIdentity = session?.user?.name ?? 'mukisacalcus';
+  const [campaigns, setCampaigns] = useState<CampaignCardData[]>(() => getMockCampaigns('mukisacalcus', 'joined'));
+  const [profilePreviewCampaign, setProfilePreviewCampaign] = useState<CampaignCardData | null>(null);
   const [withdrawals, setWithdrawals] = useState<{ date: string; time: string; amount: number }[]>([]);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawError, setWithdrawError] = useState('');
-  const [selectedCampaignId, setSelectedCampaignId] = useState<string>(() => campaigns[0]?.id ?? '');
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string>(() => {
+    const param = searchParams.get('campaignId');
+    return param && campaigns.some((c) => c.id === param) ? param : (campaigns[0]?.id ?? '');
+  });
+  const rulesSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const overrides = getMockCampaignMembershipOverrides(viewerIdentity);
+    const joinedCampaigns = getMockCampaigns(viewerIdentity, 'joined', overrides);
+    const allCampaigns = getMockCampaigns(viewerIdentity, 'all', overrides);
+    const requestedId = searchParams.get('campaignId');
+    setCampaigns(joinedCampaigns);
+
+    if (requestedId) {
+      const requestedCampaign = allCampaigns.find((campaign) => campaign.id === requestedId);
+      if (requestedCampaign) {
+        setSelectedCampaignId(requestedId);
+        setProfilePreviewCampaign(joinedCampaigns.some((campaign) => campaign.id === requestedId) ? null : requestedCampaign);
+        return;
+      }
+    }
+
+    setProfilePreviewCampaign(null);
+    setSelectedCampaignId((current) => joinedCampaigns.some((campaign) => campaign.id === current) ? current : joinedCampaigns[0]?.id ?? '');
+  }, [viewerIdentity, searchParams]);
+
+  useEffect(() => {
+    const requestedId = searchParams.get('campaignId');
+    if (!requestedId || searchParams.get('source') !== 'profile') return;
+    const timer = setTimeout(() => {
+      rulesSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [selectedCampaignId, searchParams]);
 
   const incomeReceived = campaigns.reduce((s, c) => s + (c.incomeReceived || 0), 0);
   const debt = campaigns.reduce((s, c) => s + (c.debt || 0), 0);
@@ -66,7 +106,10 @@ export default function JoinedComponent() {
       amount: c.incomeReceived || 0,
     }));
 
-  const primaryCampaign = campaigns.find((c) => c.id === selectedCampaignId) ?? campaigns[0] ?? null;
+  const primaryCampaign = profilePreviewCampaign?.id === selectedCampaignId
+    ? profilePreviewCampaign
+    : campaigns.find((c) => c.id === selectedCampaignId) ?? campaigns[0] ?? null;
+  const primaryCampaignId = primaryCampaign?.id ?? '';
   const isExpired = primaryCampaign?.status === 'Expired' || (primaryCampaign?.timeRemainingDays ?? 0) <= 0;
   const campaignTransactions = primaryCampaign ? (primaryCampaign.participants ?? []).slice(0, 5).map((participant, index) => ({
     date: primaryCampaign.lastEditedAt ? new Date(primaryCampaign.lastEditedAt).toISOString().split('T')[0] : '-',
@@ -77,13 +120,50 @@ export default function JoinedComponent() {
     amount: Math.round((primaryCampaign.budgetUsed || 0) * participant.progress / 100),
   })) : [];
 
+  const handleJoin = () => {
+    if (!primaryCampaign) return;
+    setMockCampaignMembership(primaryCampaign.id, viewerIdentity, true);
+    setCampaigns((previous) => previous.some((campaign) => campaign.id === primaryCampaign.id)
+      ? previous.map((campaign) => campaign.id === primaryCampaign.id ? { ...campaign, hasJoined: true } : campaign)
+      : [{ ...primaryCampaign, hasJoined: true }, ...previous]);
+    setProfilePreviewCampaign(null);
+    window.alert('You have joined the campaign.');
+  };
+
+  const handleLeave = () => {
+    if (!primaryCampaign) return;
+    setMockCampaignMembership(primaryCampaign.id, viewerIdentity, false);
+    setCampaigns((prev) => prev.map((campaign) =>
+      campaign.id === primaryCampaign.id
+        ? { ...campaign, hasJoined: false }
+        : campaign
+    ));
+    setProfilePreviewCampaign({ ...primaryCampaign, hasJoined: false });
+    window.alert('Leave campaign request submitted.');
+  };
+
+  const handleRemind = () => {
+    window.alert('Reminder sent to the campaign owner.');
+  };
+
+  const handleCopyResource = () => {
+    if (!primaryCampaign?.resourceLink) return;
+    navigator.clipboard.writeText(primaryCampaign.resourceLink);
+  };
+
+  useEffect(() => {
+    if (searchParams.get('source') !== 'profile' || !selectedCampaignId || !primaryCampaignId) return;
+    const timer = window.setTimeout(() => rulesSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 350);
+    return () => window.clearTimeout(timer);
+  }, [primaryCampaignId, searchParams, selectedCampaignId]);
+
   return (
     <div className="min-h-screen bg-zinc-950 p-4 text-white md:p-8">
       <div className="mb-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-amber-500">Manage</p>
-            <h1 className="text-3xl font-bold">Joined campaigns</h1>
+            <p className="text-sm uppercase tracking-[0.3em] text-amber-500">Joined</p>
+            <h1 className="text-3xl font-bold">My campaign participation</h1>
           </div>
         </div>
 
@@ -219,15 +299,27 @@ export default function JoinedComponent() {
         </div>
         <div className="grid gap-6 md:grid-cols-[3fr_2fr]">
           <CampaignTransactions transactions={campaignTransactions} />
-          <CampaignRules
-            rules={primaryCampaign?.rules}
-            resourceLink={primaryCampaign?.resourceLink}
-            showJoinedActions
-            onRemind={() => window.alert('Reminder sent to the campaign owner.')}
-            onLeave={() => window.alert('Leave campaign request submitted.')}
-            onCopyResource={() => primaryCampaign?.resourceLink && navigator.clipboard.writeText(primaryCampaign.resourceLink)}
-          />
+          <div ref={rulesSectionRef}>
+            <CampaignRules
+              rules={primaryCampaign?.rules}
+              resourceLink={primaryCampaign?.resourceLink}
+              showJoinedActions
+              hasJoined={primaryCampaign?.hasJoined ?? false}
+              onRemind={handleRemind}
+              onLeave={handleLeave}
+              onJoin={handleJoin}
+              onCopyResource={handleCopyResource}
+            />
+          </div>
         </div>
+        {primaryCampaign && <CampaignReviews
+          campaignId={primaryCampaign.id}
+          stars={primaryCampaign.stars}
+          creatorUsername={primaryCampaign.publisherUsername}
+          isCreator={normalizeMockCampaignIdentity(primaryCampaign.publisherUsername).id === normalizeMockCampaignIdentity(viewerIdentity).id}
+          viewerId={session?.user?.id ?? normalizeMockCampaignIdentity(viewerIdentity).id}
+          viewerName={session?.user?.name ?? viewerIdentity}
+        />}
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   return (
     <>
       {!isWelcomeOrAuthPage && <Navbar />}
-      <main className="flex-grow">{children}</main>
+      <main className="flex flex-1 flex-col">{children}</main>
       {!isWelcomeOrAuthPage && <Footer />}
     </>
   );

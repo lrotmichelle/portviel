@@ -30,7 +30,7 @@ function PopoverContent({ children }: { children: React.ReactNode }) {
   if (!ctx) return null
   if (!ctx.open) return null
   return (
-    <div className="absolute z-50 mt-2 w-64 rounded-md bg-white/95 dark:bg-neutral-900/95 p-3 shadow-lg">
+    <div className="absolute z-50 mt-2 w-64 rounded-md border border-white/10 bg-zinc-950/95 p-3 text-zinc-100 shadow-lg">
       {children}
     </div>
   )

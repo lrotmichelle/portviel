@@ -105,7 +105,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     jwt({ token, user, account }) {
       const claims = token as typeof token & { role?: string; provider?: string };
-      if (user) claims.role = user.role;
+      if (user) {
+        claims.role = user.role;
+        claims.name = user.name;
+        claims.picture = user.image;
+      }
       if (account) claims.provider = account.provider;
       return claims;
     },
@@ -113,6 +117,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const claims = token as typeof token & { role?: string; provider?: string };
       if (session.user) {
         session.user.id = token.sub ?? '';
+        session.user.name = token.name ?? null;
+        session.user.image = token.picture ?? null;
         session.user.role = claims.role;
         session.user.provider = claims.provider;
       }

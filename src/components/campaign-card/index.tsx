@@ -44,11 +44,10 @@ export default function CampaignCard({
     <div className={`w-full max-w-[420px] bg-black border rounded-[28px] p-5 flex flex-col gap-4 shadow-2xl tracking-tight select-none transition-all duration-300 relative ${isPaused ? 'border-zinc-900 bg-zinc-950/40' : 'border-zinc-800/80'}`}>
       {/* Card Status Badge placed before the header */}
       <div className="flex justify-center select-none">
-        <div className={`w-fit py-1 px-3 text-[9px] font-black uppercase tracking-widest border rounded-full transition-all duration-300 ${
-          isPaused 
-            ? 'bg-zinc-900 border-zinc-800 text-zinc-500' 
+        <div className={`w-fit py-1 px-3 text-[9px] font-black uppercase tracking-widest border rounded-full transition-all duration-300 ${isPaused
+            ? 'bg-zinc-900 border-zinc-800 text-zinc-500'
             : 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400'
-        }`}>
+          }`}>
           {campaignData.status}
         </div>
       </div>

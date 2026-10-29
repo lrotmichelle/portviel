@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, integer, boolean, varchar } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, integer, boolean, varchar, doublePrecision, uniqueIndex } from 'drizzle-orm/pg-core';
 
 /* ============================================================================
    AUTH SCHEMA (auth.*)
@@ -9,6 +9,14 @@ export const authUsers = pgTable('auth_users', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
+  username: varchar('username', { length: 100 }),
+  profileBio: text('profile_bio'),
+  legalName: varchar('legal_name', { length: 255 }),
+  nameLocked: boolean('name_locked').notNull().default(false),
+  kycStatus: varchar('kyc_status', { length: 20 }).notNull().default('not_started'),
+  kycRequestedAt: timestamp('kyc_requested_at'),
+  kycVerifiedAt: timestamp('kyc_verified_at'),
+  isKycVerified: boolean('is_kyc_verified').notNull().default(false),
   password: varchar('password', { length: 255 }).notNull(),
   role: varchar('role', { length: 50 }).notNull().default('user'),
   isVerified: boolean('is_verified').notNull().default(false),
@@ -49,3 +57,23 @@ export const authDeviceVerifications = pgTable('auth_device_verifications', {
   lastVerifiedAt: timestamp('last_verified_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+export const authUserRatings = pgTable('auth_user_ratings', {
+  id: serial('id').primaryKey(),
+  targetUserId: integer('target_user_id').notNull().references(() => authUsers.id, { onDelete: 'cascade' }),
+  raterUserId: integer('rater_user_id').notNull().references(() => authUsers.id, { onDelete: 'cascade' }),
+  rating: doublePrecision('rating').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('auth_user_ratings_target_rater_unique').on(table.targetUserId, table.raterUserId),
+]);
+
+export const authCampaignStars = pgTable('campaign_star_votes', {
+  id: serial('id').primaryKey(),
+  campaignId: integer('campaign_id').notNull(),
+  userId: integer('user_id').notNull().references(() => authUsers.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex('campaign_star_votes_campaign_user_unique').on(table.campaignId, table.userId),
+]);

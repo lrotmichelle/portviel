@@ -3,6 +3,7 @@ import { desc, eq } from 'drizzle-orm';
 
 import { campaignMembers, campaigns } from '@/db/schema';
 import { db, ensureDatabaseSchema } from '@/lib/db';
+import { getMockCampaigns } from '@/lib/mockCampaigns';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -47,56 +48,35 @@ function mapCampaignRow(row: any, hasJoined = false) {
 }
 
 export async function GET(request: NextRequest) {
+  const requestedUserId = toString(request.headers.get('x-user-id') ?? request.nextUrl.searchParams.get('userId'), 'demo-user');
+  const requestedFilter = toString(request.nextUrl.searchParams.get('filter'), '');
   try {
     await ensureDatabaseSchema();
-    const userId = toString(request.headers.get('x-user-id') ?? request.nextUrl.searchParams.get('userId'), 'demo-user');
-    const filter = toString(request.nextUrl.searchParams.get('filter'), '');
+    const userId = requestedUserId;
+    const filter = requestedFilter;
 
-    const where: any = {};
-    const include = {
-      members: {
-        where: {
-          userId,
-          status: 'active',
-        },
-        select: { id: true },
-      },
-    };
+    const personMemberships = await db.select().from(campaignMembers).where(eq(campaignMembers.userId, userId));
+    const joinedCampaignIds = new Set(personMemberships.filter((member) => member.status === 'active').map((member) => member.campaignId));
+    let rows = await db.select().from(campaigns).orderBy(desc(campaigns.createdAt)).limit(100);
 
-    if (filter === 'created') {
-      where.createdBy = userId;
-    } else if (filter === 'joined') {
-      where.members = {
-        some: {
-          userId,
-          status: 'active',
-        },
-      };
-    } else {
-      where.status = 'active';
-    }
+    if (filter === 'created') rows = rows.filter((row) => row.createdBy === userId);
+    else if (filter === 'joined') rows = rows.filter((row) => joinedCampaignIds.has(row.id));
+    else if (filter !== 'all') rows = rows.filter((row) => row.status.toLowerCase() === 'active');
 
-    const rows = await db.select().from(campaigns)
-      .where(where.createdBy ? eq(campaigns.createdBy, where.createdBy) : where.status ? eq(campaigns.status, 'active') : undefined)
-      .orderBy(desc(campaigns.createdAt))
-      .limit(50);
-
-    if (filter === 'joined') {
-      const memberRows = await db.select().from(campaignMembers)
-        .where(eq(campaignMembers.userId, userId));
-
-      const joinedCampaignIds = new Set(memberRows.map((member) => member.campaignId));
-      return NextResponse.json(rows.filter((row) => joinedCampaignIds.has(row.id)).map((row) => mapCampaignRow(row, true)));
-    }
-
-    const memberRows = await db.select().from(campaignMembers)
-      .where(eq(campaignMembers.userId, userId));
-
-    const joinedCampaignIds = new Set(memberRows.map((member) => member.campaignId));
-    return NextResponse.json(rows.map((row) => mapCampaignRow(row, joinedCampaignIds.has(row.id))));
+    const databaseCampaigns = rows.map((row) => mapCampaignRow(row, joinedCampaignIds.has(row.id)));
+    const mockFilter = filter === 'created' || filter === 'joined' ? filter : 'all';
+    const mockIdentity = toString(request.nextUrl.searchParams.get('mockIdentity'), userId);
+    const mockCampaigns = getMockCampaigns(mockIdentity, mockFilter)
+      .filter((campaign) => filter === 'all' || filter === 'created' || filter === 'joined' || campaign.status === 'Active');
+    const databaseIds = new Set(databaseCampaigns.map((campaign) => campaign.id));
+    return NextResponse.json([...databaseCampaigns, ...mockCampaigns.filter((campaign) => !databaseIds.has(campaign.id))]);
   } catch (error) {
     console.error('Failed to load campaigns', error);
-    return NextResponse.json([], { status: 500 });
+    const filter = requestedFilter === 'created' || requestedFilter === 'joined' ? requestedFilter : 'all';
+    const mockIdentity = toString(request.nextUrl.searchParams.get('mockIdentity'), requestedUserId);
+    const mockCampaigns = getMockCampaigns(mockIdentity, filter)
+      .filter((campaign) => requestedFilter === 'all' || requestedFilter === 'created' || requestedFilter === 'joined' || campaign.status === 'Active');
+    return NextResponse.json(mockCampaigns, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   }
 }
 

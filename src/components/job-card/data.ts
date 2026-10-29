@@ -5,6 +5,8 @@ export interface JobOffer {
   handle: string;
   rating: number;
   title: string;
+  location?: string;
+  salaryPeriod?: 'day' | 'week' | 'month';
   niche: string;
   daysRemaining: number;
   requiredPeople: number;
@@ -61,6 +63,8 @@ export const mockJobs: JobOffer[] = Array.from({ length: 20 }, (_, i) => {
     handle: emp.toLowerCase().replace(/\s+/g, ''),
     rating: parseFloat((Math.random() * (5.0 - 4.0) + 4.0).toFixed(1)),
     title: title,
+    location: ['Kampala, Uganda', 'Entebbe, Uganda', 'Remote · Uganda', 'Jinja, Uganda'][i % 4],
+    salaryPeriod: (['day', 'week', 'month'][i % 3]) as 'day' | 'week' | 'month',
     niche: niches[i % niches.length],
     daysRemaining: Math.floor(Math.random() * 14) + 1,
     requiredPeople: required,

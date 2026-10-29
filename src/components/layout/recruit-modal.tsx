@@ -12,6 +12,7 @@ interface RecruitModalProps {
 export default function RecruitModal({ isOpen, onClose, onPublishSuccess }: RecruitModalProps) {
   const [title, setTitle] = useState('');
   const [employerName, setEmployerName] = useState('');
+  const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
   const [currentSkill, setCurrentSkill] = useState('');
@@ -26,8 +27,8 @@ export default function RecruitModal({ isOpen, onClose, onPublishSuccess }: Recr
   if (!isOpen) return null;
 
   const handlePublishListing = async () => {
-    if (!title || !employerName || !description) {
-      alert("Please fill in the required fields (Title, Company, and Description)!");
+    if (!title.trim() || !employerName.trim() || !location.trim() || !description.trim()) {
+      alert("Please fill in the required fields (Title, Company, Location, and Description)!");
       return;
     }
     if (minSalary && maxSalary && parseInt(maxSalary, 10) <= parseInt(minSalary, 10)) {
@@ -46,6 +47,7 @@ export default function RecruitModal({ isOpen, onClose, onPublishSuccess }: Recr
         body: JSON.stringify({
           title,
           employerName,
+          location: location.trim(),
           description,
           skills,
           vacant: parseInt(vacantSlots, 10) || 1,
@@ -65,6 +67,7 @@ export default function RecruitModal({ isOpen, onClose, onPublishSuccess }: Recr
         onPublishSuccess({
           title: payload.item?.title ?? title,
           employerName: payload.item?.employerName ?? employerName,
+          location: payload.item?.location ?? location.trim(),
           description: payload.item?.description ?? description,
           skills: payload.item?.requirements ? String(payload.item.requirements).split(',').map((s: string) => s.trim()).filter(Boolean) : skills,
           vacant: payload.item?.requiredPeople ?? (parseInt(vacantSlots, 10) || 1),
@@ -76,6 +79,7 @@ export default function RecruitModal({ isOpen, onClose, onPublishSuccess }: Recr
 
       setTitle('');
       setEmployerName('');
+      setLocation('');
       setDescription('');
       setSkills([]);
       setVacantSlots('1');
@@ -145,20 +149,34 @@ export default function RecruitModal({ isOpen, onClose, onPublishSuccess }: Recr
             />
           </div>
 
-          {/* Company Name Input */}
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">Company Name</label>
-              <span className="text-[9px] font-medium text-zinc-600">{employerName.length}/18</span>
+          {/* Company and location inputs */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">Company Name</label>
+                <span className="text-[9px] font-medium text-zinc-600">{employerName.length}/18</span>
+              </div>
+              <input
+                type="text"
+                maxLength={18}
+                placeholder="e.g. PortVille"
+                value={employerName}
+                onChange={(e) => setEmployerName(e.target.value)}
+                className="w-full bg-zinc-900/40 border border-zinc-800 rounded-xl p-2.5 text-xs text-zinc-200 focus:border-zinc-700 outline-none placeholder:text-zinc-600"
+              />
             </div>
-            <input 
-              type="text" 
-              maxLength={18}
-              placeholder="e.g. PortVille"
-              value={employerName} 
-              onChange={(e) => setEmployerName(e.target.value)}
-              className="w-full bg-zinc-900/40 border border-zinc-800 rounded-xl p-2.5 text-xs text-zinc-200 focus:border-zinc-700 outline-none placeholder:text-zinc-600"
-            />
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block mb-1">City &amp; Country</label>
+              <input
+                type="text"
+                maxLength={100}
+                required
+                placeholder="e.g. Kampala, Uganda"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full bg-zinc-900/40 border border-zinc-800 rounded-xl p-2.5 text-xs text-zinc-200 focus:border-zinc-700 outline-none placeholder:text-zinc-600"
+              />
+            </div>
           </div>
 
           {/* Core Metrics */}

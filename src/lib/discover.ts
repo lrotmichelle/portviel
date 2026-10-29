@@ -1,7 +1,8 @@
 import type { JobOffer } from '@/components/job-card/data';
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
 
-import { engagementEvents, vacancies } from '@/db/schema';
+import { vacancies, vacancyApplications } from '@/db/schema';
+import { authUsers } from '@/db/schema/auth';
 import { db } from '@/lib/db';
 
 function toNumber(value: unknown, fallback = 0) {
@@ -25,10 +26,12 @@ function mapVacancyToJob(vacancy: any, hasApplied: boolean): JobOffer {
   return {
     id: String(vacancy.id),
     employerName: vacancy.employerName ?? 'Employer',
-    employerAccountId: vacancy.employerAccountId ?? 'acc-employer-1',
+    employerAccountId: vacancy.createdBy ? `acc-${vacancy.createdBy}` : 'acc-employer-1',
     handle: vacancy.handle ?? 'employer',
     rating: toNumber(vacancy.rating, 4.5),
     title: vacancy.title,
+    location: vacancy.location ?? 'Location not specified',
+    salaryPeriod: vacancy.salaryPeriod ?? 'month',
     niche: vacancy.category ?? 'General',
     daysRemaining: vacancy.daysRemaining,
     requiredPeople: vacancy.requiredPeople,
@@ -45,26 +48,29 @@ function mapVacancyToJob(vacancy: any, hasApplied: boolean): JobOffer {
   };
 }
 
-export async function getDiscoverJobs(): Promise<JobOffer[]> {
+export async function getDiscoverJobs(viewerId?: string): Promise<JobOffer[]> {
   const vacancyRows = await db.select().from(vacancies)
     .orderBy(desc(vacancies.createdAt))
     .limit(20);
 
-  const activityRows = await db.select().from(engagementEvents)
-    .where(and(eq(engagementEvents.entityType, 'vacancy'), eq(engagementEvents.actorId, 'demo-user'), inArray(engagementEvents.action, ['apply', 'withdraw'])))
-    .orderBy(desc(engagementEvents.createdAt))
-    .limit(200);
-
-  const latestActionByVacancy = new Map<string, string>();
-
-  for (const event of activityRows) {
-    const vacancyId = String(event.entityId);
-    if (!latestActionByVacancy.has(vacancyId)) {
-      latestActionByVacancy.set(vacancyId, event.action);
-    }
-  }
+  const authorIds = [...new Set(vacancyRows.map((vacancy: any) => Number(vacancy.createdBy)).filter((id: number) => Number.isSafeInteger(id) && id > 0))];
+  const authors = authorIds.length
+    ? await db.select({ id: authUsers.id, username: authUsers.username }).from(authUsers).where(inArray(authUsers.id, authorIds))
+    : [];
+  const usernames = new Map(authors.map((author) => [String(author.id), author.username]));
+  const numericViewerId = Number(viewerId);
+  const viewerApplications = Number.isSafeInteger(numericViewerId) && numericViewerId > 0
+    ? await db.select({ vacancyId: vacancyApplications.vacancyId })
+      .from(vacancyApplications)
+      .where(eq(vacancyApplications.applicantId, numericViewerId))
+    : [];
+  const appliedVacancyIds = new Set(viewerApplications.map((application) => String(application.vacancyId)));
 
   return vacancyRows.map((vacancy: any) =>
-    mapVacancyToJob(vacancy, latestActionByVacancy.get(String(vacancy.id)) === 'apply')
+    {
+      const username = usernames.get(String(vacancy.createdBy));
+      const job = mapVacancyToJob(vacancy, appliedVacancyIds.has(String(vacancy.id)));
+      return { ...job, status: vacancy.status === 'paused' ? 'paused' : job.status, ...(username ? { handle: username } : {}) };
+    }
   );
 }

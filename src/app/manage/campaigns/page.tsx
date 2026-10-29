@@ -20,6 +20,7 @@ export default function ManageCampaignsPage() {
         <div className="flex flex-nowrap items-center justify-center gap-3 overflow-x-auto md:justify-end">
           <Link href="/campaign" className="rounded-lg border border-emerald-500/40 px-3 py-2 text-[0.95rem] text-emerald-400 transition-colors duration-200 hover:bg-emerald-500 hover:text-white active:bg-emerald-500 active:text-white">Campaigns</Link>
           <Link href="/campaign/activity" className="rounded-lg border border-emerald-500/40 px-3 py-2 text-[0.95rem] text-emerald-400 transition-colors duration-200 hover:bg-emerald-500 hover:text-white active:bg-emerald-500 active:text-white">Joined</Link>
+          <Link href="/campaign-manager/manage" className="rounded-lg border border-amber-500/40 px-3 py-2 text-[0.95rem] text-amber-400 transition-colors duration-200 hover:bg-amber-500 hover:text-white active:bg-amber-500 active:text-white">Created</Link>
           <button onClick={() => setIsCampaignOpen(true)} className="rounded-lg border border-blue-500/40 px-3 py-2 text-[0.95rem] text-blue-400 transition-colors duration-200 hover:bg-blue-500 hover:text-white active:bg-blue-500 active:text-white">+ campaign</button>
         </div>
       </div>

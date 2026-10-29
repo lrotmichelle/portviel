@@ -21,6 +21,7 @@ export interface CampaignCardData {
   /** Amount still owed to campaign members. */
   owe?: number;
   highestMcp: number;
+  stars?: number;
   hasJoined: boolean;
   requiredPlatforms?: string[];
   startDate?: string;

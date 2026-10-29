@@ -189,7 +189,7 @@ export default function ListingModal({ isOpen, onClose, onPublishSuccess }: List
             </div>
 
             <div>
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Niche</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Role</label>
               <div className="flex items-center gap-2">
                 <input
                   value={nicheInput}

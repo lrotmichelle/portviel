@@ -18,10 +18,12 @@ export default function JobCard({ job, onApply, onEdit, currentAccount, applicat
           daysRemaining={job.daysRemaining} 
           niche={job.title} 
           maxSalary={job.maxSalary} 
+          salaryPeriod={job.salaryPeriod}
         />
         <div className="my-4 flex-1">
           <Content 
             title={job.title} 
+            location={job.location}
             requiredPeople={job.requiredPeople} 
             applicants={job.applicants} 
             accepted={job.accepted} 

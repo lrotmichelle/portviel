@@ -10,6 +10,7 @@ interface JoinedCampaignsProps {
   onSelectChange?: (id: string) => void;
   showMetrics?: boolean;
   showRankFilter?: boolean;
+  heading?: string;
 }
 
 function formatMetric(val: number): string {
@@ -24,7 +25,7 @@ function formatMetric(val: number): string {
   return `${val}`;
 }
 
-export default function JoinedCampaigns({ campaigns, selectedId: externalSelectedId, onSelectChange, showMetrics = true, showRankFilter = true }: JoinedCampaignsProps) {
+export default function JoinedCampaigns({ campaigns, selectedId: externalSelectedId, onSelectChange, showMetrics = true, showRankFilter = true, heading = 'Joined campaigns' }: JoinedCampaignsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -102,7 +103,7 @@ export default function JoinedCampaigns({ campaigns, selectedId: externalSelecte
   const selected = filtered.find((c) => c.id === selectedId) ?? filtered[0] ?? null;
   return (
     <div className="w-full text-sm text-zinc-200">
-      <h3 className="mb-3 text-[11px] uppercase tracking-[0.25em] text-zinc-500">Joined campaigns</h3>
+      <h3 className="mb-3 text-[11px] uppercase tracking-[0.25em] text-zinc-500">{heading}</h3>
 
       <div className="relative" ref={dropdownRef}>
         <button

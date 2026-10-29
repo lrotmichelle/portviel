@@ -44,14 +44,15 @@ export default function Navbar() {
     const closeMenu = () => setIsMenuOpen(false)
 
     return (
-        <header className="sticky top-0 z-50 w-full bg-white/70 dark:bg-neutral-950/70 backdrop-blur-xl border-b border-white/40 dark:border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
+        <header className="sticky top-0 z-50 w-full bg-black/90 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
             <div className="container flex h-16 items-center justify-between px-4 sm:px-6 mx-auto">
 
-                <Link href="/" className="flex items-center space-x-2 focus-visible:outline-hidden">
-                    <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-neutral-900 via-neutral-700 to-neutral-900 bg-clip-text text-transparent dark:from-white dark:via-neutral-200 dark:to-white">
-                        PortVille
-                    </span>
-                </Link>
+<Link href="/" className="flex items-center space-x-2 focus-visible:outline-hidden">
+    <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-black text-zinc-950 text-lg shadow-lg shadow-emerald-500/20">
+        P
+    </div>
+    <span className="text-xl font-bold tracking-tight text-white">PortVille</span>
+</Link>
 
                 <nav className="hidden md:flex items-center space-x-8">
                     <Link href="/discover" className="text-sm font-medium hover:underline">Discover</Link>
@@ -121,7 +122,7 @@ export default function Navbar() {
                         {isMenuOpen && (
                             <>
                                 <div className="fixed inset-0 z-30 bg-black/10" onClick={closeMenu} />
-                                <div className="absolute right-0 top-14 z-40 w-48 rounded-2xl bg-white/95 dark:bg-neutral-900/95 p-2 shadow-lg ring-1 ring-black/5 dark:ring-white/10">
+                                <div className="absolute right-0 top-14 z-40 w-48 rounded-2xl bg-zinc-950/95 p-2 shadow-lg ring-1 ring-white/10">
                                     {navLinks.map(({ href, label }) => (
                                         <Link
                                             key={href}

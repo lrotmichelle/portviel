@@ -2,18 +2,23 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import CampaignCard from '@/components/campaign-card';
 import type { CampaignCardData } from '@/types/campaign';
 import Link from 'next/link';
+import { Megaphone } from 'lucide-react';
 import { recordOfficeEvent } from '@/lib/office-history';
 import AdvertModal from '@/components/layout/advert-modal';
 import CampaignModal from '@/components/layout/campaign-modal';
 import CampaignRules from '@/components/campaign-manager/CampaignRules';
-import { generateMockCampaigns } from '@/lib/mockCampaigns';
+import { getMockCampaignMembershipOverrides, getMockCampaigns, setMockCampaignMembership } from '@/lib/mockCampaigns';
 
 export default function CampaignPage() {
   const router = useRouter();
+  const { data: session } = useSession();
+  const viewerIdentity = session?.user?.name ?? 'mukisacalcus';
   const [campaigns, setCampaigns] = useState<CampaignCardData[]>([]);
+  const [focusedCampaignId, setFocusedCampaignId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     sortBy: 'newest',
@@ -98,27 +103,41 @@ export default function CampaignPage() {
     };
 
     const loadCampaigns = async () => {
+      const membershipOverrides = getMockCampaignMembershipOverrides(viewerIdentity);
+      const requestedCampaignId = new URLSearchParams(window.location.search).get('campaignId');
+      if (requestedCampaignId) {
+        setFocusedCampaignId(requestedCampaignId);
+        setFilters((current) => ({ ...current, status: '' }));
+      }
       try {
-        const response = await fetch('/api/campaigns?filter=all', {
-          headers: { 'x-user-id': 'demo-user' },
+        const response = await fetch(`/api/campaigns?filter=all&mockIdentity=${encodeURIComponent(viewerIdentity)}`, {
+          headers: { 'x-user-id': session?.user?.id ?? 'demo-user' },
         });
         if (!response.ok) throw new Error('Request failed');
         const data = (await response.json()) as CampaignCardData[];
-        setCampaigns(data);
+        const merged = new Map([...data, ...getMockCampaigns(viewerIdentity, 'all', membershipOverrides)].map((campaign) => [campaign.id, campaign]));
+        setCampaigns([...merged.values()]);
       } catch (error) {
         console.warn('Failed to load campaigns from database, falling back to mock data', error);
-        const mock = generateMockCampaigns(30);
+        const mock = getMockCampaigns(viewerIdentity, 'all', membershipOverrides);
         setCampaigns(mock);
       }
     };
 
     loadProfile();
     loadCampaigns();
-  }, []);
+  }, [session?.user?.id, viewerIdentity]);
 
   const handleJoinCampaign = async (id: string) => {
     if (!isSocialConnected) {
       window.alert('Connect your social account in your profile before joining campaigns.');
+      return;
+    }
+
+    if (id.startsWith('mock-campaign-')) {
+      setMockCampaignMembership(id, viewerIdentity, true);
+      setCampaigns((previous) => previous.map((campaign) => campaign.id === id ? { ...campaign, hasJoined: true } : campaign));
+      recordOfficeEvent({ type: 'campaign', title: 'Campaign joined', description: 'You joined a campaign.', status: 'active' });
       return;
     }
 
@@ -174,6 +193,11 @@ export default function CampaignPage() {
   };
 
   const handleExitCampaign = async (id: string) => {
+    if (id.startsWith('mock-campaign-')) {
+      setMockCampaignMembership(id, viewerIdentity, false);
+      setCampaigns((previous) => previous.map((campaign) => campaign.id === id ? { ...campaign, hasJoined: false } : campaign));
+      return;
+    }
     try {
       const response = await fetch('/api/campaigns/manage', {
         method: 'POST',
@@ -194,6 +218,7 @@ export default function CampaignPage() {
   };
 
   const filteredCampaigns = campaigns
+    .filter((campaign) => !focusedCampaignId || campaign.id === focusedCampaignId)
     .filter((campaign) => {
       const query = searchQuery.toLowerCase();
       const matchesSearch = !query || campaign.publisherUsername.toLowerCase().includes(query) || campaign.projectName.toLowerCase().includes(query);
@@ -261,6 +286,12 @@ export default function CampaignPage() {
 
   const alternatives = filteredCampaigns.length === 0 ? getAlternatives(searchQuery) : [];
 
+  useEffect(() => {
+    if (!focusedCampaignId || campaigns.length === 0) return;
+    const target = document.getElementById(`campaign-${focusedCampaignId}`);
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [campaigns, focusedCampaignId]);
+
   const statusLabel = filters.status ? (filters.status === 'active' ? 'Active' : 'Future') : 'Status';
   const categoryLabel = filters.category ? filters.category.charAt(0).toUpperCase() + filters.category.slice(1) : 'Category';
   const nicheLabel = filters.niche ? filters.niche.charAt(0).toUpperCase() + filters.niche.slice(1) : 'Niche';
@@ -305,9 +336,9 @@ export default function CampaignPage() {
           </Link>
           <button
             onClick={() => setIsCampaignOpen(true)}
-            className="rounded-lg border border-blue-500/40 px-3 py-2 text-sm text-blue-400 transition-colors duration-200 hover:bg-blue-500 hover:text-white active:bg-blue-500 active:text-white"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-blue-500/40 px-3 py-2 text-sm text-blue-400 transition-colors duration-200 hover:bg-blue-500 hover:text-white active:bg-blue-500 active:text-white"
           >
-            + campaign
+            <Megaphone className="h-4 w-4" /> + create
           </button>
         </div>
       </div>
@@ -627,12 +658,13 @@ export default function CampaignPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredCampaigns.length > 0 ? (
           filteredCampaigns.map((campaign) => (
-            <CampaignCard
-              key={campaign.id}
-              data={campaign}
-              onJoinCampaign={handleJoinCampaign}
-              onExitCampaign={handleExitCampaign}
-            />
+            <div key={campaign.id} id={`campaign-${campaign.id}`} className={focusedCampaignId === campaign.id ? 'rounded-[30px] ring-2 ring-emerald-400/40 ring-offset-4 ring-offset-black' : undefined}>
+              <CampaignCard
+                data={campaign}
+                onJoinCampaign={handleJoinCampaign}
+                onExitCampaign={handleExitCampaign}
+              />
+            </div>
           ))
         ) : (
           <div className="col-span-full rounded-3xl border border-zinc-850 bg-zinc-900/30 py-16 p-8 text-center backdrop-blur-sm">

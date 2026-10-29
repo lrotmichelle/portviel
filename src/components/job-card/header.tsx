@@ -9,9 +9,10 @@ interface HeaderProps {
   daysRemaining: number;
   niche: string;
   maxSalary: number;
+  salaryPeriod?: 'day' | 'week' | 'month';
 }
 
-export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, daysRemaining, maxSalary }) => {
+export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, daysRemaining, maxSalary, salaryPeriod = 'month' }) => {
   const getInitials = (n: string) => {
     if (!n) return "?";
     return n.split(' ').map(p => p ? p[0] : '').join('').toUpperCase();
@@ -19,7 +20,6 @@ export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, daysRem
   const cleanHandle = handle ? handle.replace('@', '') : 'anonymous';
 
   // State calculations for formatting
-  const isMicroTimer = !isNaN(daysRemaining) && daysRemaining < 1;
   const isUrgent = !isNaN(daysRemaining) && daysRemaining < 4;
 
   const formatTime = (d: number) => {
@@ -42,14 +42,6 @@ export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, daysRem
     return `UGX ${Math.floor(amount / 1000)}k`;
   };
 
-  // Base configurations matching the text rendering rules
-  const getTimerColors = (d: number) => {
-    if (isUrgent) return "border-red-500/50 text-red-400";
-    if (d < 7) return "border-amber-500/40 text-amber-400";
-    if (d < 12) return "border-emerald-500/40 text-emerald-400";
-    return "border-blue-500/40 text-blue-400";
-  };
-
   // Dynamically assigns text colors for the timer string component
   const getTimerTextClass = (d: number) => {
     if (isUrgent) return "text-red-400 animate-pulse";
@@ -64,20 +56,20 @@ export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, daysRem
       {/* LEFT COLUMN: Org Ring Logo, Names, Handles, Borderless Ratings */}
       <div className="flex items-center gap-3 min-w-0">
         <Link href={`/profile/${accountId}`} className="block">
-          <div className="w-10 h-10 rounded-full border border-zinc-700 text-zinc-200 flex items-center justify-center text-xs font-black tracking-widest shrink-0 bg-transparent hover:border-emerald-500 transition-colors">
+          <div className="w-9 h-9 rounded-full border border-zinc-700 text-zinc-200 flex items-center justify-center text-[10px] font-black tracking-widest shrink-0 bg-transparent hover:border-emerald-500 transition-colors">
             {getInitials(name)}
           </div>
         </Link>
         
         <div className="flex flex-col min-w-0">
           <Link href={`/profile/${accountId}`} className="block">
-            <h3 className="text-[10px] sm:text-xs font-bold text-zinc-100 truncate leading-tight uppercase tracking-wide hover:text-emerald-400 transition-colors">
+            <h3 className="text-[9px] sm:text-[10px] font-bold text-zinc-100 truncate leading-tight uppercase tracking-wide hover:text-emerald-400 transition-colors">
               {name || "Anonymous"}
             </h3>
           </Link>
           
           <div className="flex items-center gap-1.5 mt-0.5 sm:mt-1 min-w-0">
-            <p className="text-[9px] sm:text-[11px] text-zinc-500 truncate">
+            <p className="text-[8px] sm:text-[9px] text-zinc-500 truncate">
               @{cleanHandle}
             </p>
           </div>
@@ -87,19 +79,13 @@ export const Header: React.FC<HeaderProps> = ({ name, handle, accountId, daysRem
       {/* RIGHT COLUMN: Time metrics block stacked directly over high salary value */}
       <div className="flex flex-col items-end gap-1 sm:gap-1.5 shrink-0 font-mono text-right">
         <div className="flex items-center gap-1 sm:gap-1.5">
-          <span className={`text-[10px] sm:text-xs font-black tracking-tight ${getTimerTextClass(daysRemaining)}`}>
+          <span className={`text-[9px] sm:text-[10px] font-black tracking-tight ${getTimerTextClass(daysRemaining)}`}>
             {formatTime(daysRemaining)}
           </span>
-          
-          {!isMicroTimer && (
-            <span className={`text-[7px] sm:text-[8px] font-bold uppercase tracking-wider px-1 sm:px-1.5 py-0.5 rounded border bg-transparent ${getTimerColors(daysRemaining)}`}>
-              left
-            </span>
-          )}
         </div>
 
-        <div className="text-emerald-400 font-black text-[10px] sm:text-xs tracking-wide">
-          {formatUGX(maxSalary)}
+        <div className="text-emerald-400 font-black text-[9px] sm:text-[10px] tracking-wide">
+          {formatUGX(maxSalary)} / {salaryPeriod === 'day' ? 'd' : salaryPeriod === 'week' ? 'w' : 'm'}
         </div>
       </div> 
 

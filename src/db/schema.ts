@@ -1,4 +1,5 @@
-import { integer, pgTable, serial, text, timestamp, doublePrecision, boolean } from 'drizzle-orm/pg-core';
+import { integer, pgTable, serial, text, timestamp, doublePrecision, uniqueIndex } from 'drizzle-orm/pg-core';
+import { authUsers } from '@/db/schema/auth';
 
 export const campaigns = pgTable('campaigns', {
   id: serial('id').primaryKey(),
@@ -34,6 +35,9 @@ export const campaignMembers = pgTable('campaign_members', {
   campaignId: integer('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
   userId: text('user_id').notNull(),
   status: text('status').notNull().default('active'),
+  viewsGenerated: integer('views_generated').notNull().default(0),
+  amount: doublePrecision('amount').notNull().default(0),
+  rank: integer('rank').notNull().default(0),
   joinedAt: timestamp('joined_at').notNull().defaultNow(),
 });
 
@@ -42,6 +46,8 @@ export const vacancies = pgTable('vacancies', {
   title: text('title').notNull(),
   description: text('description').notNull(),
   category: text('category').notNull().default('general'),
+  location: text('location').notNull().default('Location not specified'),
+  salaryPeriod: text('salary_period').notNull().default('month'),
   createdBy: text('created_by').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   employerName: text('employer_name').notNull().default('Employer'),
@@ -57,6 +63,14 @@ export const vacancies = pgTable('vacancies', {
   status: text('status').notNull().default('apply'),
   statusUpdatedAt: timestamp('status_updated_at').notNull().defaultNow(),
 });
+
+export const vacancyApplications = pgTable('vacancy_applications', {
+  id: serial('id').primaryKey(),
+  vacancyId: integer('vacancy_id').notNull().references(() => vacancies.id, { onDelete: 'cascade' }),
+  applicantId: integer('applicant_id').notNull().references(() => authUsers.id, { onDelete: 'cascade' }),
+  status: text('status').notNull().default('pending'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [uniqueIndex('vacancy_applications_vacancy_applicant_unique').on(table.vacancyId, table.applicantId)]);
 
 export const marketListings = pgTable('market_listings', {
   id: serial('id').primaryKey(),

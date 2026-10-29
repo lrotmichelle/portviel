@@ -20,7 +20,7 @@ export default async function WelcomePage() {
   if (session) redirect('/discover');
 
   return (
-    <main className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 px-4 py-16 text-white sm:px-6">
+    <main className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-black px-4 py-16 text-white sm:px-6">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_left,rgba(16,185,129,0.2),transparent_42%),radial-gradient(ellipse_at_bottom_right,rgba(20,184,166,0.12),transparent_38%)]" />
       <div className="w-full max-w-5xl">
         <div className="grid overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900/70 shadow-2xl shadow-black/40 backdrop-blur-xl md:grid-cols-[1.1fr_0.9fr]">

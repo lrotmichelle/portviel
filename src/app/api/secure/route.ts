@@ -62,6 +62,7 @@ function mapVacancyRow(row: Record<string, unknown>) {
     description: toString(row.description, 'Vacancy listing'),
     category: toString(row.category, 'general'),
     employerName: toString(row.employer_name, 'Employer'),
+    location: toString(row.location, 'Location not specified'),
     handle: toString(row.handle, 'employer'),
     rating: toNumber(row.rating, 4.8),
     daysRemaining: toNumber(row.days_remaining, 14),
@@ -71,6 +72,7 @@ function mapVacancyRow(row: Record<string, unknown>) {
     requirements: reqs ? reqs.split(',').map((s: string) => s.trim()).filter(Boolean) : [],
     minSalary: toNumber(row.min_salary, 0),
     maxSalary: toNumber(row.max_salary, 0),
+    salaryPeriod: toString(row.salary_period, 'month'),
     status: toString(row.status, 'apply'),
     createdBy: toString(row.created_by, 'anonymous'),
     createdAt: row.created_at,
@@ -174,6 +176,10 @@ export async function POST(request: NextRequest) {
       const requiredPeople = Number(body.vacant ?? body.requiredPeople ?? body.required_people) || 1;
       const minSalary = Number(body.minSalary ?? body.min_salary) || 0;
       const maxSalary = Number(body.maxSalary ?? body.max_salary) || 0;
+      const location = toString(body.location, 'Location not specified');
+      const salaryPeriod = ['day', 'week', 'month'].includes(String(body.salaryPeriod ?? body.salary_period))
+        ? String(body.salaryPeriod ?? body.salary_period)
+        : 'month';
       const requirements = parseArray(body.skills ?? body.requirements).join(',');
 
       if (!title || !description) {
@@ -194,6 +200,8 @@ export async function POST(request: NextRequest) {
         requirements,
         minSalary,
         maxSalary,
+        location,
+        salaryPeriod,
         status: 'apply',
         statusUpdatedAt: new Date(),
         createdBy: userId,

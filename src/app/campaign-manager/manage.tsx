@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Eye, Heart, Users } from 'lucide-react';
 import MembersTable from '@/app/campaign-manager/members';
 import ReminderTable from '@/app/campaign-manager/reminder';
@@ -12,9 +14,10 @@ import CampaignStatus from '@/app/campaign-manager/joined/campaign-status';
 import JoinedCampaigns from '@/app/campaign-manager/joined/joined-campaigns';
 import CampaignTransactions from '@/components/campaign-manager/CampaignTransactions';
 import CampaignRules from '@/components/campaign-manager/CampaignRules';
+import CampaignReviews from '@/components/campaign-card/CampaignReviews';
 import type { CampaignCardData } from '@/types/campaign';
 import { formatCompactValue } from '@/lib/currency';
-import { getMockCampaigns } from '@/lib/mockCampaigns';
+import { getMockCampaignMembershipOverrides, getMockCampaigns } from '@/lib/mockCampaigns';
 import { addTransaction } from '@/components/office/finance/transactions-data';
 
 function formatWithdrawalDate(value: string): string {
@@ -23,8 +26,14 @@ function formatWithdrawalDate(value: string): string {
 }
 
 export default function ManageComponent() {
-  const [campaigns] = useState<CampaignCardData[]>(() => getMockCampaigns());
-  const [selectedCampaignId, setSelectedCampaignId] = useState<string>(() => campaigns[0]?.id ?? '');
+  const searchParams = useSearchParams();
+  const { data: session } = useSession();
+  const viewerIdentity = session?.user?.name ?? 'mukisacalcus';
+  const [campaigns, setCampaigns] = useState<CampaignCardData[]>(() => getMockCampaigns('mukisacalcus', 'created'));
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string>(() => {
+    const param = searchParams.get('campaignId');
+    return param && campaigns.some((c) => c.id === param) ? param : (campaigns[0]?.id ?? '');
+  });
   const [withdrawn, setWithdrawn] = useState(0);
   const [withdrawals, setWithdrawals] = useState<{ date: string; time: string; amount: number }[]>([]);
   const [withdrawAmount, setWithdrawAmount] = useState('');
@@ -37,6 +46,14 @@ export default function ManageComponent() {
   const [currentTime] = useState(() => Date.now());
   const [showAllWithdrawals, setShowAllWithdrawals] = useState(false);
   const withdrawalsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updatedCampaigns = getMockCampaigns(viewerIdentity, 'created', getMockCampaignMembershipOverrides(viewerIdentity));
+    setCampaigns(updatedCampaigns);
+    const requestedId = searchParams.get('campaignId');
+    if (requestedId && updatedCampaigns.some((campaign) => campaign.id === requestedId)) setSelectedCampaignId(requestedId);
+    else if (!updatedCampaigns.some((campaign) => campaign.id === selectedCampaignId)) setSelectedCampaignId(updatedCampaigns[0]?.id ?? '');
+  }, [viewerIdentity, searchParams, selectedCampaignId]);
 
   useEffect(() => {
     if (!showAllWithdrawals) return;
@@ -148,7 +165,7 @@ export default function ManageComponent() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-amber-500">Manage</p>
-            <h1 className="text-3xl font-bold">My campaigns</h1>
+            <h1 className="text-3xl font-bold">Created campaigns</h1>
           </div>
         </div>
 
@@ -263,7 +280,7 @@ export default function ManageComponent() {
 
         {/* Shared campaign insights */}
         <div className="grid gap-6 md:grid-cols-[3fr_2fr] md:items-stretch">
-          <JoinedCampaigns campaigns={campaigns} selectedId={selectedCampaignId} onSelectChange={setSelectedCampaignId} showMetrics={false} showRankFilter={false} />
+          <JoinedCampaigns campaigns={campaigns} selectedId={selectedCampaignId} onSelectChange={setSelectedCampaignId} showMetrics={false} showRankFilter={false} heading="Created campaigns" />
           {primaryCampaign && (
             <div className="grid grid-cols-3 gap-3">
               {[
@@ -347,9 +364,19 @@ export default function ManageComponent() {
             resourceCopied={resourceCopied}
             onSave={handleSaveRules}
             saveDisabled={!canEditRules || !hasRequiredRule}
-            saveLabel={rulesSaved ? 'Rules already saved' : 'Save campaign rules'}
+            saveLabel={rulesSaved ? 'Rules already saved' : 'Save rules'}
           />
         </div>
+        {primaryCampaign && (
+          <CampaignReviews
+            campaignId={primaryCampaign.id}
+            stars={primaryCampaign.stars}
+            creatorUsername={primaryCampaign.publisherUsername}
+            isCreator
+            viewerId={session?.user?.id ?? viewerIdentity}
+            viewerName={session?.user?.name ?? viewerIdentity}
+          />
+        )}
       </div>
 
     </div>

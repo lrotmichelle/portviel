@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { desc } from 'drizzle-orm';
-
+import { auth } from '@/auth';
 import { vacancies } from '@/db/schema';
 import { getDiscoverJobs } from '@/lib/discover';
 import { db, ensureDatabaseSchema } from '@/lib/db';
@@ -14,8 +13,10 @@ function toString(value: unknown, fallback = '') {
 
 export async function GET() {
   try {
-    const jobs = await getDiscoverJobs();
-    return NextResponse.json(jobs);
+    await ensureDatabaseSchema();
+    const session = await auth();
+    const jobs = await getDiscoverJobs(session?.user?.id);
+    return NextResponse.json(jobs.filter((job) => job.status === 'apply' || (job.status === 'paused' && job.hasApplied)));
   } catch (error) {
     console.error('Failed to load discover jobs', error);
     return NextResponse.json([], { status: 500 });
@@ -25,11 +26,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     await ensureDatabaseSchema();
+    const session = await auth();
+    const creatorId = session?.user?.id;
+    if (!creatorId) return NextResponse.json({ error: 'Sign in to publish a vacancy.' }, { status: 401 });
     const body = await request.json().catch(() => ({}));
     const title = toString(body.title, '');
     const description = toString(body.description, '');
     const category = toString(body.category ?? body.niche, 'general');
-    const createdBy = toString(body.createdBy ?? body.userId ?? request.headers.get('x-user-id'), 'anonymous');
+    const createdBy = creatorId;
 
     if (!title || !description) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
@@ -41,6 +45,9 @@ export async function POST(request: NextRequest) {
     const requiredPeople = Number(body.requiredPeople ?? body.required_people ?? body.vacant) || 1;
     const minSalary = Number(body.minSalary ?? body.min_salary) || 0;
     const maxSalary = Number(body.maxSalary ?? body.max_salary) || 0;
+    const location = toString(body.location, 'Location not specified');
+    const rawSalaryPeriod = toString(body.salaryPeriod ?? body.salary_period, 'month').toLowerCase();
+    const salaryPeriod = ['day', 'week', 'month'].includes(rawSalaryPeriod) ? rawSalaryPeriod : 'month';
 
     const requirementsArray = Array.isArray(body.skills ?? body.requirements)
       ? (body.skills ?? body.requirements)
@@ -63,6 +70,8 @@ export async function POST(request: NextRequest) {
       requirements,
       minSalary,
       maxSalary,
+      location,
+      salaryPeriod,
       status: 'apply',
       createdBy,
       statusUpdatedAt: new Date(),
